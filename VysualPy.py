@@ -35,11 +35,16 @@ class PythonIDE:
 
         self.file_path = None
         self.text_modified = False
+        self.unsaved_notif = False
+        self.saved = False
         print("[Main Window] Done.\n")
 
     def on_modified(self, event=None):
-        print("[Main Window] File modified.")
+        if (self.unsaved_notif == False):
+            print("[Info] File has been modified.")
+            self.unsaved_notif = True
         self.text_modified = True
+        self.saved = False
         self.text_area.edit_modified(False)
 
     def new_file(self):
@@ -69,6 +74,8 @@ class PythonIDE:
                 file.write(content)
                 print(f"[Main Window] Saved file to {file_path}")
             self.text_modified = False
+            self.unsaved_notif = False
+            self.saved = True
             self.master.title(f"Vysual Python v1 - {self.file_path}")
         else:
             self.save_as_file()
@@ -85,6 +92,8 @@ class PythonIDE:
                 print(f"[Main Window] Saved file to {file_path}")
             self.file_path = file_path
             self.text_modified = False
+            self.unsaved_notif = False
+            self.saved = True
             self.master.title(f"Vysual Python v1 - {self.file_path}")
 
     def exit_program(self):
@@ -110,7 +119,10 @@ class PythonIDE:
 
     def run_code(self):
         code = self.text_area.get(1.0, tk.END)
-        print("[Main Window] Running file ...\n")
+        save_status = "(Saved)"
+        if self.saved == False:
+            save_status = "(Unsaved)"
+        print(f"[Main Window] Running file {save_status} ...\n")
         path = self.file_path
         if path is None:
             path = "Untitled.py"
