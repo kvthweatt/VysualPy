@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, messagebox
 
-print("Vysual Python IDE v1\n\nKarac Von Thweatt\n======================\n\n")
+print("Vysual Python IDE v1\n\nCopyright (c) 2024- Karac Von Thweatt\n\nInspired by Unreal Engine Blueprints (c) Epic Games\n======================\n\n")
 
 class PythonIDE:
     def __init__(self, master):
@@ -152,3 +152,4 @@ if __name__ == "__main__":
     print("[Info] Successfully declared window main loop.\n")
     root.mainloop()
     print("- Terminate -")
+\
