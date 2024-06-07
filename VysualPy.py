@@ -66,12 +66,14 @@ class PythonIDE:
             with open(self.file_path, 'w') as file:
                 content = self.text_area.get(1.0, tk.END)
                 file.write(content)
+                print(f"[Main Window] Saved file to {file_path}")
             self.text_modified = False
             self.master.title(f"Vysual Python v1 - {self.file_path}")
         else:
             self.save_as_file()
 
     def save_as_file(self):
+        print("[Main Window] Saving file ...")
         file_path = filedialog.asksaveasfilename(filetypes=[("Python Files", "*.py")])
         if file_path:
             if file_path.endswith(".py") == False:
@@ -79,6 +81,7 @@ class PythonIDE:
             with open(file_path, 'w') as file:
                 content = self.text_area.get(1.0, tk.END)
                 file.write(content)
+                print(f"[Main Window] Saved file to {file_path}")
             self.file_path = file_path
             self.text_modified = False
             self.master.title(f"Vysual Python v1 - {self.file_path}")
@@ -88,31 +91,40 @@ class PythonIDE:
             self.master.destroy()
 
     def confirm_save(self):
+        print("[Main Window] Confirming save ...")
         if self.text_modified:
             response = messagebox.askyesnocancel("Save Changes", "You have unsaved changes. Do you want to save before exiting?")
             if response:
+                print("[Main Window] Yes selected, saving ...")
                 self.save_file()
                 return True
-            elif response is False:
+            elif response is False: 
+                print("[Main Window] No selected.")
                 return True
             else:  # Cancel
+                print("[Main Window] Cancel selected.")
                 return False
+        print("[Main Window] Yes selected.")
         return True
 
     def run_code(self):
         code = self.text_area.get(1.0, tk.END)
+        print("[Main Window] Running file ...")
         try:
             exec(code)
         except Exception as e:
+            print("[Main Window] Failed.")
             error_msg = f"An error occurred: {e}"
             self.text_area.insert(tk.END, error_msg)
 
     def show_graph(self):
+        print("[Graph Window] Creating window ...")
         graph_window = tk.Toplevel(self.master)
-        graph_window.title("Graph Window")
+        graph_window.title("Vysual Python Blueprint Node Graph")
         graph_window.geometry("800x600")
         graph_label = tk.Label(graph_window, text="Live code blueprint node graph will be displayed here.")
         graph_label.pack()
+        print("[Graph Window] Created blueprint node graph window.")
 
 if __name__ == "__main__":
     root = tk.Tk()
