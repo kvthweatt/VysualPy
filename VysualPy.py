@@ -90,10 +90,10 @@ class PythonIDE:
     def confirm_save(self):
         if self.text_modified:
             response = messagebox.askyesnocancel("Save Changes", "You have unsaved changes. Do you want to save before exiting?")
-            if response:  # Yes
+            if response:
                 self.save_file()
                 return True
-            elif response is False:  # No
+            elif response is False:
                 return True
             else:  # Cancel
                 return False
