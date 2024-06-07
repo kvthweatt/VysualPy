@@ -5,3 +5,4 @@ A Python IDE with blueprint node graphs.
 
 # To-Do:
 - Plugins to extend language support
+- Node graphs
