@@ -38,6 +38,7 @@ class PythonIDE:
         print("[Main Window] Done.\n")
 
     def on_modified(self, event=None):
+        print("[Main Window] File modified.")
         self.text_modified = True
         self.text_area.edit_modified(False)
 
@@ -109,13 +110,19 @@ class PythonIDE:
 
     def run_code(self):
         code = self.text_area.get(1.0, tk.END)
-        print("[Main Window] Running file ...")
+        print("[Main Window] Running file ...\n")
+        path = self.file_path
+        if path is None:
+            path = "Untitled.py"
+        print(f"{path}\n\n[Run] >> === Begin Program Output ===")
         try:
             exec(code)
+            print("\n[Run] >> === End Program Output ===")
         except Exception as e:
             print("[Main Window] Failed.")
             error_msg = f"An error occurred: {e}"
             self.text_area.insert(tk.END, error_msg)
+        print("[Run] Finished.")
 
     def show_graph(self):
         print("[Graph Window] Creating window ...")
@@ -132,3 +139,4 @@ if __name__ == "__main__":
     ide = PythonIDE(root)
     print("[Info] Successfully declared window main loop.\n")
     root.mainloop()
+    print("- Terminate -")
