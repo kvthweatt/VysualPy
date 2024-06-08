@@ -1,5 +1,10 @@
 # VysualPy / Vysual Python
-An IDE with blueprint node graphs, written in Python.
+An IDE with blueprint node graphs, written in Python, inspired by Unreal Engine.
+
+Created to help build UTTCex.
+
+- **Experiemental!!!**
+- Please report any bugs to support@uttcex.net
 
 # Changelog:
 
