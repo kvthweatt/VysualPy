@@ -1,0 +1,53 @@
+{
+    "lang": {
+        "name": "Python",
+        "extensions": [
+            "py",
+            "pyc",
+            "pyw"
+        ]
+    },
+    "keywords": [
+        "and",
+        "assert",
+        "break",
+        "class",
+        "continue",
+        "def",
+        "del",
+        "elif",
+        "else",
+        "except",
+        "False",
+        "finally",
+        "for",
+        "from",
+        "global",
+        "if",
+        "import",
+        "in",
+        "is",
+        "lambda",
+        "None",
+        "nonlocal",
+        "not",
+        "or",
+        "pass",
+        "raise",
+        "return",
+        "True",
+        "try",
+        "while",
+        "with",
+        "yield"
+    ],
+    "colors": {
+        "keyword": "#FF6B6B",
+        "string": "#98C379",
+        "comment": "#5C6370",
+        "function": "#61AFEF",
+        "class": "#E5C07B",
+        "number": "#D19A66",
+        "decorator": "#C678DD"
+    }
+}
