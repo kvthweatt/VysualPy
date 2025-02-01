@@ -1,8 +1,9 @@
-import re, os
+import re, os, subprocess
 
 from PyQt5.QtWidgets import (
     QMainWindow, QMenuBar, QAction, QTextEdit, QMessageBox, QGraphicsView,
-    QFileDialog, QInputDialog, QWidget, QVBoxLayout, QSizePolicy
+    QFileDialog, QInputDialog, QWidget, QVBoxLayout, QSizePolicy,
+    QSplitter
     )
 
 from PyQt5.QtGui import (
@@ -21,6 +22,8 @@ from vpy_blueprints import (
     ExecutionScene, ExecutionView, ExecutionGraphWindow,
     BuildGraphScene, BuildGraphView, BuildGraphWindow
     )
+
+from vpy_layout import IDELayout
 
 class SyntaxHighlighter(QSyntaxHighlighter):
     def __init__(self, parent=None, language_config=None):
@@ -275,25 +278,53 @@ class PythonIDE(QMainWindow):
         self.setWindowTitle("Vysual Python IDE")
         self.setWindowIcon(QIcon("icon.svg"))
         
-        # Create menu bar
-        menubar = QMenuBar()
-        menubar.setStyleSheet("""
+        # Create menu bar with existing menus
+        menubar = self.createMenuBar()
+        self.setMenuBar(menubar)
+        
+        # Create text editor
+        self.textEdit = CodeEditor()
+        
+        # Set up the IDE layout with file browser and terminal
+        IDELayout.setup(self)
+        
+        # Configure window
+        self.resize(1200, 800)
+        self.setMinimumSize(800, 600)
+        
+        # Initialize current file reference
+        self.currentFile = None
+        
+        # Apply dark theme
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #2b2b2b;
+            }
             QMenuBar {
-                background: #34495e;
-                color: white;
-                padding: 4px;
+                background: #3c3f41;
+                color: #a9b7c6;
             }
             QMenuBar::item:selected {
-                background: #446380;
-                border-radius: 4px;
+                background: #2d5177;
             }
             QMenu {
-                background-color: #2c3e50;
-                color: white;
-                border: 1px solid #34495e;
+                background-color: #3c3f41;
+                color: #a9b7c6;
+                border: 1px solid #2b2b2b;
             }
             QMenu::item:selected {
-                background-color: #446380;
+                background-color: #2d5177;
+            }
+            QDockWidget {
+                titlebar-close-icon: url(close.png);
+                titlebar-normal-icon: url(float.png);
+            }
+            QDockWidget::title {
+                background: #3c3f41;
+                color: #a9b7c6;
+                padding-left: 5px;
+                padding-top: 2px;
+                padding-bottom: 2px;
             }
         """)
         
@@ -591,15 +622,25 @@ class PythonIDE(QMainWindow):
 
     def runProgram(self):
         if self.currentFile:
-            self.saveFile()  # Save the current file before running
+            self.saveFile()  # Save before running
             try:
-                result = subprocess.run(["python3", self.currentFile], capture_output=True, text=True)
-                QMessageBox.information(self, "Program Output", result.stdout + result.stderr)
+                self.terminal.clear_output()  # Clear previous output
+                print(f"Running: {self.currentFile}")
+                result = subprocess.run(
+                    ["python3", self.currentFile], 
+                    capture_output=True, 
+                    text=True
+                )
+                if result.stdout:
+                    print(result.stdout)
+                if result.stderr:
+                    print("Errors:")
+                    print(result.stderr)
             except Exception as e:
-                QMessageBox.critical(self, "Error", f"Failed to run the program:\n{e}")
+                self.show_error_message(f"Failed to run the program:\n{e}")
         else:
-            QMessageBox.warning(self, "Warning", "Please save the file before running.")
-
+            self.show_error_message("Please save the file before running.")
+    
     def showExGraph(self):
         code = self.textEdit.toPlainText()
         graph_window = ExecutionGraphWindow(None, code, self.currentFile)
