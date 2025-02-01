@@ -538,174 +538,188 @@ class BlueprintGraphWindow(QMainWindow, CustomWindowMixin):
             self.add_code_block(current_block_type, current_block, "global", scene, y_offset)
 
 class FunctionCallVisitor(ast.NodeVisitor):
-	def __init__(self):
-		self.execution_flow = {}
-		self.current_function = None
-		self.current_class = None
-		self.builtins = set(dir(builtins))
-		self.returns = set()
-		self.assignments = {}
-		self.value_sources = {}
-		self.conditional_calls = set()  # Track calls made in conditionals
+    def __init__(self):
+        self.execution_flow = {}
+        self.current_function = None
+        self.current_class = None
+        self.builtins = set(dir(builtins))
+        self.returns = set()
+        self.assignments = {}
+        self.value_sources = {}
+        self.conditional_calls = set()
+        self.call_stack = []
+        self.in_conditional = False
+        self.unique_calls = {}  # Track unique instances of calls
+        self.call_counter = {}  # Counter for each function name
+        self.excluded_calls = {
+            'int', 'str', 'len', 'print', 'list', 'dict', 'set',
+            'append', 'extend', 'pop', 'remove', 'clear', 'sort',
+            'items', 'keys', 'values', 'split', 'join', 'strip',
+            'replace', 'format', 'startswith', 'endswith', 'find',
+            'encode', 'decode', 'Embed', 'reverse', 'Decimal', 'bool', 'json',
+            'lower', 'upper', 'items', 'QApplication',
+            'QMainWindow', 'QTextEdit', 'QAction', 'QFileDialog', 'QMessageBox',
+            'QGraphicsView', 'QGraphicsScene', 'QGraphicsRectItem',
+            'QGraphicsTextItem', 'QGraphicsPathItem', 'QGraphicsEllipseItem',
+            'QMenu', 'QInputDialog', 'QDialog', 'QVBoxLayout', 'QHBoxLayout',
+            'QLabel', 'QSlider', 'QSpinBox', 'QPushButton', 'QGroupBox',
+            'QWidget', 'QFrame', 'QMenuBar', 'QGraphicsItem', 'QGridLayout',
+            'QComboBox', 'QColorDialog', 'QTabWidget', 'QLineEdit', 'QListWidget',
+            'QWidget', 'QHBoxLayout', 'QIcon', 'QLabel', 'QPushButton', 'QAction',
+            'QListWidget', 'QFileDialog'
+        }
 
-	def visit_Module(self, node):
-		self.execution_flow['global'] = set()
-		self.current_function = 'global'
-		self.generic_visit(node)
+    def should_include_call(self, func_name):
+        """Determine if a function call should be included in the graph."""
+        # Extract base name for attribute calls (e.g., 'string.format' -> 'format')
+        base_name = func_name.split('.')[-1]
+        return base_name not in self.excluded_calls
+        
+    def visit_Module(self, node):
+        self.execution_flow['global'] = set()
+        self.current_function = 'global'
+        self.generic_visit(node)
+        
+    def visit_If(self, node):
+        old_conditional = self.in_conditional
+        self.in_conditional = True
+        self.visit(node.test)
+        for item in node.body:
+            self.visit(item)
+        for item in node.orelse:
+            self.visit(item)
+        self.in_conditional = old_conditional
+        
+    def visit_While(self, node):
+        old_conditional = self.in_conditional
+        self.in_conditional = True
+        self.generic_visit(node)
+        self.in_conditional = old_conditional
+        
+    def visit_For(self, node):
+        old_conditional = self.in_conditional
+        self.in_conditional = True
+        self.generic_visit(node)
+        self.in_conditional = old_conditional
+        
+    def visit_Call(self, node):
+        if not self.current_function:
+            return
+            
+        called = self.get_callable_name(node.func)
+        if not called or not self.should_include_call(called):
+            return
 
-	def visit_Assign(self, node):
-		if isinstance(node.value, ast.Call):
-			called = self.get_callable_name(node.value.func)
-			if called:
-				for target in node.targets:
-					if isinstance(target, ast.Name):
-						self.assignments[target.id] = called
-						if called not in self.execution_flow:
-							self.execution_flow[called] = set()
-						self.execution_flow[called].add(f"RETURN_TO_{self.current_function}")
-		self.generic_visit(node)
+        # Create unique name for this call instance
+        unique_name = self.get_unique_name(called, node.lineno)
+        
+        # Store original name for reference
+        self.unique_calls[unique_name] = {
+            'original_name': called,
+            'lineno': node.lineno,
+            'in_conditional': self.in_conditional
+        }
 
-	def visit_ClassDef(self, node):
-		prev_class = self.current_class
-		self.current_class = node.name
-		for item in node.body:
-			if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
-				item.parent_class = self.current_class
-		self.generic_visit(node)
-		self.current_class = prev_class
+        # Initialize entry in execution flow
+        if unique_name not in self.execution_flow:
+            self.execution_flow[unique_name] = set()
 
-	def visit_FunctionDef(self, node):
-		self.handle_function(node)
+        # Handle nested calls
+        if self.call_stack:
+            parent_call = self.call_stack[-1]
+            if parent_call not in self.execution_flow:
+                self.execution_flow[parent_call] = set()
+            self.execution_flow[parent_call].add(unique_name)
+            
+            if self.in_conditional:
+                self.conditional_calls.add((parent_call, unique_name))
+        else:
+            # Only add to current function's flow if not nested
+            self.execution_flow[self.current_function].add(unique_name)
+            if self.in_conditional:
+                self.conditional_calls.add((self.current_function, unique_name))
 
-	def visit_AsyncFunctionDef(self, node):
-		self.handle_function(node, is_async=True)
+        self.call_stack.append(unique_name)
+        
+        # Visit arguments to handle nested calls
+        for arg in node.args:
+            self.visit(arg)
+        for keyword in node.keywords:
+            self.visit(keyword.value)
+        
+        self.call_stack.pop()
 
-	def visit_Call(self, node):
-		if self.current_function:
-			called = self.get_callable_name(node.func)
-			if called:
-				self.execution_flow[self.current_function].add(called)
-				if called not in self.execution_flow:
-					self.execution_flow[called] = set()
-				
-				# Check if the call's value is used
-				parent = self.get_parent_node(node)
-				if self.is_value_used(node, parent):
-					self.execution_flow[called].add(f"RETURN_TO_{self.current_function}")
-				
-				# Check for value propagation through arguments
-				for arg in node.args:
-					if isinstance(arg, ast.Name) and arg.id in self.assignments:
-						source = self.assignments[arg.id]
-						if source in self.execution_flow:
-							self.execution_flow[source].add(f"RETURN_TO_{self.current_function}")
+    def get_unique_name(self, base_name, lineno):
+        key = f"{base_name}_{lineno}"
+        if key not in self.call_counter:
+            self.call_counter[key] = 0
+        else:
+            self.call_counter[key] += 1
+        count = self.call_counter[key]
+        return f"{base_name}_{lineno}_{count}" if count > 0 else f"{base_name}_{lineno}"
+        
+    def get_callable_name(self, node):
+        if isinstance(node, ast.Name):
+            return node.id
+        elif isinstance(node, ast.Attribute):
+            parts = []
+            current = node
+            while isinstance(current, ast.Attribute):
+                parts.append(current.attr)
+                current = current.value
+            if isinstance(current, ast.Name):
+                parts.append(current.id)
+            return '.'.join(reversed(parts))
+        return None
+        
+    def handle_function(self, node, is_async=False):
+        name = node.name
+        if hasattr(node, 'parent_class'):
+            name = f"{node.parent_class}.{name}"
+        elif is_async:
+            name = f"async {name}"
+            
+        if name not in self.execution_flow:
+            self.execution_flow[name] = set()
+            
+        prev_function = self.current_function
+        self.current_function = name
+        
+        self.generic_visit(node)
+        self.current_function = prev_function
+        
+    def visit_FunctionDef(self, node):
+        self.handle_function(node)
+        
+    def visit_AsyncFunctionDef(self, node):
+        self.handle_function(node, is_async=True)
+        
+    def visit_Assign(self, node):
+        if isinstance(node.value, ast.Call):
+            called = self.get_callable_name(node.value.func)
+            if called:
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        self.assignments[target.id] = called
+                        if called not in self.execution_flow:
+                            self.execution_flow[called] = set()
+                        self.execution_flow[called].add(f"RETURN_TO_{self.current_function}")
+        self.generic_visit(node)
 
-		self.generic_visit(node)
-
-	def visit_Return(self, node):
-		if self.current_function:
-			self.returns.add(self.current_function)
-			if node.value:
-				# Track value sources in return statements
-				if isinstance(node.value, ast.Name) and node.value.id in self.assignments:
-					source = self.assignments[node.value.id]
-					if source in self.execution_flow:
-						self.execution_flow[source].add(f"RETURN_TO_{self.current_function}")
-				
-				# Add return paths to all callers
-				for caller, calls in self.execution_flow.items():
-					if self.current_function in calls:
-						self.execution_flow[self.current_function].add(f"RETURN_TO_{caller}")
-
-	def visit_Name(self, node):
-		if isinstance(node.ctx, ast.Load) and node.id in self.assignments:
-			source = self.assignments[node.id]
-			if source in self.execution_flow:
-				self.execution_flow[source].add(f"RETURN_TO_{self.current_function}")
-		self.generic_visit(node)
-
-	def is_value_used(self, node, parent):
-		return isinstance(parent, (
-			ast.Assign, ast.AugAssign, ast.Return, ast.BinOp, 
-			ast.Compare, ast.Call, ast.Assert, ast.List, ast.Set,
-			ast.Dict, ast.Tuple, ast.If, ast.While, ast.For,
-			ast.BoolOp, ast.UnaryOp, ast.IfExp, ast.ListComp,
-			ast.SetComp, ast.DictComp, ast.GeneratorExp
-		))
-
-	def handle_function(self, node, is_async=False):
-		name = node.name
-		if hasattr(node, 'parent_class'):
-			name = f"{node.parent_class}.{name}"
-		elif is_async:
-			name = f"async {name}"
-
-		if name not in self.execution_flow:
-			self.execution_flow[name] = set()
-		
-		prev_function = self.current_function
-		self.current_function = name
-		
-		# Track parameters that come from other functions
-		for arg in node.args.args:
-			self.value_sources[arg.arg] = set()
-		
-		self.generic_visit(node)
-		
-		# Add return paths for value propagation
-		if name in self.returns:
-			for caller, calls in self.execution_flow.items():
-				if name in calls:
-					self.execution_flow[name].add(f"RETURN_TO_{caller}")
-		
-		self.current_function = prev_function
-
-	def get_callable_name(self, node):
-		if isinstance(node, ast.Name):
-			return node.id
-		elif isinstance(node, ast.Attribute):
-			parts = []
-			current = node
-			while isinstance(current, ast.Attribute):
-				parts.append(current.attr)
-				current = current.value
-			if isinstance(current, ast.Name):
-				parts.append(current.id)
-			return '.'.join(reversed(parts))
-		return None
-
-	def get_parent_node(self, node):
-		for parent in ast.walk(ast.parse(ast.dump(node))):
-			for child in ast.iter_child_nodes(parent):
-				if child == node:
-					return parent
-		return None
-
-	def visit_If(self, node):
-		# Check test condition for function calls
-		if isinstance(node.test, ast.Call):
-			if isinstance(node.test.func, ast.Name):
-				self.conditional_calls.add(node.test.func.id)
-			elif isinstance(node.test.func, ast.Attribute):
-				self.conditional_calls.add(node.test.func.attr)
-		
-		# Process body of if statement
-		for item in node.body:
-			if isinstance(item, ast.Call):
-				if isinstance(item.func, ast.Name):
-					self.conditional_calls.add(item.func.id)
-				elif isinstance(item.func, ast.Attribute):
-					self.conditional_calls.add(item.func.attr)
-			self.visit(item)
-		
-		# Process else block
-		for item in node.orelse:
-			if isinstance(item, ast.Call):
-				if isinstance(item.func, ast.Name):
-					self.conditional_calls.add(item.func.id)
-				elif isinstance(item.func, ast.Attribute):
-					self.conditional_calls.add(item.func.attr)
-			self.visit(item)
+    def visit_Return(self, node):
+        if self.current_function:
+            self.returns.add(self.current_function)
+            if node.value:
+                if isinstance(node.value, ast.Call):
+                    called = self.get_callable_name(node.value.func)
+                    if called:
+                        if called not in self.execution_flow:
+                            self.execution_flow[called] = set()
+                        self.execution_flow[called].add(f"RETURN_TO_{self.current_function}")
+                elif isinstance(node.value, ast.Name) and node.value.id in self.assignments:
+                    source = self.assignments[node.value.id]
+                    if source in self.execution_flow:
+                        self.execution_flow[source].add(f"RETURN_TO_{self.current_function}")
 
 class ExecutionScene(BlueprintScene):
     def __init__(self):
@@ -1005,51 +1019,75 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
         nodes = {}
         x, y = 50, 50
         connection_pairs = set()
-
-        # Create nodes first
-        for func_name, calls in execution_flow.items():
-            if not func_name.startswith('RETURN_TO_'):
-                node = ExecutionDraggableRect(func_name, f"def {func_name}", x, y, 300, 200, self.scene, False)
-                nodes[func_name] = node
-                self.scene.addItem(node)
-                x += 350
-                if x > 1050:
-                    x = 50
-                    y += 250
-
-        # Create connections
+        
+        # Create visitor to get call information
         visitor = FunctionCallVisitor()
         visitor.visit(ast.parse(code_text))
-
+        
+        # First pass: Create nodes
+        for func_name in execution_flow.keys():
+            # Skip RETURN_TO markers
+            if func_name.startswith('RETURN_TO_'):
+                continue
+                
+            # Get original name and properties for unique calls
+            if func_name in visitor.unique_calls:
+                original_name = visitor.unique_calls[func_name]['original_name']
+                node = ExecutionDraggableRect(
+                    original_name,
+                    f"def {original_name}",
+                    x, y, 300, 200,
+                    self.scene,
+                    False
+                )
+            else:
+                node = ExecutionDraggableRect(
+                    func_name,
+                    f"def {func_name}",
+                    x, y, 300, 200,
+                    self.scene,
+                    False
+                )
+            
+            nodes[func_name] = node
+            self.scene.addItem(node)
+            x += 350
+            if x > 1050:
+                x = 50
+                y += 250
+        
+        # Second pass: Create connections
         for source_name, targets in execution_flow.items():
             if source_name not in nodes:
                 continue
-
+                
             source_node = nodes[source_name]
             for target in targets:
                 if target.startswith('RETURN_TO_'):
-                    return_target = target.replace('RETURN_TO_', '')
-                    if return_target in nodes:
-                        conn_key = (source_name, return_target, 'return')
-                        if conn_key not in connection_pairs:
-                            connection_pairs.add(conn_key)
-                            connection = Connection(source_node.output_point, nodes[return_target].input_point, self.scene)
-                            connection.setPen(QPen(QColor(255, 0, 255), 2))  # Magenta for returns
-                            connection.setEndPoint(nodes[return_target].input_point)
-                            self.scene.addItem(connection)
-                elif target in nodes:
-                    conn_key = (source_name, target, 'call')
+                    continue
+                    
+                if target in nodes:
+                    target_node = nodes[target]
+                    conn_key = (source_name, target)
+                    
                     if conn_key not in connection_pairs:
                         connection_pairs.add(conn_key)
-                        connection = Connection(source_node.output_point, nodes[target].input_point, self.scene)
+                        connection = Connection(
+                            source_node.output_point,
+                            target_node.input_point,
+                            self.scene
+                        )
                         
-                        # Set color based on whether it's a conditional call
-                        if target in visitor.conditional_calls:
-                            connection.setPen(QPen(QColor(255, 165, 0), 2))  # Orange for conditional calls
+                        # Check if this is a conditional call
+                        is_conditional = (source_name, target) in visitor.conditional_calls
+                        
+                        # Set connection color based on type
+                        if is_conditional:
+                            connection.setPen(QPen(QColor(255, 165, 0), 2))  # Orange for conditional
                         else:
-                            connection.setPen(QPen(QColor(0, 255, 0), 2))  # Green for regular calls
+                            connection.setPen(QPen(QColor(0, 255, 0), 2))  # Green for regular
                             
-                        connection.setEndPoint(nodes[target].input_point)
+                        connection.setEndPoint(target_node.input_point)
                         self.scene.addItem(connection)
 
 class BuildGraphScene(BlueprintScene):
