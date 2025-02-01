@@ -2,7 +2,7 @@ import re, os
 
 from PyQt5.QtWidgets import (
     QMainWindow, QMenuBar, QAction, QTextEdit, QMessageBox, QGraphicsView,
-    QFileDialog, QInputDialog
+    QFileDialog, QInputDialog, QWidget, QVBoxLayout, QSizePolicy
     )
 
 from PyQt5.QtGui import (
@@ -100,18 +100,168 @@ class CodeEditor(QTextEdit):
         super().__init__(parent)
         self.lang_config = LanguageConfig()
         self.highlighter = SyntaxHighlighter(self.document(), self.lang_config)
+        
+        # Debug flag
+        self.debug = True
+        
+        # Set font and basic properties
         self.setFont(QFont("Courier New", 12))
         self.setLineWrapMode(QTextEdit.NoWrap)
+        
+        # Enable scrollbars and configure them
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         
+        # Configure document size limits
+        self.document().setMaximumBlockCount(0)  # Disable block count limit
+        
+        # Set viewport margins to ensure text doesn't touch edges
+        self.setViewportMargins(5, 5, 5, 5)
+        
+        # Set document margins
+        doc = self.document()
+        doc.setDocumentMargin(10)
+        
+        # Configure text interaction flags
+        self.setTextInteractionFlags(
+            Qt.TextEditorInteraction | 
+            Qt.TextSelectableByKeyboard | 
+            Qt.TextSelectableByMouse
+        )
+        
+        # Style the scrollbars and editor
+        self.setStyleSheet("""
+            QTextEdit {
+                background-color: #1a1a1a;
+                color: #ecf0f1;
+                border: none;
+                font-family: 'Courier New';
+                font-size: 12px;
+                selection-background-color: #264f78;
+                selection-color: #ffffff;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: #2c2c2c;
+                width: 14px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #4a4a4a;
+                min-height: 30px;
+                border-radius: 7px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+            QScrollBar:horizontal {
+                border: none;
+                background: #2c2c2c;
+                height: 14px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:horizontal {
+                background: #4a4a4a;
+                min-width: 30px;
+                border-radius: 7px;
+            }
+            QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+                width: 0px;
+            }
+        """)
+    
     def load_file(self, filepath):
+        if self.debug:
+            print(f"\nDebug: Loading file: {filepath}")
+        
         ext = os.path.splitext(filepath)[1]
         config = self.lang_config.get_language_config(ext)
         if config:
             self.highlighter.load_language(config['lang']['name'])
-        with open(filepath, 'r') as f:
-            self.setPlainText(f.read())
+            
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                content = f.read()
+                
+                if self.debug:
+                    print(f"Debug: File size: {len(content)} bytes")
+                    print(f"Debug: Number of lines: {len(content.splitlines())}")
+                
+                # Store content length for verification
+                self._content_length = len(content)
+                
+                # Set the content
+                self.setPlainText(content)
+                
+                if self.debug:
+                    actual_text = self.toPlainText()
+                    print(f"Debug: Editor content size: {len(actual_text)} bytes")
+                    print(f"Debug: Editor number of lines: {len(actual_text.splitlines())}")
+                    print(f"Debug: Document block count: {self.document().blockCount()}")
+                    print(f"Debug: Vertical scrollbar range: {self.verticalScrollBar().minimum()} to {self.verticalScrollBar().maximum()}")
+                
+                # Move cursor to start
+                cursor = self.textCursor()
+                cursor.movePosition(cursor.Start)
+                self.setTextCursor(cursor)
+                self.ensureCursorVisible()
+                
+                # Reset scroll positions
+                self.verticalScrollBar().setValue(0)
+                self.horizontalScrollBar().setValue(0)
+                
+                # Force layout update
+                self.document().adjustSize()
+                self.updateGeometry()
+                
+                if self.debug:
+                    print(f"Debug: Document size: {self.document().size()}")
+                    print(f"Debug: Viewport size: {self.viewport().size()}")
+                    
+        except Exception as e:
+            print(f"Error loading file: {e}")
+            raise
+    
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        # Ensure document width matches viewport
+        self.document().setTextWidth(self.viewport().width())
+        if hasattr(self, '_content_length'):
+            actual_text = self.toPlainText()
+            if len(actual_text) != self._content_length:
+                print(f"Debug: Content length mismatch after resize!")
+                print(f"Debug: Expected {self._content_length}, got {len(actual_text)}")
+    
+    def wheelEvent(self, event):
+        if event.modifiers() == Qt.ControlModifier:
+            # Handle zoom
+            delta = event.angleDelta().y()
+            if delta > 0:
+                self.zoomIn(1)
+            else:
+                self.zoomOut(1)
+            event.accept()
+        else:
+            # Adjust scroll speed
+            delta = event.angleDelta().y()
+            scrollbar = self.verticalScrollBar()
+            value = scrollbar.value()
+            
+            # Make scrolling smoother
+            if abs(delta) > 120:  # High-resolution scroll events
+                step = delta / 8
+            else:
+                step = delta / 2
+                
+            scrollbar.setValue(int(value - step))
+            event.accept()
+    
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self.debug:
+            print("Debug: Editor shown")
+            print(f"Debug: Current content size: {len(self.toPlainText())}")
+            print(f"Debug: Visible blocks: {self.document().blockCount()}")
 
 class PythonIDE(QMainWindow):
     def __init__(self):
@@ -204,19 +354,27 @@ class PythonIDE(QMainWindow):
         self.setMenuBar(menubar)
         
         # Text editor
+        central_widget = QWidget()
+        layout = QVBoxLayout(central_widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
         self.textEdit = CodeEditor()
-        self.textEdit.setStyleSheet("""
-            QTextEdit {
-                background-color: #1a1a1a;
-                color: #ecf0f1;
-                border: none;
-                font-family: 'Courier New';
-                font-size: 12px;
-            }
-        """)
         
-        self.setCentralWidget(self.textEdit)
-        self.resize(800, 600)
+        # Ensure the text editor can expand
+        self.textEdit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        
+        # Add editor to layout
+        layout.addWidget(self.textEdit)
+        
+        # Set central widget
+        self.setCentralWidget(central_widget)
+        
+        # Configure window
+        self.resize(1024, 768)
+        self.setMinimumSize(400, 300)
+        
+        # Store current file reference
         self.currentFile = None
         
     def createMenuBar(self):
