@@ -159,50 +159,43 @@ class CodeEditor(QTextEdit):
         # Line Numbers
         self.line_number_area = LineNumberArea(self)
         
-        # Update line number area width when block count changes
-        self.document().blockCountChanged.connect(self.update_line_number_area_width)
-        # Update line number area on scroll
-        self.verticalScrollBar().valueChanged.connect(self.line_number_area.update)
-        # Update viewport margins when line number area width changes
-        self.document().documentLayout().documentSizeChanged.connect(self.update_line_number_area_width)
-        # Update line numbers on cursor position change
-        self.cursorPositionChanged.connect(self.line_number_area.update)
+        # Configure scrollbars first
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         
-        # Add keyboard shortcut for Go to Line
-        goto_shortcut = QShortcut(QKeySequence("Ctrl+G"), self)
-        goto_shortcut.activated.connect(self.go_to_line)
+        # Set viewport update mode for better performance
+        self.setViewportMargins(self.line_number_area_width(), 5, 5, 5)
         
-        # Set font and basic properties
-        self.setFont(QFont("Courier New", 12))
+        # Set font and disable word wrap
+        font = QFont("Courier New", 12)
+        font.setStyleHint(QFont.Monospace)
+        self.setFont(font)
         self.setLineWrapMode(QTextEdit.NoWrap)
         
-        # Enable scrollbars and configure them
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        
-        # Configure document size limits
-        self.document().setMaximumBlockCount(0)  # Disable block count limit
-        
-        # Set document margins and update line number area width
+        # Document setup
         doc = self.document()
         doc.setDocumentMargin(10)
-        self.update_line_number_area_width()
+        doc.setMaximumBlockCount(0)  # No limit on lines
         
-        # Configure text interaction flags
+        # Set text interaction flags
         self.setTextInteractionFlags(
             Qt.TextEditorInteraction | 
             Qt.TextSelectableByKeyboard | 
             Qt.TextSelectableByMouse
         )
         
-        # Style the scrollbars and editor
+        # Connect signals
+        self.verticalScrollBar().rangeChanged.connect(self.handleScrollRangeChange)
+        self.document().blockCountChanged.connect(self.update_line_number_area_width)
+        self.verticalScrollBar().valueChanged.connect(self.line_number_area.update)
+        self.textChanged.connect(self.handleTextChanged)
+        
+        # Apply styling
         self.setStyleSheet("""
             QTextEdit {
                 background-color: #1a1a1a;
                 color: #ecf0f1;
                 border: none;
-                font-family: 'Courier New';
-                font-size: 12px;
                 selection-background-color: #264f78;
                 selection-color: #ffffff;
             }
@@ -220,21 +213,34 @@ class CodeEditor(QTextEdit):
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
                 height: 0px;
             }
-            QScrollBar:horizontal {
-                border: none;
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                 background: #2c2c2c;
-                height: 14px;
-                margin: 0px 0px 0px 0px;
-            }
-            QScrollBar::handle:horizontal {
-                background: #4a4a4a;
-                min-width: 30px;
-                border-radius: 7px;
-            }
-            QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
-                width: 0px;
             }
         """)
+
+    def handleScrollRangeChange(self, min_val, max_val):
+        """Handle scroll range changes to ensure proper document display"""
+        scrollbar = self.verticalScrollBar()
+        viewport_height = int(self.viewport().height())
+        
+        # Calculate proper document height
+        doc = self.document()
+        total_height = int(doc.size().height())
+        
+        # Set proper range and page step
+        if total_height > viewport_height:
+            scrollbar.setRange(0, int(total_height - viewport_height))
+            scrollbar.setPageStep(viewport_height)
+        else:
+            scrollbar.setRange(0, 0)
+            scrollbar.setPageStep(viewport_height)
+
+    def handleTextChanged(self):
+        """Handle text changes to ensure proper document layout"""
+        doc = self.document()
+        doc.adjustSize()
+        layout = doc.documentLayout()
+        layout.documentSizeChanged.emit(doc.size())
 
     def lineNumberAreaPaintEvent(self, event):
         """Paint the line number area."""
@@ -353,26 +359,28 @@ class CodeEditor(QTextEdit):
     def update_line_number_area_width(self):
         """Update the margins to accommodate the line number area."""
         self.setViewportMargins(self.line_number_area_width(), 5, 5, 5)
-
+        
     def resizeEvent(self, event):
-        """Handle resize events to adjust line number area."""
         super().resizeEvent(event)
         
+        # Update line number area
         cr = self.contentsRect()
-        width = self.line_number_area_width()
-        rect = QRect(cr.left(), cr.top(), width, cr.height())
-        self.line_number_area.setGeometry(rect)
+        self.line_number_area.setGeometry(
+            cr.left(),
+            cr.top(),
+            self.line_number_area_width(),
+            cr.height()
+        )
         
-        # Update document width
+        # Update document layout
         self.document().setTextWidth(self.viewport().width())
         
-        # Verify content integrity after resize
-        if hasattr(self, '_content_length'):
-            actual_text = self.toPlainText()
-            if len(actual_text) != self._content_length:
-                print(f"Debug: Content length mismatch after resize!")
-                print(f"Debug: Expected {self._content_length}, got {len(actual_text)}")
-
+        # Force scroll range update
+        self.handleScrollRangeChange(
+            self.verticalScrollBar().minimum(),
+            self.verticalScrollBar().maximum()
+        )
+        
     def go_to_line(self):
         """Open dialog to go to specific line number."""
         line_count = self.document().blockCount()
@@ -404,6 +412,30 @@ class CodeEditor(QTextEdit):
             # Clear the highlight after a short delay
             QTimer.singleShot(1000, lambda: self.setExtraSelections([]))
 
+    def handleCursorPosition(self):
+        """Ensure cursor stays visible without aggressive snapping"""
+        cursor = self.textCursor()
+        scrollbar = self.verticalScrollBar()
+        
+        # Calculate cursor position in viewport coordinates
+        cursor_rect = self.cursorRect(cursor)
+        viewport_rect = self.viewport().rect()
+        
+        # Only scroll if cursor is outside visible area
+        if not viewport_rect.contains(cursor_rect.center()):
+            # Calculate the target scroll position
+            if cursor_rect.top() < 0:
+                # Cursor above viewport
+                new_value = scrollbar.value() + cursor_rect.top()
+            elif cursor_rect.bottom() > viewport_rect.height():
+                # Cursor below viewport
+                new_value = scrollbar.value() + cursor_rect.bottom() - viewport_rect.height()
+            else:
+                return
+                
+            # Apply scroll with bounds checking
+            scrollbar.setValue(max(0, min(new_value, scrollbar.maximum())))
+
     def wheelEvent(self, event):
         if event.modifiers() == Qt.ControlModifier:
             # Handle zoom
@@ -414,68 +446,44 @@ class CodeEditor(QTextEdit):
                 self.zoomOut(1)
             event.accept()
         else:
-            # Adjust scroll speed
-            delta = event.angleDelta().y()
-            scrollbar = self.verticalScrollBar()
-            value = scrollbar.value()
-            
-            # Make scrolling smoother
-            if abs(delta) > 120:  # High-resolution scroll events
-                step = delta / 8
-            else:
-                step = delta / 2
-                
-            scrollbar.setValue(int(value - step))
-            event.accept()
+            # Normal scrolling
+            super().wheelEvent(event)
 
     def load_file(self, filepath):
-        if self.debug:
-            print(f"\nDebug: Loading file: {filepath}")
-        
-        ext = os.path.splitext(filepath)[1]
-        config = self.lang_config.get_language_config(ext)
-        if config:
-            self.highlighter.load_language(config['lang']['name'])
-            
         try:
             with open(filepath, 'r', encoding='utf-8') as f:
                 content = f.read()
-                
-                if self.debug:
-                    print(f"Debug: File size: {len(content)} bytes")
-                    print(f"Debug: Number of lines: {len(content.splitlines())}")
-                
-                # Store content length for verification
-                self._content_length = len(content)
-                
-                # Set the content
-                self.setPlainText(content)
-                
-                if self.debug:
-                    actual_text = self.toPlainText()
-                    print(f"Debug: Editor content size: {len(actual_text)} bytes")
-                    print(f"Debug: Editor number of lines: {len(actual_text.splitlines())}")
-                    print(f"Debug: Document block count: {self.document().blockCount()}")
-                    print(f"Debug: Vertical scrollbar range: {self.verticalScrollBar().minimum()} to {self.verticalScrollBar().maximum()}")
-                
-                # Move cursor to start
-                cursor = self.textCursor()
-                cursor.movePosition(cursor.Start)
-                self.setTextCursor(cursor)
-                self.ensureCursorVisible()
-                
-                # Reset scroll positions
-                self.verticalScrollBar().setValue(0)
-                self.horizontalScrollBar().setValue(0)
-                
-                # Force layout update
-                self.document().adjustSize()
-                self.updateGeometry()
-                
-                if self.debug:
-                    print(f"Debug: Document size: {self.document().size()}")
-                    print(f"Debug: Viewport size: {self.viewport().size()}")
-                    
+            
+            # Temporarily disable updates
+            self.setUpdatesEnabled(False)
+            
+            # Clear existing content and set new content
+            self.clear()
+            
+            # Set the text directly
+            self.setPlainText(content)
+            
+            # Force immediate layout update
+            doc = self.document()
+            doc.adjustSize()
+            layout = doc.documentLayout()
+            layout.documentSizeChanged.emit(doc.size())
+            
+            # Update scrollbar configuration
+            self.handleScrollRangeChange(0, doc.size().height())
+            
+            # Reset view
+            cursor = self.textCursor()
+            cursor.movePosition(cursor.Start)
+            self.setTextCursor(cursor)
+            self.verticalScrollBar().setValue(0)
+            
+            # Re-enable updates and force refresh
+            self.setUpdatesEnabled(True)
+            self.viewport().update()
+            
+            return True
+            
         except Exception as e:
             print(f"Error loading file: {e}")
             raise
