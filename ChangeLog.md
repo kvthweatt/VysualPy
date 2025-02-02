@@ -1,6 +1,15 @@
 ## Changelog:
 --------
 
+2/1/25
+- Updated the IDE to show line numbers
+- Updated the File Browser sidebar to have File Browser and Project Browser tabs
+- Added CTRL+G (Go to Line) - Need to add Edit menubar option
+
+--------
+
+--------
+
 1/31/25
 - Fixed the bug where the entire source file contents would not display in the IDE (scroll bar issue)
 - Color coded branched execution (if statements) to orange

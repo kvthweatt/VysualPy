@@ -1,16 +1,106 @@
 from PyQt5.QtWidgets import (
     QTreeView, QFileSystemModel, QDockWidget, QPlainTextEdit,
     QSplitter, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
-    QStyle, QSizePolicy
+    QStyle, QSizePolicy, QTabWidget, QLabel
 )
 from PyQt5.QtCore import Qt, QDir
 import sys
 import os
 
-class FileBrowser(QDockWidget):
+class ProjectBrowser(QWidget):
     def __init__(self, parent=None):
-        super().__init__("File Browser", parent)
-        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        super().__init__(parent)
+        self.layout = QVBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Create message widget for when no project is loaded
+        self.message_widget = QWidget()
+        message_layout = QVBoxLayout(self.message_widget)
+        message_label = QLabel("No Project Open")
+        message_label.setAlignment(Qt.AlignCenter)
+        message_label.setStyleSheet("""
+            QLabel {
+                color: #6c757d;
+                font-size: 14px;
+            }
+        """)
+        message_layout.addWidget(message_label)
+        
+        # Create tree view for project files (initially hidden)
+        self.tree_view = QTreeView()
+        self.tree_view.setVisible(False)  # Hide initially
+        self.tree_view.setStyleSheet("""
+            QTreeView {
+                background-color: #2b2b2b;
+                color: #a9b7c6;
+                border: none;
+            }
+            QTreeView::item:hover {
+                background-color: #323232;
+            }
+            QTreeView::item:selected {
+                background-color: #2d5177;
+            }
+        """)
+        
+        # Set up the file system model
+        self.model = QFileSystemModel()
+        self.model.setRootPath("")
+        
+        # Configure the tree view
+        self.tree_view.setModel(self.model)
+        self.tree_view.setRootIndex(self.model.index(""))
+        self.tree_view.setSortingEnabled(True)
+        self.tree_view.setAnimated(True)
+        self.tree_view.setIndentation(20)
+        self.tree_view.sortByColumn(0, Qt.AscendingOrder)
+        
+        # Hide unnecessary columns
+        for i in range(1, self.model.columnCount()):
+            self.tree_view.hideColumn(i)
+        
+        # Add both widgets to layout
+        self.layout.addWidget(self.message_widget)
+        self.layout.addWidget(self.tree_view)
+        
+        # Connect signals
+        self.tree_view.clicked.connect(self.on_file_clicked)
+        
+        # Track project state
+        self.current_project = None
+        
+    def load_project(self, project_path):
+        """Load a project from the given path."""
+        if project_path and os.path.isdir(project_path):
+            self.current_project = project_path
+            index = self.model.index(project_path)
+            self.tree_view.setRootIndex(index)
+            self.message_widget.setVisible(False)
+            self.tree_view.setVisible(True)
+    
+    def close_project(self):
+        """Close the current project."""
+        self.current_project = None
+        self.tree_view.setVisible(False)
+        self.message_widget.setVisible(True)
+        
+    def on_file_clicked(self, index):
+        """Handle file click in project tree."""
+        if not self.current_project:
+            return
+            
+        path = self.model.filePath(index)
+        if os.path.isfile(path):
+            try:
+                self.parent().parent().parent().open_file(path)
+            except AttributeError:
+                pass
+
+class FileBrowser(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
         
         # Create tree view for files
         self.tree_view = QTreeView()
@@ -44,7 +134,7 @@ class FileBrowser(QDockWidget):
         for i in range(1, self.model.columnCount()):
             self.tree_view.hideColumn(i)
             
-        self.setWidget(self.tree_view)
+        layout.addWidget(self.tree_view)
         
         # Connect signals
         self.tree_view.clicked.connect(self.on_file_clicked)
@@ -57,9 +147,46 @@ class FileBrowser(QDockWidget):
         path = self.model.filePath(index)
         if os.path.isfile(path):
             try:
-                self.parent().open_file(path)
+                self.parent().parent().parent().open_file(path)
             except AttributeError:
                 pass
+
+class BrowserTabs(QDockWidget):
+    def __init__(self, parent=None):
+        super().__init__("File Management", parent)
+        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        
+        # Create tab widget
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setStyleSheet("""
+            QTabWidget::pane {
+                border: none;
+                background: #2b2b2b;
+            }
+            QTabBar::tab {
+                background: #2b2b2b;
+                color: #a9b7c6;
+                padding: 8px 12px;
+                border: none;
+            }
+            QTabBar::tab:selected {
+                background: #323232;
+                border-bottom: 2px solid #2d5177;
+            }
+            QTabBar::tab:hover {
+                background: #323232;
+            }
+        """)
+        
+        # Create browsers
+        self.file_browser = FileBrowser()
+        self.project_browser = ProjectBrowser()
+        
+        # Add browsers to tabs
+        self.tab_widget.addTab(self.file_browser, "File Browser")
+        self.tab_widget.addTab(self.project_browser, "Project Browser")
+        
+        self.setWidget(self.tab_widget)
 
 class Terminal(QDockWidget):
     def __init__(self, parent=None):
@@ -104,7 +231,6 @@ class Terminal(QDockWidget):
     
     def write(self, text):
         self.output.appendPlainText(text.rstrip())
-        # Ensure the last line is visible
         self.output.moveCursor(self.output.textCursor().End)
         self.output.ensureCursorVisible()
     
@@ -126,10 +252,10 @@ class IDELayout:
         # Add the editor to the splitter
         ide_window.main_splitter.addWidget(editor_widget)
         
-        # Create and set up the file browser
-        ide_window.file_browser = FileBrowser(ide_window)
-        ide_window.file_browser.setMinimumWidth(200)
-        ide_window.addDockWidget(Qt.LeftDockWidgetArea, ide_window.file_browser)
+        # Create and set up the browser tabs
+        ide_window.browser_tabs = BrowserTabs(ide_window)
+        ide_window.browser_tabs.setMinimumWidth(200)
+        ide_window.addDockWidget(Qt.LeftDockWidgetArea, ide_window.browser_tabs)
         
         # Create and set up the terminal
         ide_window.terminal = Terminal(ide_window)

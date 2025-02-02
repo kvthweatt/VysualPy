@@ -3,15 +3,16 @@ import re, os, subprocess
 from PyQt5.QtWidgets import (
     QMainWindow, QMenuBar, QAction, QTextEdit, QMessageBox, QGraphicsView,
     QFileDialog, QInputDialog, QWidget, QVBoxLayout, QSizePolicy,
-    QSplitter
+    QSplitter, QShortcut
     )
 
 from PyQt5.QtGui import (
-    QIcon, QSyntaxHighlighter, QColor, QTextCharFormat, QFont, QBrush, QPainter
+    QIcon, QSyntaxHighlighter, QColor, QTextCharFormat, QFont, QBrush, QPainter,
+    QFontMetrics, QKeySequence
     )
 
 from PyQt5.QtCore import (
-    Qt
+    Qt, QSize, QRect
     )
 
 from vpy_config import ConfigManager, LanguageConfig
@@ -135,6 +136,17 @@ class SyntaxHighlighter(QSyntaxHighlighter):
                 length = match.end() - start
                 self.setFormat(start, length, format)
 
+class LineNumberArea(QWidget):
+    def __init__(self, editor):
+        super().__init__(editor)
+        self.editor = editor
+
+    def sizeHint(self):
+        return QSize(self.editor.line_number_area_width(), 0)
+
+    def paintEvent(self, event):
+        self.editor.lineNumberAreaPaintEvent(event)
+
 class CodeEditor(QTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -143,6 +155,22 @@ class CodeEditor(QTextEdit):
         
         # Debug flag
         self.debug = True
+        
+        # Line Numbers
+        self.line_number_area = LineNumberArea(self)
+        
+        # Update line number area width when block count changes
+        self.document().blockCountChanged.connect(self.update_line_number_area_width)
+        # Update line number area on scroll
+        self.verticalScrollBar().valueChanged.connect(self.line_number_area.update)
+        # Update viewport margins when line number area width changes
+        self.document().documentLayout().documentSizeChanged.connect(self.update_line_number_area_width)
+        # Update line numbers on cursor position change
+        self.cursorPositionChanged.connect(self.line_number_area.update)
+        
+        # Add keyboard shortcut for Go to Line
+        goto_shortcut = QShortcut(QKeySequence("Ctrl+G"), self)
+        goto_shortcut.activated.connect(self.go_to_line)
         
         # Set font and basic properties
         self.setFont(QFont("Courier New", 12))
@@ -155,12 +183,10 @@ class CodeEditor(QTextEdit):
         # Configure document size limits
         self.document().setMaximumBlockCount(0)  # Disable block count limit
         
-        # Set viewport margins to ensure text doesn't touch edges
-        self.setViewportMargins(5, 5, 5, 5)
-        
-        # Set document margins
+        # Set document margins and update line number area width
         doc = self.document()
         doc.setDocumentMargin(10)
+        self.update_line_number_area_width()
         
         # Configure text interaction flags
         self.setTextInteractionFlags(
@@ -209,7 +235,199 @@ class CodeEditor(QTextEdit):
                 width: 0px;
             }
         """)
-    
+
+    def lineNumberAreaPaintEvent(self, event):
+        """Paint the line number area."""
+        painter = QPainter(self.line_number_area)
+        painter.fillRect(event.rect(), QColor("#2b2b2b"))  # Dark background for line numbers
+
+        # Set smaller font for line numbers
+        font = self.font()
+        font.setPointSize(font.pointSize() - 1)  # Make line numbers 1 point smaller
+        painter.setFont(font)
+
+        block = self.document().firstBlock()
+        block_number = block.blockNumber()
+        viewport_offset = self.verticalScrollBar().value()
+        page_bottom = viewport_offset + self.viewport().height()
+        font_metrics = QFontMetrics(font)  # Use metrics of smaller font
+        line_height = self.fontMetrics().height()  # Keep original line height for spacing
+
+        # Adjust starting position based on visible blocks
+        current_y = 0
+        while block.isValid():
+            # Skip blocks that are above the visible area
+            if current_y > page_bottom:
+                break
+
+            if block.isVisible():
+                number = str(block_number + 1)
+                painter.setPen(QColor("#6c757d"))  # Grey color for line numbers
+                width = self.line_number_area_width()
+                
+                # Calculate vertical centering offset
+                font_height = font_metrics.height()
+                y_offset = (line_height - font_height) // 2  # Center the smaller font in the line
+                
+                # Only draw if the line is in the visible area
+                block_top = current_y - viewport_offset
+                if block_top >= -line_height and block_top <= self.viewport().height():
+                    painter.drawText(0, block_top + y_offset, width - 5, font_height, 
+                                  Qt.AlignRight | Qt.AlignVCenter, number)
+
+            # Move to next block
+            block = block.next()
+            block_number += 1
+            current_y += line_height
+        
+        # Set font and basic properties
+        self.setFont(QFont("Courier New", 12))
+        self.setLineWrapMode(QTextEdit.NoWrap)
+        
+        # Enable scrollbars and configure them
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        
+        # Configure document size limits
+        self.document().setMaximumBlockCount(0)  # Disable block count limit
+        
+        # Set document margins and update line number area width
+        doc = self.document()
+        doc.setDocumentMargin(10)
+        self.update_line_number_area_width()
+        
+        # Configure text interaction flags
+        self.setTextInteractionFlags(
+            Qt.TextEditorInteraction | 
+            Qt.TextSelectableByKeyboard | 
+            Qt.TextSelectableByMouse
+        )
+        
+        # Style the scrollbars and editor
+        self.setStyleSheet("""
+            QTextEdit {
+                background-color: #1a1a1a;
+                color: #ecf0f1;
+                border: none;
+                font-family: 'Courier New';
+                font-size: 12px;
+                selection-background-color: #264f78;
+                selection-color: #ffffff;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: #2c2c2c;
+                width: 14px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #4a4a4a;
+                min-height: 30px;
+                border-radius: 7px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+            QScrollBar:horizontal {
+                border: none;
+                background: #2c2c2c;
+                height: 14px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:horizontal {
+                background: #4a4a4a;
+                min-width: 30px;
+                border-radius: 7px;
+            }
+            QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+                width: 0px;
+            }
+        """)
+
+    def line_number_area_width(self):
+        """Calculate the width needed for the line number area."""
+        digits = max(1, len(str(self.document().blockCount())))
+        space = 15 + self.fontMetrics().horizontalAdvance('9') * digits
+        return space
+
+    def update_line_number_area_width(self):
+        """Update the margins to accommodate the line number area."""
+        self.setViewportMargins(self.line_number_area_width(), 5, 5, 5)
+
+    def resizeEvent(self, event):
+        """Handle resize events to adjust line number area."""
+        super().resizeEvent(event)
+        
+        cr = self.contentsRect()
+        width = self.line_number_area_width()
+        rect = QRect(cr.left(), cr.top(), width, cr.height())
+        self.line_number_area.setGeometry(rect)
+        
+        # Update document width
+        self.document().setTextWidth(self.viewport().width())
+        
+        # Verify content integrity after resize
+        if hasattr(self, '_content_length'):
+            actual_text = self.toPlainText()
+            if len(actual_text) != self._content_length:
+                print(f"Debug: Content length mismatch after resize!")
+                print(f"Debug: Expected {self._content_length}, got {len(actual_text)}")
+
+    def go_to_line(self):
+        """Open dialog to go to specific line number."""
+        line_count = self.document().blockCount()
+        line_number, ok = QInputDialog.getInt(
+            self, 
+            "Go to Line", 
+            f"Enter line number (1-{line_count}):",
+            1, 1, line_count
+        )
+        
+        if ok:
+            # Move cursor to the specified line
+            cursor = self.textCursor()
+            block = self.document().findBlockByLineNumber(line_number - 1)  # Convert to 0-based index
+            cursor.setPosition(block.position())
+            self.setTextCursor(cursor)
+            self.ensureCursorVisible()
+            
+            # Flash the line briefly to highlight it
+            selection = QTextEdit.ExtraSelection()
+            selection.format.setBackground(QColor("#3d3d3d"))
+            selection.format.setProperty(QTextFormat.FullWidthSelection, True)
+            selection.cursor = cursor
+            selection.cursor.clearSelection()
+            
+            # Apply the highlight
+            self.setExtraSelections([selection])
+            
+            # Clear the highlight after a short delay
+            QTimer.singleShot(1000, lambda: self.setExtraSelections([]))
+
+    def wheelEvent(self, event):
+        if event.modifiers() == Qt.ControlModifier:
+            # Handle zoom
+            delta = event.angleDelta().y()
+            if delta > 0:
+                self.zoomIn(1)
+            else:
+                self.zoomOut(1)
+            event.accept()
+        else:
+            # Adjust scroll speed
+            delta = event.angleDelta().y()
+            scrollbar = self.verticalScrollBar()
+            value = scrollbar.value()
+            
+            # Make scrolling smoother
+            if abs(delta) > 120:  # High-resolution scroll events
+                step = delta / 8
+            else:
+                step = delta / 2
+                
+            scrollbar.setValue(int(value - step))
+            event.accept()
+
     def load_file(self, filepath):
         if self.debug:
             print(f"\nDebug: Loading file: {filepath}")
@@ -261,47 +479,6 @@ class CodeEditor(QTextEdit):
         except Exception as e:
             print(f"Error loading file: {e}")
             raise
-    
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        # Ensure document width matches viewport
-        self.document().setTextWidth(self.viewport().width())
-        if hasattr(self, '_content_length'):
-            actual_text = self.toPlainText()
-            if len(actual_text) != self._content_length:
-                print(f"Debug: Content length mismatch after resize!")
-                print(f"Debug: Expected {self._content_length}, got {len(actual_text)}")
-    
-    def wheelEvent(self, event):
-        if event.modifiers() == Qt.ControlModifier:
-            # Handle zoom
-            delta = event.angleDelta().y()
-            if delta > 0:
-                self.zoomIn(1)
-            else:
-                self.zoomOut(1)
-            event.accept()
-        else:
-            # Adjust scroll speed
-            delta = event.angleDelta().y()
-            scrollbar = self.verticalScrollBar()
-            value = scrollbar.value()
-            
-            # Make scrolling smoother
-            if abs(delta) > 120:  # High-resolution scroll events
-                step = delta / 8
-            else:
-                step = delta / 2
-                
-            scrollbar.setValue(int(value - step))
-            event.accept()
-    
-    def showEvent(self, event):
-        super().showEvent(event)
-        if self.debug:
-            print("Debug: Editor shown")
-            print(f"Debug: Current content size: {len(self.toPlainText())}")
-            print(f"Debug: Visible blocks: {self.document().blockCount()}")
 
 class PythonIDE(QMainWindow):
     def __init__(self):
