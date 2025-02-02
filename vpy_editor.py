@@ -27,6 +27,8 @@ from vpy_blueprints import (
 
 from vpy_layout import IDELayout
 
+from vpy_assembler import AssemblyViewer
+
 class CodeViewerWindow(QMainWindow, CustomWindowMixin):
     def __init__(self, title, content):
         super().__init__()
@@ -594,6 +596,9 @@ class PythonIDE(QMainWindow):
         runAction = QAction("Run Program", self)
         runAction.triggered.connect(self.runProgram)
         runMenu.addAction(runAction)
+        asmAction = QAction("Assemble Program", self)
+        asmAction.triggered.connect(self.showAssemblyView)
+        runMenu.addAction(asmAction)
 
         # Help menu
         helpMenu = menubar.addMenu("Help")
@@ -862,6 +867,27 @@ class PythonIDE(QMainWindow):
                 self.show_error_message(f"Failed to run the program:\n{e}")
         else:
             self.show_error_message("Please save the file before running.")
+
+    def showAssemblyView(self):
+        """Show the Assembly View window"""
+        try:
+            code_text = self.textEdit.toPlainText()
+            if not code_text.strip():
+                self.show_error_message("No code to analyze. Please enter some Python code first.")
+                return
+                
+            # Store reference to prevent garbage collection
+            self.assembly_window = AssemblyViewer(self, code_text)
+            
+            # Position the window relative to the main IDE window
+            ide_geometry = self.geometry()
+            self.assembly_window.move(ide_geometry.x() + 60, ide_geometry.y() + 60)
+            
+            self.assembly_window.show()
+        except Exception as e:
+            self.show_error_message(f"Error showing assembly view: {str(e)}")
+            import traceback
+            print(f"Assembly view error details:\n{traceback.format_exc()}")
     
     def showExGraph(self):
         code = self.textEdit.toPlainText()

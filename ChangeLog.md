@@ -1,6 +1,13 @@
 ## Changelog:
 --------
 
+2/2/25
+- Added the Assembler View, shows Python ASM & Native ASM, under the "Run" menu option.
+
+--------
+
+--------
+
 2/1/25
 - Updated the IDE to show line numbers
 - Updated the File Browser sidebar to have File Browser and Project Browser tabs
