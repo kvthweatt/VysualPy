@@ -197,16 +197,42 @@ class Terminal(QDockWidget):
         container = QWidget()
         layout = QVBoxLayout(container)
         
-        # Create output text area
+        # Create output text area with true black background
         self.output = QPlainTextEdit()
         self.output.setReadOnly(True)
         self.output.setStyleSheet("""
             QPlainTextEdit {
-                background-color: #2b2b2b;
+                background-color: #000000;
                 color: #a9b7c6;
                 border: none;
                 font-family: 'Consolas', 'Courier New', monospace;
                 font-size: 12px;
+            }
+            QScrollBar:vertical {
+                background: #000000;
+                width: 14px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #2b2b2b;
+                min-height: 30px;
+                border-radius: 7px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+            QScrollBar:horizontal {
+                background: #000000;
+                height: 14px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:horizontal {
+                background: #2b2b2b;
+                min-width: 30px;
+                border-radius: 7px;
+            }
+            QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+                width: 0px;
             }
         """)
         

@@ -18,16 +18,15 @@ from PyQt5.QtCore import (
 from vpy_config import ConfigManager, LanguageConfig
 from vpy_menus import RecentFilesMenu, PreferencesDialog
 from vpy_winmix import CustomWindowMixin
+from vpy_layout import IDELayout
+from vpy_assembler import AssemblyViewer
+from vpy_statusbar import IDEStatusBar
 
 from vpy_blueprints import (
     BlueprintScene, BlueprintView, BlueprintGraphWindow,
     ExecutionScene, ExecutionView, ExecutionGraphWindow,
     BuildGraphScene, BuildGraphView, BuildGraphWindow
     )
-
-from vpy_layout import IDELayout
-
-from vpy_assembler import AssemblyViewer
 
 class CodeViewerWindow(QMainWindow, CustomWindowMixin):
     def __init__(self, title, content):
@@ -511,6 +510,9 @@ class PythonIDE(QMainWindow):
         
         # Set up the IDE layout with file browser and terminal
         IDELayout.setup(self)
+
+        self.status_bar = IDEStatusBar(self)
+        self.setStatusBar(self.status_bar)
         
         # Configure window
         self.resize(1200, 800)
@@ -621,7 +623,11 @@ class PythonIDE(QMainWindow):
         
         # Ensure the text editor can expand
         self.textEdit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        
+
+        # Connect text editor signals to status bar
+        self.textEdit.textChanged.connect(lambda: self.status_bar.handle_text_changed(self.textEdit))
+        self.textEdit.cursorPositionChanged.connect(lambda: self.status_bar.handle_text_changed(self.textEdit))
+     
         # Add editor to layout
         layout.addWidget(self.textEdit)
         
@@ -663,23 +669,16 @@ class PythonIDE(QMainWindow):
 
     def openFile(self):
         options = QFileDialog.Options()
-        supported_extensions = []
-        for lang_config in self.textEdit.lang_config.languages.values():
-            exts = lang_config['lang']['extensions']
-            supported_extensions.extend(f"*.{ext}" for ext in exts)
-        
-        filter_str = "All Supported Files ({});;All Files (*)".format(" ".join(supported_extensions))
-        
-        filePath, _ = QFileDialog.getOpenFileName(
-            self, "Open File", "", filter_str, options=options
-        )
-        
+        filePath, _ = QFileDialog.getOpenFileName(self, "Open File", "", 
+                                                "Python Files (*.py);;All Files (*)", options=options)
         if filePath:
             try:
-                self.textEdit.load_file(filePath)
+                with open(filePath, 'r') as file:
+                    self.textEdit.setText(file.read())
                 self.currentFile = filePath
-                self.recent_files_menu.add_recent_file(filePath)
-                self.setWindowTitle(f"Vysual IDE - {filePath}")
+                self.setWindowTitle(f"Visual Python IDE - {filePath}")
+                self.status_bar.handle_save(filePath)  # Initialize status bar with file info
+                self.status_bar.handle_text_changed(self.textEdit)  # Update line count and cursor position
             except Exception as e:
                 self.show_error_message(f"Error opening file: {e}")
 
@@ -690,6 +689,7 @@ class PythonIDE(QMainWindow):
         if self.currentFile:
             with open(self.currentFile, 'w') as file:
                 file.write(self.textEdit.toPlainText())
+            self.status_bar.handle_save(self.currentFile)
         else:
             self.saveFileAs()
 

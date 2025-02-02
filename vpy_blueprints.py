@@ -1114,6 +1114,20 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
                         connection.setEndPoint(target_node.input_point)
                         self.scene.addItem(connection)
 
+def detect_function_calls(code_text):
+    """
+    Analyze Python code and detect function calls.
+    Returns a set of function names that are called in the code.
+    """
+    try:
+        tree = ast.parse(code_text)
+        detector = FunctionCallDetector()
+        detector.visit(tree)
+        return detector.function_calls
+    except Exception as e:
+        print(f"Error detecting function calls: {e}")
+        return set()
+
 class BuildGraphScene(BlueprintScene):
     def __init__(self, parent_ide):
         super().__init__()

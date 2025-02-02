@@ -409,7 +409,8 @@ class BuildableNode(QGraphicsRectItem):
         # Only process if content actually changed
         if old_content != new_content:
             # Check for function calls and create new nodes
-            if isinstance(self.scene(), self.scene):
+            # Note: We check the class name as a string to avoid circular imports
+            if self.scene.__class__.__name__ == 'BuildGraphScene':
                 self.scene.check_and_create_called_functions(self)
                 
                 # Update the source file with all node contents
@@ -419,7 +420,7 @@ class BuildableNode(QGraphicsRectItem):
                         key=lambda x: x.pos().y()
                     )
                     combined_code = [node.full_content for node in all_nodes]
-                    self.scene().parent_ide.textEdit.setText("\n\n".join(combined_code))
+                    self.scene.parent_ide.textEdit.setText("\n\n".join(combined_code))
         
         if self.scene:
             self.scene.setFocusItem(None)
