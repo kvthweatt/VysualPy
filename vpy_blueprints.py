@@ -1028,17 +1028,17 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
         nodes = {}
         x, y = 50, 50
         connection_pairs = set()
-        
+
         # Create visitor to get call information
         visitor = FunctionCallVisitor()
         visitor.visit(ast.parse(code_text))
-        
+
         # First pass: Create nodes
         for func_name in execution_flow.keys():
-            # Skip RETURN_TO markers
+            # Skip RETURN_TO markers as we'll handle them in the connection phase
             if func_name.startswith('RETURN_TO_'):
                 continue
-                
+
             # Get original name and properties for unique calls
             if func_name in visitor.unique_calls:
                 original_name = visitor.unique_calls[func_name]['original_name']
@@ -1057,28 +1057,43 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
                     self.scene,
                     False
                 )
-            
+
             nodes[func_name] = node
             self.scene.addItem(node)
             x += 350
             if x > 1050:
                 x = 50
                 y += 250
-        
+
         # Second pass: Create connections
         for source_name, targets in execution_flow.items():
             if source_name not in nodes:
                 continue
-                
+
             source_node = nodes[source_name]
             for target in targets:
                 if target.startswith('RETURN_TO_'):
-                    continue
-                    
-                if target in nodes:
+                    # Handle return connections
+                    return_target = target.replace('RETURN_TO_', '')
+                    if return_target in nodes:
+                        target_node = nodes[return_target]
+                        conn_key = (source_name, target)
+
+                        if conn_key not in connection_pairs:
+                            connection_pairs.add(conn_key)
+                            connection = Connection(
+                                source_node.output_point,
+                                target_node.input_point,
+                                self.scene
+                            )
+                            # Set magenta color for return connections
+                            connection.setPen(QPen(QColor(255, 0, 255), 2))  # Magenta
+                            connection.setEndPoint(target_node.input_point)
+                            self.scene.addItem(connection)
+                elif target in nodes:
                     target_node = nodes[target]
                     conn_key = (source_name, target)
-                    
+
                     if conn_key not in connection_pairs:
                         connection_pairs.add(conn_key)
                         connection = Connection(
@@ -1086,16 +1101,16 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
                             target_node.input_point,
                             self.scene
                         )
-                        
+
                         # Check if this is a conditional call
                         is_conditional = (source_name, target) in visitor.conditional_calls
-                        
+
                         # Set connection color based on type
                         if is_conditional:
                             connection.setPen(QPen(QColor(255, 165, 0), 2))  # Orange for conditional
                         else:
                             connection.setPen(QPen(QColor(0, 255, 0), 2))  # Green for regular
-                            
+
                         connection.setEndPoint(target_node.input_point)
                         self.scene.addItem(connection)
 
