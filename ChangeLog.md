@@ -3,12 +3,15 @@
 
 1/31/25
 - Fixed the bug where the entire source file contents would not display in the IDE (scroll bar issue)
+- Color coded branched execution (if statements) to orange
+- Improved execution path tracing to now show all calls with an exclude list to reduce the amount of nodes generated unnecessarily for builtins and user-defined methods / classes
 
 --------
 
 --------
 
 1/26/25
+- Missed update: Added the *Code Build View*
 - Comment boxes update to have the resize handle maintain constant size for ease of use.
 - Fixed a bug causing all blueprint graph nodes to duplicate upon graph creation.
 - Fixed a bug causing rubber band selection to be active while connecting blueprint graph nodes.
@@ -42,5 +45,3 @@ Create, name, or rename a comment box and resize to wrap around graph node group
 Save and load blueprint workspaces (*.vpb)
 
 --------
-
-

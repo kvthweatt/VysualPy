@@ -901,85 +901,94 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
             return {}
 
     def save_graph(self):
-        options = QFileDialog.Options()
-        filepath, _ = QFileDialog.getSaveFileName(self, "Save Execution Graph", "", "Execution Graph (*.veg)", options=options)
-        if filepath:
-            graph_data = {
-                'nodes': [],
-                'connections': []
-            }
-            
-            for item in self.scene.items():
-                if isinstance(item, ExecutionDraggableRect):
-                    node_data = {
-                        'name': item.name,
-                        'content': item.full_content,
-                        'x': item.pos().x(),
-                        'y': item.pos().y(),
-                        'is_class': item.is_class,
-                        'has_return': any(isinstance(conn, Connection) and 
-                                        conn.pen().color().name() == '#ff00ff' 
-                                        for conn in item.output_point.connections)
-                    }
-                    graph_data['nodes'].append(node_data)
-                elif isinstance(item, Connection):
-                    if isinstance(item.start_point, ConnectionPoint) and isinstance(item.end_point, ConnectionPoint):
-                        conn_data = {
-                            'start_node': item.start_point.parentItem().name,
-                            'end_node': item.end_point.parentItem().name,
-                            'type': 'return' if item.pen().color().name() == '#ff00ff' else 'call'
+            options = QFileDialog.Options()
+            filepath, _ = QFileDialog.getSaveFileName(self, "Save Execution Graph", "", "Execution Graph (*.veg)", options=options)
+            if filepath:
+                graph_data = {
+                    'nodes': [],
+                    'connections': []
+                }
+                
+                for item in self.scene.items():
+                    if isinstance(item, ExecutionDraggableRect):
+                        node_data = {
+                            'name': item.name,
+                            'content': item.full_content,
+                            'x': item.pos().x(),
+                            'y': item.pos().y(),
+                            'is_class': item.is_class,
+                            'has_return': any(isinstance(conn, Connection) and 
+                                            conn.pen().color().name() == '#ff00ff' 
+                                            for conn in item.output_point.connections)
                         }
-                        graph_data['connections'].append(conn_data)
-                        
-            with open(filepath, 'w') as f:
-                json.dump(graph_data, f)
+                        graph_data['nodes'].append(node_data)
+                    elif isinstance(item, Connection):
+                        if isinstance(item.start_point, ConnectionPoint) and isinstance(item.end_point, ConnectionPoint):
+                            color_name = item.pen().color().name().lower()
+                            conn_type = 'normal'
+                            if color_name == '#ff00ff':  # Magenta
+                                conn_type = 'return'
+                            elif color_name == '#ffa500':  # Orange
+                                conn_type = 'conditional'
+                            
+                            conn_data = {
+                                'start_node': item.start_point.parentItem().name,
+                                'end_node': item.end_point.parentItem().name,
+                                'type': conn_type
+                            }
+                            graph_data['connections'].append(conn_data)
+                            
+                with open(filepath, 'w') as f:
+                    json.dump(graph_data, f, indent=4)
                 
     def load_graph(self):
-        options = QFileDialog.Options()
-        filepath, _ = QFileDialog.getOpenFileName(self, "Load Execution Graph", "", "Execution Graph (*.veg)", options=options)
-        if filepath:
-            try:
-                with open(filepath) as f:
-                    graph_data = json.load(f)
+            options = QFileDialog.Options()
+            filepath, _ = QFileDialog.getOpenFileName(self, "Load Execution Graph", "", "Execution Graph (*.veg)", options=options)
+            if filepath:
+                try:
+                    with open(filepath) as f:
+                        graph_data = json.load(f)
+                       
+                    self.scene.clear()
+                    nodes = {}
                    
-                self.scene.clear()
-                nodes = {}
-               
-                # Create nodes
-                for node_data in graph_data['nodes']:
-                    node = ExecutionDraggableRect(
-                        name=node_data['name'],
-                        content=node_data['content'],
-                        x=node_data['x'],
-                        y=node_data['y'],
-                        width=300,
-                        height=200,
-                        scene=self.scene,
-                        is_class=node_data['is_class']
-                    )
-                    self.scene.addItem(node)
-                    nodes[node_data['name']] = node
-                
-                # Create connections
-                for conn_data in graph_data['connections']:
-                    if conn_data['start_node'] in nodes and conn_data['end_node'] in nodes:
-                        start_node = nodes[conn_data['start_node']]
-                        end_node = nodes[conn_data['end_node']]
-                        
-                        # Create appropriate type of connection
-                        if conn_data['type'] == 'return':
-                            connection = Connection(start_node.output_point, end_node.input_point, self)
-                            connection.setPen(QPen(QColor(255, 0, 255), 2))  # Magenta for returns
-                        else:
-                            connection = Connection(start_node.output_point, end_node.input_point, self)
-                            connection.setPen(QPen(QColor(0, 255, 0), 2))    # Green for calls
-                        
-                        connection.setEndPoint(end_node.input_point)
-                        self.scene.addItem(connection)
+                    # Create nodes
+                    for node_data in graph_data['nodes']:
+                        node = ExecutionDraggableRect(
+                            name=node_data['name'],
+                            content=node_data['content'],
+                            x=node_data['x'],
+                            y=node_data['y'],
+                            width=300,
+                            height=200,
+                            scene=self.scene,
+                            is_class=node_data['is_class']
+                        )
+                        self.scene.addItem(node)
+                        nodes[node_data['name']] = node
+                    
+                    # Create connections with proper colors
+                    for conn_data in graph_data['connections']:
+                        if conn_data['start_node'] in nodes and conn_data['end_node'] in nodes:
+                            start_node = nodes[conn_data['start_node']]
+                            end_node = nodes[conn_data['end_node']]
+                            
+                            connection = Connection(start_node.output_point, end_node.input_point, self.scene)
+                            
+                            # Set color based on connection type
+                            if conn_data['type'] == 'return':
+                                connection.setPen(QPen(QColor(255, 0, 255), 2))  # Magenta for returns
+                            elif conn_data['type'] == 'conditional':
+                                connection.setPen(QPen(QColor(255, 165, 0), 2))  # Orange for conditional
+                            else:  # normal
+                                connection.setPen(QPen(QColor(0, 255, 0), 2))    # Green for normal calls
+                            
+                            connection.setEndPoint(end_node.input_point)
+                            self.scene.addItem(connection)
 
-                QMessageBox.information(self, "Success", "Execution graph loaded successfully!")
-            except Exception as e:
-                QMessageBox.critical(self, "Error", f"Failed to load graph: {str(e)}")
+                    QMessageBox.information(self, "Success", "Execution graph loaded successfully!")
+                except Exception as e:
+                    QMessageBox.critical(self, "Error", f"Failed to load graph: {str(e)}")
     
     def reset_view(self):
         """Reset the view to show all items."""
