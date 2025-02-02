@@ -25,7 +25,7 @@ like, processes like refactoring become easier, and building applications become
 be added allowing users to define custom languages or add an existing language. In the IDE Configuration menu you will
 also be able to set your compiler, linker, library or resource paths, and more.
 
-- Please report any bugs to kvthweatt@gmail.com
+- Please report any bugs to kvthweatt@gmail.com or [here](https://github.com/kvthweatt/VysualPy/issues/new?template=Blank+issue)
 
 Execution Graph preview:
 ![image](https://github.com/user-attachments/assets/ba05022e-b4b6-4e33-b307-3b20803edc59)
