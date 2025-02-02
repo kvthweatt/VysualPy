@@ -12,6 +12,7 @@
 
 1/31/25
 - Fixed the bug where the entire source file contents would not display in the IDE (scroll bar issue)
+- Improved IDE layout with File Browser & Terminal output window bars
 - Color coded branched execution (if statements) to orange
 - Improved execution path tracing to now show all calls with an exclude list to reduce the amount of nodes generated unnecessarily for builtins and user-defined methods / classes
 
