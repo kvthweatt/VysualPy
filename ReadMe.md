@@ -37,6 +37,10 @@ Execution Graph preview:
 --------
 
 # To-Do:
+- Breakpoints
+- Line numbers visible
+- Projects & Project Browser
+- Stack view & ability to directly modify the stack
 - More granular control over color coding for blueprint graphs.
 - Improve the Preferences menu and configuration.
 - Add a "Snap connected nodes nearby" context option along with snap distance option to Preferences
