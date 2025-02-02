@@ -38,8 +38,7 @@ Execution Graph preview:
 
 # To-Do:
 - Breakpoints
-- Line numbers visible
-- Projects & Project Browser
+- Projects
 - Stack view & ability to directly modify the stack
 - More granular control over color coding for blueprint graphs.
 - Improve the Preferences menu and configuration.
