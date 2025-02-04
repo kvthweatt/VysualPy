@@ -144,11 +144,24 @@ class DraggableRect(QGraphicsRectItem):
         self.output_point.setPos(self.boundingRect().width(), self.boundingRect().height() / 2)
 
     def updateConnectedLines(self, selected):
-        # Get all connections from input and output points
+        # Get all connections from all points
         all_connections = []
-        if hasattr(self, 'input_point'):
+        
+        # For ExecutionDraggableRect which uses lists
+        if hasattr(self, 'input_points'):
+            for point in self.input_points:
+                all_connections.extend(point.connections)
+        if hasattr(self, 'output_points'):
+            for point in self.output_points:
+                all_connections.extend(point.connections)
+        if hasattr(self, 'return_points'):
+            for point in self.return_points:
+                all_connections.extend(point.connections)
+                
+        # For regular DraggableRect which uses single points
+        if hasattr(self, 'input_point') and self.input_point is not None:
             all_connections.extend(self.input_point.connections)
-        if hasattr(self, 'output_point'):
+        if hasattr(self, 'output_point') and self.output_point is not None:
             all_connections.extend(self.output_point.connections)
 
         for connection in all_connections:
@@ -185,18 +198,37 @@ class DraggableRect(QGraphicsRectItem):
                     item.updateConnectedLines(item == self)
 
     def mouseMoveEvent(self, event):
+        """Handle mouse movement with safe connection updates"""
+        # First do the basic movement and grid snapping
         super().mouseMoveEvent(event)
-        # Get current position
         pos = self.pos()
-        # Snap to grid
-        new_x = self.snapToGrid(pos.x())
-        new_y = self.snapToGrid(pos.y())
-        # Set new position
+        new_x = round(pos.x() / self.grid_size) * self.grid_size
+        new_y = round(pos.y() / self.grid_size) * self.grid_size
         self.setPos(new_x, new_y)
-        # Update all connected paths for both input and output points
-        for point in [self.input_point, self.output_point]:
-            for connection in point.connections:
-                connection.updatePath()
+        
+        # Safely update all connections
+        all_points = []
+        
+        # Add input points
+        if hasattr(self, 'input_points') and self.input_points:
+            all_points.extend(point for point in self.input_points if point is not None)
+        if hasattr(self, 'input_point') and self.input_point is not None:
+            all_points.append(self.input_point)
+            
+        # Add output points
+        if hasattr(self, 'output_points') and self.output_points:
+            all_points.extend(point for point in self.output_points if point is not None)
+            
+        # Add return points
+        if hasattr(self, 'return_points') and self.return_points:
+            all_points.extend(point for point in self.return_points if point is not None)
+        
+        # Update all valid connections
+        for point in all_points:
+            if hasattr(point, 'connections'):
+                for connection in point.connections:
+                    if connection is not None:
+                        connection.updatePath()
 
     def mouseDoubleClickEvent(self, event):
         self.viewer = CodeViewerWindow(self.name, self.full_content)
@@ -225,95 +257,87 @@ class DraggableRect(QGraphicsRectItem):
 
 class ExecutionDraggableRect(DraggableRect):
     def __init__(self, name, content, x, y, width, height, scene, is_class: bool):
+        # Store scene reference
+        self.graph_scene = scene
+        
+        # Initialize lists before parent constructor
+        self.output_points = []
+        self.input_points = []
+        self.return_points = []
+        
+        # Call parent constructor but skip its connection point creation
         super().__init__(name, content, x, y, width, height, scene, is_class)
+        
+        # Remove parent's connection points if they exist
+        if hasattr(self, 'input_point') and self.input_point is not None:
+            self.graph_scene.removeItem(self.input_point)
+            self.input_point = None
+        if hasattr(self, 'output_point') and self.output_point is not None:
+            self.graph_scene.removeItem(self.output_point)
+            self.output_point = None
+        
+        # Set flags
         self.setFlag(QGraphicsRectItem.ItemIsMovable)
         self.setFlag(QGraphicsRectItem.ItemIsSelectable)
         self.setAcceptHoverEvents(True)
-        
-        # Add item change notification
         self.setFlag(QGraphicsRectItem.ItemSendsScenePositionChanges)
         self.setFlag(QGraphicsRectItem.ItemSendsGeometryChanges)
         
-        # Set connection points for return and data input
-        self.input_point = ConnectionPoint(scene, self, False)  # Data reception connection point on left  # Data reception connection point on left
-        self.return_point = ConnectionPoint(scene, self, True)  # Return connection point on right
+        # Create initial central input point
+        self.input_point = self.add_input_point()
         
         # Set appearance
         self.setBrush(QColor(44, 62, 80))  # Darker blue for execution nodes
         self.setPen(QPen(QColor(52, 152, 219), 2))  # Bright blue border
 
-    def itemChange(self, change, value):
-        if change == QGraphicsItem.ItemSelectedChange:
-            # When selection state changes
-            if value:  # Item is being selected
-                for item in self.scene().items():
-                    if isinstance(item, Connection):
-                        start_rect = item.start_point.parentItem()
-                        end_rect = item.end_point.parentItem()
-                        pen = item.pen()
-                        color = pen.color()
-                        
-                        if start_rect == self or end_rect == self:
-                            # Keep original color and width for connected lines
-                            pen.setWidth(2)
-                            pen.setColor(QColor(color.red(), color.green(), color.blue(), 255))
-                        else:
-                            # Dim unconnected lines
-                            pen.setColor(QColor(color.red(), color.green(), color.blue(), 40))
-                            pen.setWidth(1)
-                        item.setPen(pen)
-            else:  # Item is being deselected
-                # Restore all connections to original appearance
-                for item in self.scene().items():
-                    if isinstance(item, Connection):
-                        pen = item.pen()
-                        color = pen.color()
-                        pen.setColor(QColor(color.red(), color.green(), color.blue(), 255))
-                        pen.setWidth(2)
-                        item.setPen(pen)
-                        
-        return super().itemChange(change, value)
+    def add_output_point(self):
+        """Add a new output connection point"""
+        point = ConnectionPoint(self.graph_scene, self, True)
+        self.output_points.append(point)
+        self.updateConnectionPoints()
+        return point
 
-    def updateConnectedLines(self, selected):
-        # Get all connections from input and output points
-        all_connections = []
-        if hasattr(self, 'input_point'):
-            all_connections.extend(self.input_point.connections)
-        if hasattr(self, 'output_point'):
-            all_connections.extend(self.output_point.connections)
+    def add_input_point(self):
+        """Add a new input connection point"""
+        point = ConnectionPoint(self.graph_scene, self, False)
+        self.input_points.append(point)
+        self.updateConnectionPoints()
+        return point
 
-        for connection in all_connections:
-            start_rect = connection.start_point.parentItem()
-            end_rect = connection.end_point.parentItem()
-            
-            # Get original color
-            color = connection.pen().color()
-            pen = connection.pen()
-            
-            if selected:
-                # If this node is selected, highlight its direct connections
-                if start_rect == self or end_rect == self:
-                    pen.setWidth(2)
-                    pen.setColor(color)
-                else:
-                    # Dim other connections
-                    dimmed_color = QColor(color.red(), color.green(), color.blue(), 50)
-                    pen.setWidth(1)
-                    pen.setColor(dimmed_color)
-            else:
-                # Restore original appearance
-                pen.setWidth(2)
-                pen.setColor(color)
-                
-            connection.setPen(pen)
+    def add_return_point(self):
+        """Add a new return connection point"""
+        point = ConnectionPoint(self.graph_scene, self, True)
+        self.return_points.append(point)
+        self.updateConnectionPoints()
+        return point
 
-    def mousePressEvent(self, event):
-        super().mousePressEvent(event)
-        if event.button() == Qt.LeftButton:
-            # Update all nodes in scene
-            for item in self.scene().items():
-                if isinstance(item, DraggableRect):
-                    item.updateConnectedLines(item == self)
+    def updateConnectionPoints(self):
+        """Update positions of all connection points"""
+        rect = self.boundingRect()
+        
+        # Position single input point in center-left
+        for point in self.input_points:
+            point.setPos(0, rect.height() / 2)
+        
+        # Position output points evenly along right side
+        if self.output_points:
+            spacing = rect.height() / (len(self.output_points) + 1)
+            for i, point in enumerate(self.output_points):
+                point.setPos(rect.width(), spacing * (i + 1))
+        
+        # Position return points evenly along bottom
+        if self.return_points:
+            spacing = rect.width() / (len(self.return_points) + 1)
+            for i, point in enumerate(self.return_points):
+                point.setPos(spacing * (i + 1), rect.height())
+
+    def add_conditional_output(self):
+        """Add a new conditional output point"""
+        point = ConnectionPoint(self.graph_scene, self, True)
+        point.is_conditional = True
+        self.output_points.append(point)
+        self.updateConnectionPoints()
+        return point
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
@@ -321,11 +345,43 @@ class ExecutionDraggableRect(DraggableRect):
         new_x = self.snapToGrid(pos.x())
         new_y = self.snapToGrid(pos.y())
         self.setPos(new_x, new_y)
-        # Update all connections
-        for point in [self.input_point, self.output_point, self.return_point]:
-            if hasattr(point, 'connections'):
+        
+        # Update all connections for all points
+        self.updateAllConnections()
+
+    def updateAllConnections(self):
+        """Update all connected paths"""
+        for points in [self.input_points, self.output_points, self.return_points]:
+            for point in points:
                 for connection in point.connections:
                     connection.updatePath()
+
+    def itemChange(self, change, value):
+        if change == QGraphicsItem.ItemPositionChange:
+            self.updateAllConnections()
+        elif change == QGraphicsItem.ItemSelectedChange:
+            self.updateConnectionHighlighting(value)
+        return super().itemChange(change, value)
+
+    def updateConnectionHighlighting(self, selected):
+        """Update the appearance of all connected paths"""
+        all_points = self.input_points + self.output_points + self.return_points
+        for point in all_points:
+            for connection in point.connections:
+                pen = connection.pen()
+                color = pen.color()
+                if selected:
+                    if connection.start_point in all_points or connection.end_point in all_points:
+                        pen.setWidth(2)
+                        pen.setColor(color)
+                    else:
+                        dimmed_color = QColor(color.red(), color.green(), color.blue(), 50)
+                        pen.setWidth(1)
+                        pen.setColor(dimmed_color)
+                else:
+                    pen.setWidth(2)
+                    pen.setColor(color)
+                connection.setPen(pen)
 
 class BuildableNode(QGraphicsRectItem):
     def __init__(self, name, content, x, y, width, height, scene, is_class: bool, parent_ide):
@@ -409,7 +465,8 @@ class BuildableNode(QGraphicsRectItem):
         # Only process if content actually changed
         if old_content != new_content:
             # Check for function calls and create new nodes
-            if isinstance(self.scene(), self.scene):
+            # Note: We check the class name as a string to avoid circular imports
+            if self.scene.__class__.__name__ == 'BuildGraphScene':
                 self.scene.check_and_create_called_functions(self)
                 
                 # Update the source file with all node contents
@@ -419,7 +476,7 @@ class BuildableNode(QGraphicsRectItem):
                         key=lambda x: x.pos().y()
                     )
                     combined_code = [node.full_content for node in all_nodes]
-                    self.scene().parent_ide.textEdit.setText("\n\n".join(combined_code))
+                    self.scene.parent_ide.textEdit.setText("\n\n".join(combined_code))
         
         if self.scene:
             self.scene.setFocusItem(None)

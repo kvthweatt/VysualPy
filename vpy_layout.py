@@ -7,94 +7,7 @@ from PyQt5.QtCore import Qt, QDir
 import sys
 import os
 
-class ProjectBrowser(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Create message widget for when no project is loaded
-        self.message_widget = QWidget()
-        message_layout = QVBoxLayout(self.message_widget)
-        message_label = QLabel("No Project Open")
-        message_label.setAlignment(Qt.AlignCenter)
-        message_label.setStyleSheet("""
-            QLabel {
-                color: #6c757d;
-                font-size: 14px;
-            }
-        """)
-        message_layout.addWidget(message_label)
-        
-        # Create tree view for project files (initially hidden)
-        self.tree_view = QTreeView()
-        self.tree_view.setVisible(False)  # Hide initially
-        self.tree_view.setStyleSheet("""
-            QTreeView {
-                background-color: #2b2b2b;
-                color: #a9b7c6;
-                border: none;
-            }
-            QTreeView::item:hover {
-                background-color: #323232;
-            }
-            QTreeView::item:selected {
-                background-color: #2d5177;
-            }
-        """)
-        
-        # Set up the file system model
-        self.model = QFileSystemModel()
-        self.model.setRootPath("")
-        
-        # Configure the tree view
-        self.tree_view.setModel(self.model)
-        self.tree_view.setRootIndex(self.model.index(""))
-        self.tree_view.setSortingEnabled(True)
-        self.tree_view.setAnimated(True)
-        self.tree_view.setIndentation(20)
-        self.tree_view.sortByColumn(0, Qt.AscendingOrder)
-        
-        # Hide unnecessary columns
-        for i in range(1, self.model.columnCount()):
-            self.tree_view.hideColumn(i)
-        
-        # Add both widgets to layout
-        self.layout.addWidget(self.message_widget)
-        self.layout.addWidget(self.tree_view)
-        
-        # Connect signals
-        self.tree_view.clicked.connect(self.on_file_clicked)
-        
-        # Track project state
-        self.current_project = None
-        
-    def load_project(self, project_path):
-        """Load a project from the given path."""
-        if project_path and os.path.isdir(project_path):
-            self.current_project = project_path
-            index = self.model.index(project_path)
-            self.tree_view.setRootIndex(index)
-            self.message_widget.setVisible(False)
-            self.tree_view.setVisible(True)
-    
-    def close_project(self):
-        """Close the current project."""
-        self.current_project = None
-        self.tree_view.setVisible(False)
-        self.message_widget.setVisible(True)
-        
-    def on_file_clicked(self, index):
-        """Handle file click in project tree."""
-        if not self.current_project:
-            return
-            
-        path = self.model.filePath(index)
-        if os.path.isfile(path):
-            try:
-                self.parent().parent().parent().open_file(path)
-            except AttributeError:
-                pass
+from vpy_projects import ProjectBrowser
 
 class FileBrowser(QWidget):
     def __init__(self, parent=None):
@@ -193,25 +106,55 @@ class Terminal(QDockWidget):
         super().__init__("Output", parent)
         self.setAllowedAreas(Qt.BottomDockWidgetArea)
         
-        # Create container widget
+        # Create container widget with black background
         container = QWidget()
+        container.setStyleSheet("background-color: #000000;")
         layout = QVBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         
-        # Create output text area
+        # Create output text area with true black background
         self.output = QPlainTextEdit()
         self.output.setReadOnly(True)
         self.output.setStyleSheet("""
             QPlainTextEdit {
-                background-color: #2b2b2b;
+                background-color: #000000;
                 color: #a9b7c6;
                 border: none;
                 font-family: 'Consolas', 'Courier New', monospace;
                 font-size: 12px;
             }
+            QScrollBar:vertical {
+                background: #000000;
+                width: 14px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #2b2b2b;
+                min-height: 30px;
+                border-radius: 7px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+            QScrollBar:horizontal {
+                background: #000000;
+                height: 14px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:horizontal {
+                background: #2b2b2b;
+                min-width: 30px;
+                border-radius: 7px;
+            }
+            QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+                width: 0px;
+            }
         """)
         
         # Create toolbar with clear button
         toolbar = QWidget()
+        toolbar.setStyleSheet("background-color: #000000;")
         toolbar_layout = QHBoxLayout(toolbar)
         toolbar_layout.setContentsMargins(0, 0, 0, 0)
         
@@ -219,6 +162,17 @@ class Terminal(QDockWidget):
         clear_button.setIcon(self.style().standardIcon(QStyle.SP_DialogResetButton))
         clear_button.setToolTip("Clear Output")
         clear_button.clicked.connect(self.clear_output)
+        clear_button.setStyleSheet("""
+            QPushButton {
+                background-color: #000000;
+                border: none;
+                padding: 5px;
+            }
+            QPushButton:hover {
+                background-color: #1a1a1a;
+                border-radius: 3px;
+            }
+        """)
         
         toolbar_layout.addStretch()
         toolbar_layout.addWidget(clear_button)
@@ -227,7 +181,20 @@ class Terminal(QDockWidget):
         layout.addWidget(self.output)
         layout.addWidget(toolbar)
         
+        # Set the widget and style the dock title bar
         self.setWidget(container)
+        self.setStyleSheet("""
+            QDockWidget {
+                background: #000000;
+                color: #a9b7c6;
+                border: none;
+            }
+            QDockWidget::title {
+                background: #000000;
+                padding-left: 5px;
+                padding: 3px;
+            }
+        """)
     
     def write(self, text):
         self.output.appendPlainText(text.rstrip())

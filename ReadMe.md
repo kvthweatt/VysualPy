@@ -1,7 +1,11 @@
 # VysualPy / Vysual Python
 A node graph-based IDE for any language, designed to allow users to build code faster with live node-to-code blueprints.
 Featuring 3 blueprint node graph workspaces, each with their own utility. Two of the graphs are for visualizing your code,
-they are the Blueprint graph and the Execution graph. The Code Building graph is designed to be a live editing tool,
+they are the Blueprint graph and the Execution graph.
+
+![image](https://github.com/user-attachments/assets/c459a295-b27a-46dc-8b77-ed4e6c272f96)
+
+The Code Building graph is designed to be a live editing tool,
 where you can type into the empty space of the graph and a code node is created, and the code inside that node
 is updated in the IDE source file all automatically. If you call a function that doesn't exist (like modeling your code) it
 will create an empty function according to how you called it.
@@ -29,6 +33,7 @@ also be able to set your compiler, linker, library or resource paths, and more.
 
 Execution Graph preview:
 ![image](https://github.com/user-attachments/assets/ba05022e-b4b6-4e33-b307-3b20803edc59)
+![image](https://github.com/user-attachments/assets/490d8a96-d00c-4a51-b7ce-b74f4c298fea)
 
 ### Known Bugs:
 

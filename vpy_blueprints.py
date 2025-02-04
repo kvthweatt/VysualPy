@@ -551,6 +551,10 @@ class FunctionCallVisitor(ast.NodeVisitor):
         self.in_conditional = False
         self.unique_calls = {}  # Track unique instances of calls
         self.call_counter = {}  # Counter for each function name
+        self.tracked_libraries = {
+            'udefs', 'usql', 'embeds', 'cmds', 'crypto', 'crypto_defs', 'ddefs',
+            'deposit_monitor_thread', 'translation', 'ulang'
+        }
         self.excluded_calls = {
             'int', 'str', 'len', 'print', 'list', 'dict', 'set',
             'append', 'extend', 'pop', 'remove', 'clear', 'sort',
@@ -571,9 +575,31 @@ class FunctionCallVisitor(ast.NodeVisitor):
 
     def should_include_call(self, func_name):
         """Determine if a function call should be included in the graph."""
+        print(f"Checking inclusion for function: {func_name}")
+        
         # Extract base name for attribute calls (e.g., 'string.format' -> 'format')
         base_name = func_name.split('.')[-1]
-        return base_name not in self.excluded_calls
+        
+        # Check if call is excluded
+        if base_name in self.excluded_calls:
+            print(f"  - Excluded due to base name: {base_name}")
+            return False
+        
+        # If it's a function definition or a local function, always include it
+        if (func_name.startswith('def ') or 
+            not any(c in func_name for c in './')):  # Local function if no dots or slashes
+            print(f"  - Including local function: {func_name}")
+            return True
+            
+        # Check if call is from tracked libraries
+        is_tracked = any(func_name.startswith(lib + '.') or func_name == lib 
+                        for lib in self.tracked_libraries)
+        if is_tracked:
+            print(f"  - Including tracked library function: {func_name}")
+            return True
+            
+        print(f"  - Excluding untracked external function: {func_name}")
+        return False
         
     def visit_Module(self, node):
         self.execution_flow['global'] = set()
@@ -999,49 +1025,41 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
         """Re-run the layout optimization."""
         optimizer = GraphLayoutOptimizer(self.scene)
         optimizer.optimize()
-
+        
     def create_execution_nodes(self, code_text):
-        tracked_libraries = {
-            'udefs', 'usql', 'embeds', 'cmds', 'crypto', 'crypto_defs', 'ddefs',
-            'deposit_monitor_thread', 'translation', 'ulang'
-        }
-        
-        excluded_calls = {
-            'int', 'str', 'len', 'print', 'list', 'dict', 'set',
-            'append', 'extend', 'pop', 'remove', 'clear', 'sort',
-            'items', 'keys', 'values', 'split', 'join', 'strip',
-            'replace', 'format', 'startswith', 'endswith', 'find',
-            'encode', 'decode', 'Embed', 'reverse', 'Decimal', 'bool', 'json',
-            'lower', 'upper', 'items', 'QApplication',
-            'QMainWindow', 'QTextEdit', 'QAction', 'QFileDialog', 'QMessageBox',
-            'QGraphicsView', 'QGraphicsScene', 'QGraphicsRectItem',
-            'QGraphicsTextItem', 'QGraphicsPathItem', 'QGraphicsEllipseItem',
-            'QMenu', 'QInputDialog', 'QDialog', 'QVBoxLayout', 'QHBoxLayout',
-            'QLabel', 'QSlider', 'QSpinBox', 'QPushButton', 'QGroupBox',
-            'QWidget', 'QFrame', 'QMenuBar', 'QGraphicsItem', 'QGridLayout',
-            'QComboBox', 'QColorDialog', 'QTabWidget', 'QLineEdit', 'QListWidget',
-            'QWidget', 'QHBoxLayout', 'QIcon', 'QLabel', 'QPushButton', 'QAction',
-            'QListWidget', 'QFileDialog'
-        }
-        
-        execution_flow = self.create_execution_graph(code_text)
+        """Create execution graph nodes from the code."""
+        try:
+            print("\nStarting execution node creation...")
+            visitor = FunctionCallVisitor()
+            tree = ast.parse(code_text)
+            visitor.visit(tree)
+            execution_flow = visitor.execution_flow
+            print(f"Found execution flow with {len(execution_flow)} items")
+            print("Execution flow:", execution_flow)
+        except Exception as e:
+            print(f"Error parsing code: {e}")
+            return
+            
         nodes = {}
         x, y = 50, 50
         connection_pairs = set()
-        
-        # Create visitor to get call information
-        visitor = FunctionCallVisitor()
-        visitor.visit(ast.parse(code_text))
-        
+
         # First pass: Create nodes
         for func_name in execution_flow.keys():
+            print(f"\nProcessing function: {func_name}")
+            
             # Skip RETURN_TO markers
             if func_name.startswith('RETURN_TO_'):
+                print(f"Skipping RETURN_TO marker: {func_name}")
                 continue
                 
             # Get original name and properties for unique calls
             if func_name in visitor.unique_calls:
                 original_name = visitor.unique_calls[func_name]['original_name']
+                print(f"Found unique call: {func_name} -> {original_name}")
+                if not visitor.should_include_call(original_name):
+                    print(f"Skipping excluded call: {original_name}")
+                    continue
                 node = ExecutionDraggableRect(
                     original_name,
                     f"def {original_name}",
@@ -1050,6 +1068,9 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
                     False
                 )
             else:
+                if not visitor.should_include_call(func_name):
+                    print(f"Skipping excluded call: {func_name}")
+                    continue
                 node = ExecutionDraggableRect(
                     func_name,
                     f"def {func_name}",
@@ -1058,46 +1079,122 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
                     False
                 )
             
+            print(f"Created node for: {func_name}")
             nodes[func_name] = node
             self.scene.addItem(node)
+            
+            # Count actual returns to this function
+            returns_to_this = []
+            for source, targets in execution_flow.items():
+                for target in targets:
+                    if target == f'RETURN_TO_{func_name}':
+                        returns_to_this.append(source)
+            
+            print(f"Found {len(returns_to_this)} returns to {func_name}")
+            
+            # Create exactly the number of return points needed
+            if returns_to_this:
+                node.return_points.clear()  # Clear existing return points
+                for _ in returns_to_this:
+                    node.add_return_point()
+            
+            # Count and create output points for function calls
+            if func_name in execution_flow:
+                actual_calls = [t for t in execution_flow[func_name] 
+                              if not t.startswith('RETURN_TO_')]
+                node.output_points.clear()  # Clear existing output points
+                for _ in range(len(actual_calls)):
+                    node.add_output_point()
+                print(f"Created {len(actual_calls)} output points for {func_name}")
+
             x += 350
             if x > 1050:
                 x = 50
                 y += 250
-        
+
         # Second pass: Create connections
+        print("\nCreating connections...")
         for source_name, targets in execution_flow.items():
             if source_name not in nodes:
+                print(f"Source node not found: {source_name}")
                 continue
                 
             source_node = nodes[source_name]
+            output_point_index = 0
+            return_point_index = 0
+            
             for target in targets:
+                print(f"Processing target: {target} for source: {source_name}")
                 if target.startswith('RETURN_TO_'):
-                    continue
-                    
-                if target in nodes:
-                    target_node = nodes[target]
-                    conn_key = (source_name, target)
-                    
-                    if conn_key not in connection_pairs:
-                        connection_pairs.add(conn_key)
-                        connection = Connection(
-                            source_node.output_point,
-                            target_node.input_point,
-                            self.scene
-                        )
-                        
-                        # Check if this is a conditional call
-                        is_conditional = (source_name, target) in visitor.conditional_calls
-                        
-                        # Set connection color based on type
-                        if is_conditional:
-                            connection.setPen(QPen(QColor(255, 165, 0), 2))  # Orange for conditional
-                        else:
-                            connection.setPen(QPen(QColor(0, 255, 0), 2))  # Green for regular
-                            
-                        connection.setEndPoint(target_node.input_point)
-                        self.scene.addItem(connection)
+                    # Handle return paths
+                    return_to = target.replace('RETURN_TO_', '')
+                    if return_to in nodes:
+                        target_node = nodes[return_to]
+                        if return_point_index < len(target_node.return_points):
+                            conn_key = (source_name, target)
+                            if conn_key not in connection_pairs:
+                                connection_pairs.add(conn_key)
+                                if not source_node.return_points:
+                                    source_node.add_return_point()
+                                
+                                connection = Connection(
+                                    source_node.return_points[0],
+                                    target_node.return_points[return_point_index],
+                                    self.scene
+                                )
+                                connection.setPen(QPen(QColor(255, 0, 255), 2))  # Magenta for returns
+                                connection.setEndPoint(target_node.return_points[return_point_index])
+                                self.scene.addItem(connection)
+                                return_point_index += 1
+                                print(f"Created return connection: {source_name} -> {return_to}")
+                else:
+                    # Handle execution paths
+                    if target in nodes:
+                        target_node = nodes[target]
+                        if output_point_index < len(source_node.output_points):
+                            conn_key = (source_name, target)
+                            if conn_key not in connection_pairs:
+                                connection_pairs.add(conn_key)
+                                is_conditional = (source_name, target) in visitor.conditional_calls
+                                
+                                if is_conditional:
+                                    output_point = source_node.add_conditional_output()
+                                else:
+                                    while output_point_index >= len(source_node.output_points):
+                                        source_node.add_output_point()
+                                    output_point = source_node.output_points[output_point_index]
+                                
+                                connection = Connection(
+                                    output_point,
+                                    target_node.input_point,
+                                    self.scene
+                                )
+                                
+                                if is_conditional:
+                                    connection.setPen(QPen(QColor(255, 165, 0), 2))  # Orange
+                                else:
+                                    connection.setPen(QPen(QColor(0, 255, 0), 2))  # Green
+                                    
+                                connection.setEndPoint(target_node.input_point)
+                                self.scene.addItem(connection)
+                                output_point_index += 1
+                                print(f"Created execution connection: {source_name} -> {target}")
+
+        print("\nFinished creating execution graph")
+
+def detect_function_calls(code_text):
+    """
+    Analyze Python code and detect function calls.
+    Returns a set of function names that are called in the code.
+    """
+    try:
+        tree = ast.parse(code_text)
+        detector = FunctionCallDetector()
+        detector.visit(tree)
+        return detector.function_calls
+    except Exception as e:
+        print(f"Error detecting function calls: {e}")
+        return set()
 
 class BuildGraphScene(BlueprintScene):
     def __init__(self, parent_ide):

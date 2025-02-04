@@ -75,20 +75,19 @@ class Connection(QGraphicsPathItem):
         self.end_point = None
         self.scene = scene
 
-        # Set default color
-        color = QColor(144, 238, 144)  # Light green default
+        # Set default color (light green)
+        color = QColor(144, 238, 144)
 
-        # Set color based on parent node type if available
-        if isinstance(start_point, ConnectionPoint) and hasattr(start_point, 'parentItem'):
+        # Check connection type and set appropriate color
+        if isinstance(start_point, ConnectionPoint):
             parent_rect = start_point.parentItem()
-            if hasattr(parent_rect, 'name') and hasattr(parent_rect, 'full_content'):
-                content = re.sub(r'^\s+', '', parent_rect.full_content)
-                if parent_rect.name is None or parent_rect.name == "Global":
-                    color = QColor(144, 238, 144)  # Light green for global blocks
-                elif content.startswith("class"):
-                    color = QColor(255, 165, 0)  # Orange for classes
-                elif content.startswith("async def") or content.startswith("def"):
-                    color = QColor(173, 216, 230)  # Light blue for functions
+            if hasattr(parent_rect, 'return_points'):
+                if start_point in parent_rect.return_points:
+                    color = QColor(255, 0, 255)  # Magenta for return paths
+                elif hasattr(start_point, 'is_conditional') and start_point.is_conditional:
+                    color = QColor(255, 165, 0)  # Orange for conditional paths
+                else:
+                    color = QColor(144, 238, 144)  # Green for normal execution
 
         self.setPen(QPen(color, 2))
         self.setZValue(0)
@@ -103,36 +102,55 @@ class Connection(QGraphicsPathItem):
         if isinstance(self.start_point, ConnectionPoint):
             start_pos = self.start_point.scenePos()
             start_rect = self.start_point.parentItem()
-            if is_return := (self.pen().color().name() == '#ff00ff'):
-                start_pos = start_rect.mapToScene(0, start_rect.boundingRect().height())
+            
+            # Check if this is a return connection
+            is_return = (hasattr(start_rect, 'return_points') and 
+                        self.start_point in start_rect.return_points)
+            if is_return:
+                # For return paths, use the point's actual position
+                start_pos = self.start_point.scenePos()
             else:
-                start_pos = start_rect.mapToScene(start_rect.boundingRect().width(), 
-                                                start_rect.boundingRect().height() / 2)
+                # For execution paths, use the point's actual position
+                start_pos = self.start_point.scenePos()
         else:
             start_pos = self.start_point
 
         # Get end position
         if isinstance(self.end_point, ConnectionPoint):
-            end_rect = self.end_point.parentItem()
-            if is_return:
-                end_pos = end_rect.mapToScene(end_rect.boundingRect().width(), 
-                                            end_rect.boundingRect().height())
-            else:
-                end_pos = end_rect.mapToScene(0, end_rect.boundingRect().height() / 2)
+            end_pos = self.end_point.scenePos()
+        elif isinstance(self.end_pos, ConnectionPoint):
+            end_pos = self.end_pos.scenePos()
         else:
             end_pos = self.end_pos
 
+        # Ensure we have QPointF objects
+        start_pos = QPointF(start_pos)
+        end_pos = QPointF(end_pos)
+        
         # Create path
         path = QPainterPath()
         path.moveTo(start_pos)
         
         # Calculate control points
         dx = end_pos.x() - start_pos.x()
-        ctrl1 = QPointF(start_pos.x() + dx * 0.5, start_pos.y())
-        ctrl2 = QPointF(end_pos.x() - dx * 0.5, end_pos.y())
+        dy = end_pos.y() - start_pos.y()
         
-        # Create curve
-        path.cubicTo(ctrl1, ctrl2, QPointF(end_pos.x(), end_pos.y()))
+        if isinstance(self.start_point, ConnectionPoint):
+            start_rect = self.start_point.parentItem()
+            if hasattr(start_rect, 'return_points') and self.start_point in start_rect.return_points:
+                # For return paths, create a curved path
+                ctrl1 = QPointF(start_pos.x(), start_pos.y() + abs(dy)/2)
+                ctrl2 = QPointF(end_pos.x(), end_pos.y() + abs(dy)/2)
+            else:
+                # For execution paths, create a horizontal curve
+                ctrl1 = QPointF(start_pos.x() + dx/2, start_pos.y())
+                ctrl2 = QPointF(end_pos.x() - dx/2, end_pos.y())
+        else:
+            # Default curve
+            ctrl1 = QPointF(start_pos.x() + dx/2, start_pos.y())
+            ctrl2 = QPointF(end_pos.x() - dx/2, end_pos.y())
+
+        path.cubicTo(ctrl1, ctrl2, end_pos)
         self.setPath(path)
 
     def setEndPoint(self, end_point):
