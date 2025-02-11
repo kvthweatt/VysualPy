@@ -383,12 +383,34 @@ class ExecutionDraggableRect(DraggableRect):
                     pen.setColor(color)
                 connection.setPen(pen)
 
+class EditableTextItem(QGraphicsTextItem):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent_node = parent
+
+    def mouseDoubleClickEvent(self, event):
+        """Handle double click by starting edit mode"""
+        if self.parent_node and hasattr(self.parent_node, 'startEditing'):
+            self.parent_node.startEditing()
+        super().mouseDoubleClickEvent(event)
+
+    def keyPressEvent(self, event):
+        """Handle key events"""
+        if event.key() == Qt.Key_Return and event.modifiers() & Qt.ControlModifier:
+            print("EditableTextItem: Ctrl+Enter detected")
+            if self.parent_node and hasattr(self.parent_node, 'stopEditing'):
+                self.parent_node.stopEditing()
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
 class BuildableNode(QGraphicsRectItem):
     def __init__(self, name, content, x, y, width, height, scene, is_class: bool, parent_ide):
         super().__init__(0, 0, width, height)
         self.setFlag(QGraphicsRectItem.ItemIsMovable)
         self.setFlag(QGraphicsRectItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QGraphicsItem.ItemIsFocusable)
         
         self.name = name
         self.full_content = content
@@ -397,7 +419,6 @@ class BuildableNode(QGraphicsRectItem):
         self.editing = False
         self.grid_size = 50
         self.fixed_width = width
-
         self.scene = scene
         
         # Set position
@@ -414,14 +435,14 @@ class BuildableNode(QGraphicsRectItem):
         self.title_item.setPos(5, 5)
         self.updateTitle()
         
-        # Create editable text item
-        self.text_item = QGraphicsTextItem(self)
+        # Create editable text item using our custom class
+        self.text_item = EditableTextItem(self)
         self.text_item.setDefaultTextColor(Qt.white)
         self.text_item.setFont(QFont("Courier", 10))
         self.text_item.setPos(5, 25)
         self.text_item.setTextWidth(self.fixed_width - 10)
         self.text_item.setPlainText(content)
-        self.text_item.setTextInteractionFlags(Qt.TextEditorInteraction)
+        self.text_item.setTextInteractionFlags(Qt.NoTextInteraction)
         
         # Add connection points
         self.input_point = ConnectionPoint(scene, self, False)
@@ -429,7 +450,6 @@ class BuildableNode(QGraphicsRectItem):
         self.updateConnectionPoints()
         
         self.setAcceptHoverEvents(True)
-        self.setFlag(QGraphicsItem.ItemIsFocusable)
 
     def updateConnectionPoints(self):
         rect = self.rect()
@@ -445,15 +465,24 @@ class BuildableNode(QGraphicsRectItem):
         self.title_item.setPlainText(title_text)
 
     def startEditing(self):
+        """Begin editing mode"""
+        print(f"Starting edit mode for node: {self.name}")
         self.editing = True
+        self.text_item.setTextInteractionFlags(Qt.TextEditorInteraction)
         self.text_item.setFocus()
         self.setSelected(True)
+        if self.scene:
+            self.scene.setFocusItem(self.text_item)
+            print("Set focus to text item")
 
     def stopEditing(self):
+        """End editing mode and process changes"""
+        print(f"Stopping edit mode for node: {self.name}")
         if not self.editing:
             return
 
         self.editing = False
+        self.text_item.setTextInteractionFlags(Qt.NoTextInteraction)
         old_content = self.full_content
         self.detectNodeType()
         self.detectScope()
@@ -464,41 +493,45 @@ class BuildableNode(QGraphicsRectItem):
         
         # Only process if content actually changed
         if old_content != new_content:
-            # Check for function calls and create new nodes
-            # Note: We check the class name as a string to avoid circular imports
-            if self.scene.__class__.__name__ == 'BuildGraphScene':
+            if self.scene and self.scene.__class__.__name__ == 'BuildGraphScene':
                 self.scene.check_and_create_called_functions(self)
                 
-                # Update the source file with all node contents
-                if self.scene.parent_ide:
-                    all_nodes = sorted(
-                        [item for item in self.scene.items() if isinstance(item, BuildableNode)],
-                        key=lambda x: x.pos().y()
-                    )
-                    combined_code = [node.full_content for node in all_nodes]
-                    self.scene.parent_ide.textEdit.setText("\n\n".join(combined_code))
-        
         if self.scene:
             self.scene.setFocusItem(None)
-            self.scene.update_existing_functions()  # Update tracked functions
-            
+            if hasattr(self.scene, 'update_existing_functions'):
+                self.scene.update_existing_functions()
+        print("Edit mode stopped")
+
     def keyPressEvent(self, event):
+        """Handle keyboard events"""
+        print(f"Node key press - key: {event.key()}, modifiers: {event.modifiers()}, editing: {self.editing}")
+        
         if self.editing:
-            # Always forward key events to text_item when editing
-            if event.key() == Qt.Key_Escape:
+            if event.key() == Qt.Key_Return and event.modifiers() & Qt.ControlModifier:
+                print("Node: Received Ctrl+Enter while editing")
                 self.stopEditing()
-            elif event.key() == Qt.Key_Return and event.modifiers() & Qt.ControlModifier:
+                event.accept()
+                return
+            elif event.key() == Qt.Key_Escape:
+                print("Node: Received Escape")
                 self.stopEditing()
+                event.accept()
+                return
             else:
-                # Forward all other keys to text_item
-                cursor = self.text_item.textCursor()
+                # Forward other keys to text_item when editing
                 self.text_item.keyPressEvent(event)
-                # Only adjust height if content actually changed
-                if cursor.position() != self.text_item.textCursor().position():
-                    QTimer.singleShot(0, self.adjustHeight)
-            event.accept()
+                self.adjustHeight()
+                event.accept()
         else:
             super().keyPressEvent(event)
+
+    def focusOutEvent(self, event):
+        """Handle focus loss"""
+        super().focusOutEvent(event)
+        if self.editing:
+            # Don't stop editing if we're just losing focus temporarily
+            if not self.text_item.hasFocus():
+                self.stopEditing()
 
     def adjustHeight(self):
         """Adjust only the height of the node based on content"""
@@ -584,3 +617,18 @@ class BuildableNode(QGraphicsRectItem):
         for point in [self.input_point, self.output_point]:
             for connection in point.connections:
                 connection.updatePath()
+
+    def mousePressEvent(self, event):
+        """Handle mouse press"""
+        super().mousePressEvent(event)
+        if not self.editing:
+            self.setFocus()  # Ensure we can receive key events
+
+    def mouseDoubleClickEvent(self, event):
+        """Handle double click to start editing"""
+        if not self.editing:
+            # Check if we clicked the text area
+            text_pos = self.text_item.mapFromScene(event.scenePos())
+            if self.text_item.contains(text_pos):
+                self.startEditing()
+        super().mouseDoubleClickEvent(event)

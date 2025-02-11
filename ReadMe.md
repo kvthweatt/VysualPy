@@ -37,13 +37,12 @@ Execution Graph preview:
 
 ### Known Bugs:
 
-- None currently.
+- New nodes for called functions not spawning after editing an existing node.
 
 --------
 
 # To-Do:
 - Breakpoints
-- Projects
 - Stack view & ability to directly modify the stack
 - More granular control over color coding for blueprint graphs.
 - Improve the Preferences menu and configuration.

@@ -2,7 +2,8 @@ import ast, builtins, json
 
 from PyQt5.QtWidgets import (
     QGraphicsScene, QGraphicsView, QMainWindow, QWidget, QVBoxLayout, QMenuBar,
-    QAction, QApplication, QInputDialog, QDialog, QFileDialog, QMessageBox
+    QAction, QApplication, QInputDialog, QDialog, QFileDialog, QMessageBox,
+    QGraphicsTextItem
     )
 
 from PyQt5.QtCore import Qt
@@ -636,14 +637,23 @@ class FunctionCallVisitor(ast.NodeVisitor):
         if not called or not self.should_include_call(called):
             return
 
+        # Extract parameter names from the call
+        params = []
+        for arg in node.args:
+            if isinstance(arg, ast.Name):
+                params.append(arg.id)
+            elif isinstance(arg, ast.Constant):
+                params.append(str(arg.value))
+
         # Create unique name for this call instance
         unique_name = self.get_unique_name(called, node.lineno)
         
-        # Store original name for reference
+        # Store original name and parameters for reference
         self.unique_calls[unique_name] = {
             'original_name': called,
             'lineno': node.lineno,
-            'in_conditional': self.in_conditional
+            'in_conditional': self.in_conditional,
+            'parameters': params  # Add parameters to stored information
         }
 
         # Initialize entry in execution flow
@@ -1202,10 +1212,9 @@ class BuildGraphScene(BlueprintScene):
         self.parent_ide = parent_ide
         self.typing_buffer = ""
         self.typing_node = None
-        self.existing_functions = set()  # Track existing function names
+        self.existing_functions = {}  # Map function names to their nodes
         self.update_existing_functions()
         
-        # Initialize with default structure if no content exists
         if self.should_initialize():
             self.initialize_default_structure()
 
@@ -1247,24 +1256,59 @@ class BuildGraphScene(BlueprintScene):
             self.parent_ide.textEdit.setText(code)
 
     def keyPressEvent(self, event):
-        # Don't create new nodes if modifier keys are pressed
-        if event.modifiers() & (Qt.ControlModifier | Qt.AltModifier | Qt.ShiftModifier):
+        print("\nScene keyPressEvent:")
+        print(f"Key: {event.key()}")
+        print(f"Text: '{event.text()}'")
+        print(f"Modifiers: {event.modifiers()}")
+        
+        # Check for editing nodes
+        editing_nodes = [item for item in self.items() if isinstance(item, BuildableNode) and item.editing]
+        if editing_nodes:
+            print("Found editing node, passing event up")
+            super().keyPressEvent(event)
+            return
+            
+        # Check focus
+        focused_item = self.focusItem()
+        if focused_item and isinstance(focused_item, QGraphicsTextItem):
+            print("Text item has focus, passing event up")
             super().keyPressEvent(event)
             return
 
-        if not self.selectedItems() or (
-            len(self.selectedItems()) == 1 and 
-            isinstance(self.selectedItems()[0], BuildableNode) and 
-            self.selectedItems()[0].editing
-        ):
-            # Only create new node if there's no editing node and no modifiers
-            if self.typing_node is None and not event.modifiers():
-                self.typing_node = BuildableNode("New Node", "", 100, 100, 400, 250, self, False, self.parent_ide)
+        # Check modifiers
+        if event.modifiers() & (Qt.ControlModifier | Qt.AltModifier | Qt.ShiftModifier):
+            print("Modifier key pressed, passing event up")
+            super().keyPressEvent(event)
+            return
+
+        # Handle printable characters
+        if event.text() and event.text().isprintable():
+            print("Printable character detected")
+            
+            if not self.typing_node:
+                print("Creating new typing node")
+                self.typing_node = BuildableNode(
+                    "New Node", 
+                    event.text(), 
+                    100, 
+                    100, 
+                    400, 
+                    250, 
+                    self, 
+                    False, 
+                    self.parent_ide
+                )
                 self.addItem(self.typing_node)
                 self.typing_node.startEditing()
-            super().keyPressEvent(event)
-        else:
-            super().keyPressEvent(event)
+                
+                # Set initial text and move cursor to end
+                cursor = self.typing_node.text_item.textCursor()
+                cursor.movePosition(cursor.End)
+                self.typing_node.text_item.setTextCursor(cursor)
+                event.accept()
+                return
+        
+        super().keyPressEvent(event)
 
     def mousePressEvent(self, event):
         if self.typing_node and not self.typing_node.contains(self.typing_node.mapFromScene(event.scenePos())):
@@ -1273,11 +1317,11 @@ class BuildGraphScene(BlueprintScene):
         super().mousePressEvent(event)
 
     def update_existing_functions(self):
-        """Update the set of existing function names in the scene."""
+        """Update the mapping of existing function names to their nodes."""
         self.existing_functions.clear()
         for item in self.items():
             if isinstance(item, BuildableNode):
-                self.existing_functions.add(item.name)
+                self.existing_functions[item.name] = item
 
     def create_function_node(self, func_name, x, y):
         """Create a new function node with a basic template."""
@@ -1290,48 +1334,92 @@ class BuildGraphScene(BlueprintScene):
     def check_and_create_called_functions(self, node):
         """Check for function calls in the node and create new nodes if needed."""
         content = node.text_item.toPlainText()
-        print(f"Checking content for function calls: {content}")
+        print(f"Checking content for function calls in node {node.name}: {content}")
         
-        # Update existing functions list
-        self.update_existing_functions()
-        
-        # Get all function calls
-        called_functions = detect_function_calls(content)
-        print(f"Detected function calls: {called_functions}")
-        print(f"Existing functions: {self.existing_functions}")
-        
-        # Get node's position
-        pos = node.pos()
-        base_x = pos.x() + 450  # Place new nodes to the right
-        base_y = pos.y()
-        y_offset = 0
-        
-        # Create nodes for called functions that don't exist
-        new_nodes = []
-        for func_name in called_functions:
-            print(f"Checking function: {func_name}")
-            if func_name not in self.existing_functions and func_name != node.name:
-                print(f"Creating new node for: {func_name}")
-                new_node = self.create_function_node(func_name, base_x, base_y + y_offset)
-                new_nodes.append(new_node)
-                y_offset += 300
+        try:
+            # Parse and analyze the code
+            tree = ast.parse(content)
+            visitor = FunctionCallVisitor()
+            visitor.visit(tree)
+            
+            # Get node's position
+            pos = node.pos()
+            base_x = pos.x() + 450
+            base_y = pos.y()
+            y_offset = 0
+            
+            # First update our tracking of existing functions
+            self.update_existing_functions()
+            
+            # Process each unique call
+            for unique_name, call_info in visitor.unique_calls.items():
+                func_name = call_info['original_name']
+                params = call_info.get('parameters', [])
                 
-                # Create connection between nodes
-                connection = Connection(node.output_point, new_node.input_point, self.scene)
-                connection.setEndPoint(new_node.input_point)
-                self.addItem(connection)
-                print(f"Created node and connection for: {func_name}")
-        
-        # Always update the source file when changes occur
-        if self.parent_ide:
-            all_nodes = sorted(
-                [item for item in self.items() if isinstance(item, BuildableNode)],
-                key=lambda x: x.pos().y()
-            )
-            print(f"Found {len(all_nodes)} nodes to update source with")
-            combined_code = [node.full_content for node in all_nodes]
-            self.parent_ide.textEdit.setText("\n\n".join(combined_code))
-            print("Updated source file")
+                print(f"Processing call to {func_name} with params {params}")
+                print(f"Existing functions: {list(self.existing_functions.keys())}")
+                
+                if func_name == node.name:
+                    print(f"Skipping self-reference to {func_name}")
+                    continue
+                    
+                if func_name in self.existing_functions:
+                    # If function exists but isn't connected, create connection
+                    target_node = self.existing_functions[func_name]
+                    print(f"Found existing node for {func_name}")
+                    
+                    # Check if connection already exists
+                    connection_exists = False
+                    for conn in node.output_point.connections:
+                        if conn.end_point.parentItem() == target_node:
+                            connection_exists = True
+                            break
+                    
+                    if not connection_exists:
+                        print(f"Creating new connection to existing node {func_name}")
+                        connection = Connection(node.output_point, target_node.input_point, self)
+                        connection.setEndPoint(target_node.input_point)
+                        self.addItem(connection)
+                else:
+                    print(f"Creating new node for {func_name}")
+                    # Create new node
+                    param_str = ', '.join(params)
+                    template = f"def {func_name}({param_str}):\n    return"
+                    
+                    new_node = BuildableNode(
+                        func_name,
+                        template,
+                        base_x,
+                        base_y + y_offset,
+                        400,
+                        250,
+                        self,
+                        False,
+                        self.parent_ide
+                    )
+                    self.addItem(new_node)
+                    self.existing_functions[func_name] = new_node
+                    y_offset += 300
+                    
+                    # Create connection
+                    connection = Connection(node.output_point, new_node.input_point, self)
+                    connection.setEndPoint(new_node.input_point)
+                    self.addItem(connection)
+                    print(f"Created node and connection for: {func_name}")
+            
+            # Update the source file
+            if self.parent_ide:
+                all_nodes = sorted(
+                    [item for item in self.items() if isinstance(item, BuildableNode)],
+                    key=lambda x: x.pos().y()
+                )
+                combined_code = [node.full_content for node in all_nodes]
+                self.parent_ide.textEdit.setText("\n\n".join(combined_code))
+                
+        except Exception as e:
+            print(f"Error analyzing function calls: {e}")
+            import traceback
+            print(traceback.format_exc())
             
 class BuildGraphView(BlueprintView):
     def __init__(self, scene, parent=None):
@@ -1343,20 +1431,23 @@ class BuildGraphView(BlueprintView):
     def keyPressEvent(self, event):
         print(f"View Key press - key: {event.key()}, text: {event.text()}")
         
-        # Only handle Delete key (16777223), not Backspace (16777219)
-        if event.key() == 16777223:  # Delete key only
-            print("Delete key detected")
-            selected = self.scene().selectedItems()
-            if selected:
-                print(f"Found {len(selected)} selected items")
-                self.deleteSelectedNodes()
-                # Force scene update
-                self.scene().update()
-                self.viewport().update()
-                event.accept()
-                return
+        # Check for Ctrl+Enter
+        if event.key() == Qt.Key_Return and event.modifiers() & Qt.ControlModifier:
+            # Find any node that's currently being edited
+            for item in self.scene().items():
+                if isinstance(item, BuildableNode) and item.editing:
+                    print("View: Found editing node, stopping edit")
+                    item.stopEditing()
+                    event.accept()
+                    return
         
-        # Pass all other keys to parent handler
+        # Handle Delete key (but not Backspace)
+        if event.key() == Qt.Key_Delete:
+            self.deleteSelectedNodes()
+            event.accept()
+            return
+            
+        # Pass other keys to scene
         super().keyPressEvent(event)
 
     def deleteSelectedNodes(self):
@@ -1423,6 +1514,14 @@ class BuildGraphView(BlueprintView):
     def mousePressEvent(self, event):
         self.setFocus()
         super().mousePressEvent(event)
+
+    def focusInEvent(self, event):
+        super().focusInEvent(event)
+        print("View received focus")
+
+    def focusOutEvent(self, event):
+        super().focusOutEvent(event)
+        print("View lost focus")
 
 class BuildGraphWindow(QMainWindow):
     def __init__(self, parent, code_text):

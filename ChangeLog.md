@@ -1,6 +1,14 @@
 ## Changelog:
 --------
 
+2/10/25
+- Updated the Code Build Graph, new node generation working *from new nodes* (**not existing nodes**)
+- Added Projects
+
+--------
+
+--------
+
 2/2/25
 - Added the Assembler View, shows Python ASM & Native ASM, under the "Run" menu option.
 
