@@ -3,23 +3,15 @@ A node graph-based IDE for any language, designed to allow users to build code f
 Featuring 3 blueprint node graph workspaces, each with their own utility. Two of the graphs are for visualizing your code,
 they are the Blueprint graph and the Execution graph.
 
-![image](https://github.com/user-attachments/assets/c459a295-b27a-46dc-8b77-ed4e6c272f96)
+![image](https://github.com/user-attachments/assets/17084acf-32fb-440c-8210-ae06efa0384a)
 
 The Code Building graph is designed to be a live editing tool,
 where you can type into the empty space of the graph and a code node is created, and the code inside that node
 is updated in the IDE source file all automatically. If you call a function that doesn't exist (like modeling your code) it
 will create an empty function according to how you called it.
 
-If you type the following into the Build graph:
+![Video 1](https://github.com/user-attachments/assets/284c357d-a0e9-4f57-975d-46ed2a9346de), ![Video 2](https://github.com/user-attachments/assets/48a6de35-b452-4600-87a4-a9d63d3a45f9)
 
-```py
-def main():
-    test()
-    return
-```
-
-And `test()` didn't exist already, it will be created in the source file, and in the Build graph as a node, and will be linked
-with an execution line to `main()`
 
 Inspired by Unreal Engine blueprints and disassembler execution flow graphs, this IDE makes coding more like using building
 blocks, and less like building the blocks themselves. While you can still build your blocks with whatever and however you
@@ -37,7 +29,7 @@ Execution Graph preview:
 
 ### Known Bugs:
 
-- New nodes for called functions not spawning after editing an existing node.
+- None currently.
 
 --------
 
@@ -53,4 +45,5 @@ Execution Graph preview:
 
 # Attribution
 - Uses [Qt5](https://github.com/qt/qt5)
+
 

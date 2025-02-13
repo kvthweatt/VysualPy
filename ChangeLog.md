@@ -1,6 +1,18 @@
 ## Changelog:
 --------
 
+2/13/25
+- Existing nodes now editable and generating new nodes from code.
+- Added new key combinations for the **Build Graph**
+- **CTRL+Home** - Snap viewport to selected node (zoomed in)
+- **CTRL+N** - Snap child nodes nearby
+
+Both of these key combinations need adjustable values added to the preferences menu.
+
+--------
+
+--------
+
 2/10/25
 - Updated the Code Build Graph, new node generation working *from new nodes* (**not existing nodes**)
 - Added Projects

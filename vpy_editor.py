@@ -22,48 +22,13 @@ from vpy_layout import IDELayout
 from vpy_assembler import AssemblyViewer
 from vpy_statusbar import IDEStatusBar
 from vpy_projects import ProjectManager, NewProjectDialog, ProjectTreeWidget
+from vpy_codeview import CodeViewerWindow
 
 from vpy_blueprints import (
     BlueprintScene, BlueprintView, BlueprintGraphWindow,
     ExecutionScene, ExecutionView, ExecutionGraphWindow,
     BuildGraphScene, BuildGraphView, BuildGraphWindow
     )
-
-class CodeViewerWindow(QMainWindow, CustomWindowMixin):
-    def __init__(self, title, content):
-        super().__init__()
-        self.setStyleSheet("QMainWindow { background: #2c3e50; color: white; }")
-        self.setAttribute(Qt.WA_TranslucentBackground, False)
-        
-        central_widget = QWidget()
-        main_layout = QVBoxLayout(central_widget)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
-        
-        container, containerLayout, titleBar = self.setupCustomTitleBar(title)
-        main_layout.addWidget(titleBar)
-        
-        self.textEdit = QTextEdit()
-        self.textEdit.setFont(QFont("Courier", 10))
-        self.textEdit.setReadOnly(True)
-        self.textEdit.setText(content)
-        self.textEdit.setStyleSheet("""
-            QTextEdit {
-                background-color: #1a1a1a;
-                color: #ecf0f1;
-                border: none;
-                font-family: 'Courier New';
-                font-size: 12px;
-            }
-        """)
-        
-        main_layout.addWidget(self.textEdit)
-        
-        titleBar.mousePressEvent = self.titleBarMousePressEvent
-        titleBar.mouseMoveEvent = self.titleBarMouseMoveEvent
-        
-        self.setCentralWidget(central_widget)
-        self.resize(600, 400)
 
 class SyntaxHighlighter(QSyntaxHighlighter):
     def __init__(self, parent=None, language_config=None):
@@ -784,12 +749,12 @@ class PythonIDE(QMainWindow):
         dialog.exec_()
 
     def showIDEHelp(self):
-        QMessageBox.information(self, "VysualPy IDE Help", "This is a blueprint-based IDE built with PyQt5 currently only supporting Python.\n\nMore detailed help will be available soon.\n\nPlease see https://github.com/kvthweatt/VysualPy for more help.")
+        QMessageBox.information(self, "VysualPy IDE Help", "This is a blueprint-based node-to-code universal IDE built with Python currently only supporting Python.\n\nMore detailed help will be available soon.\n\nPlease see https://github.com/kvthweatt/VysualPy\nfor more help.")
 
     def showAbout(self):
         contributors = ["None yet."]
-        contributors = '\n\t'.join(contributors)
-        QMessageBox.about(self, "About", f"Python IDE\nVersion 1.0\nBuilt with Qt5\n\nWritten by Karac V. Thweatt - Open Source\n\nContributors:{contributors}")
+        contributors = '\n\t '.join(contributors)
+        QMessageBox.about(self, "About", f"Python IDE\nVersion 1.0\nBuilt with Qt5\n\nWritten by Karac V. Thweatt - Open Source\n\nContributors:\n{contributors}")
 
     def setup_project_menu(self):
         """Add project-related menu items to the File menu"""

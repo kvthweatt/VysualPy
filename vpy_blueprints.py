@@ -1,13 +1,13 @@
-import ast, builtins, json
+import ast, builtins, json, re
 
 from PyQt5.QtWidgets import (
     QGraphicsScene, QGraphicsView, QMainWindow, QWidget, QVBoxLayout, QMenuBar,
     QAction, QApplication, QInputDialog, QDialog, QFileDialog, QMessageBox,
-    QGraphicsTextItem
+    QGraphicsTextItem, QMenu
     )
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
+from PyQt5.QtGui import QBrush, QColor, QPainter, QPen, QCursor
 
 from vpy_menus import PreferencesDialog
 from vpy_winmix import CustomWindowMixin
@@ -1210,104 +1210,142 @@ class BuildGraphScene(BlueprintScene):
     def __init__(self, parent_ide):
         super().__init__()
         self.parent_ide = parent_ide
-        self.typing_buffer = ""
         self.typing_node = None
-        self.existing_functions = {}  # Map function names to their nodes
+        self.existing_functions = {}
         self.update_existing_functions()
         
-        if self.should_initialize():
-            self.initialize_default_structure()
+        self.initialize_default_structure()
 
-    def should_initialize(self):
-        """Check if we should initialize with default structure"""
-        if not self.parent_ide:
-            return True
-            
-        # Check if we're working with a new, unedited file
-        text = self.parent_ide.textEdit.toPlainText()
-        return not text.strip() and not self.parent_ide.currentFile
-    
     def initialize_default_structure(self):
-        """Create the default if __name__ == '__main__' structure with main() function"""
-        # Create main entry point node
+        """Parse existing code or create default structure"""
+        if self.parent_ide and self.parent_ide.textEdit.toPlainText().strip():
+            code = self.parent_ide.textEdit.toPlainText()
+            try:
+                # Parse existing code
+                tree = ast.parse(code)
+                visitor = FunctionCallVisitor()
+                visitor.visit(tree)
+                
+                # Track created nodes
+                nodes = {}
+                x, y = 50, 50
+                
+                # Create nodes for all functions
+                for func_name, targets in visitor.execution_flow.items():
+                    if func_name.startswith('RETURN_TO_'):
+                        continue
+                        
+                    # Extract function content from code
+                    func_lines = []
+                    found_func = False
+                    for line in code.splitlines():
+                        if line.strip().startswith(f"def {func_name}"):
+                            found_func = True
+                        if found_func:
+                            func_lines.append(line)
+                            if line.strip() and len(line) - len(line.lstrip()) == 0:
+                                found_func = False
+                    
+                    func_content = "\n".join(func_lines) if func_lines else f"def {func_name}():\n    pass"
+                    
+                    # Create node
+                    node = BuildableNode(
+                        func_name,
+                        func_content,
+                        x, y,
+                        800, 400,  # Larger initial size
+                        self,
+                        False,
+                        self.parent_ide
+                    )
+                    self.addItem(node)
+                    nodes[func_name] = node
+                    
+                    # Adjust position for next node
+                    x += 450
+                    if x > 1350:
+                        x = 50
+                        y += 300
+                
+                # Create connections
+                for source_name, targets in visitor.execution_flow.items():
+                    if source_name in nodes:
+                        source_node = nodes[source_name]
+                        for target in targets:
+                            if target in nodes:
+                                target_node = nodes[target]
+                                connection = Connection(source_node.output_point, target_node.input_point, self)
+                                connection.setEndPoint(target_node.input_point)
+                                self.addItem(connection)
+                                
+            except Exception as e:
+                print(f"Error parsing existing code: {e}")
+                # Fallback to default structure
+                self._create_default_structure()
+        else:
+            self._create_default_structure()
+
+    def _create_default_structure(self):
+        """Create default entry point and main function"""
         entry_node = BuildableNode(
             "Entry Point",
             'if __name__ == "__main__":\n    main()',
-            100, 100, 400, 250, self, False, self.parent_ide
+            100, 100, 800, 400, self, False, self.parent_ide
         )
         self.addItem(entry_node)
         
-        # Create main function node
         main_node = BuildableNode(
             "main",
             "def main():\n    return",
-            600, 100, 400, 250, self, False, self.parent_ide
+            600, 100, 800, 400, self, False, self.parent_ide
         )
         self.addItem(main_node)
         
-        # Create connection between nodes
         connection = Connection(entry_node.output_point, main_node.input_point, self)
         connection.setEndPoint(main_node.input_point)
         self.addItem(connection)
-        
-        # Update the source file
-        if self.parent_ide:
-            code = main_node.full_content + "\n\n" + entry_node.full_content
-            self.parent_ide.textEdit.setText(code)
 
     def keyPressEvent(self, event):
-        print("\nScene keyPressEvent:")
-        print(f"Key: {event.key()}")
-        print(f"Text: '{event.text()}'")
-        print(f"Modifiers: {event.modifiers()}")
-        
-        # Check for editing nodes
+        # First check if we're editing an existing node
         editing_nodes = [item for item in self.items() if isinstance(item, BuildableNode) and item.editing]
         if editing_nodes:
-            print("Found editing node, passing event up")
-            super().keyPressEvent(event)
-            return
-            
-        # Check focus
-        focused_item = self.focusItem()
-        if focused_item and isinstance(focused_item, QGraphicsTextItem):
-            print("Text item has focus, passing event up")
             super().keyPressEvent(event)
             return
 
-        # Check modifiers
+        # Check for modifier keys
         if event.modifiers() & (Qt.ControlModifier | Qt.AltModifier | Qt.ShiftModifier):
-            print("Modifier key pressed, passing event up")
             super().keyPressEvent(event)
             return
 
-        # Handle printable characters
+        # Handle printable characters for new node creation
         if event.text() and event.text().isprintable():
-            print("Printable character detected")
-            
+            # Get scene position from last mouse position
+            view = self.views()[0]
+            scene_pos = view.mapToScene(view.mapFromGlobal(QCursor.pos()))
+
             if not self.typing_node:
-                print("Creating new typing node")
+                # Create new node at mouse position
                 self.typing_node = BuildableNode(
-                    "New Node", 
-                    event.text(), 
-                    100, 
-                    100, 
-                    400, 
-                    250, 
-                    self, 
-                    False, 
+                    "New Node",
+                    event.text(),
+                    scene_pos.x(),
+                    scene_pos.y(),
+                    400,
+                    250,
+                    self,
+                    False,
                     self.parent_ide
                 )
                 self.addItem(self.typing_node)
                 self.typing_node.startEditing()
-                
+
                 # Set initial text and move cursor to end
                 cursor = self.typing_node.text_item.textCursor()
                 cursor.movePosition(cursor.End)
                 self.typing_node.text_item.setTextCursor(cursor)
-                event.accept()
-                return
-        
+            event.accept()
+            return
+
         super().keyPressEvent(event)
 
     def mousePressEvent(self, event):
@@ -1427,6 +1465,7 @@ class BuildGraphView(BlueprintView):
         self.setAcceptDrops(True)
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFocus()
+        self.grid_size = 50
 
     def keyPressEvent(self, event):
         print(f"View Key press - key: {event.key()}, text: {event.text()}")
@@ -1440,6 +1479,54 @@ class BuildGraphView(BlueprintView):
                     item.stopEditing()
                     event.accept()
                     return
+        elif event.key() == Qt.Key_Home and event.modifiers() & Qt.ControlModifier:
+            selected_items = self.scene().selectedItems()
+            if selected_items and isinstance(selected_items[0], BuildableNode):
+                node = selected_items[0]
+                rect = node.sceneBoundingRect()
+                # Center view on the node
+                self.centerOn(rect.center())
+                # Adjust scale to make node 50% of viewport
+                self.fitInView(rect, Qt.KeepAspectRatio)
+                self.scale(0.5, 0.5)
+                # Force viewport update
+                self.viewport().update()
+                event.accept()
+                return
+        elif event.key() == Qt.Key_N and event.modifiers() & (Qt.ControlModifier | Qt.AltModifier):
+            selected_items = self.scene().selectedItems()
+            if selected_items and isinstance(selected_items[0], BuildableNode):
+                parent_node = selected_items[0]
+                # Get all child nodes connected to parent's output point
+                child_nodes = []
+                for conn in parent_node.output_point.connections:
+                    child = conn.end_point.parentItem()
+                    if isinstance(child, BuildableNode):
+                        child_nodes.append(child)
+                
+                if child_nodes:
+                    parent_rect = parent_node.boundingRect()
+                    start_x = parent_node.pos().x() + parent_rect.width() + 100
+                    start_y = parent_node.pos().y() - ((len(child_nodes) - 1) * 300 / 2)
+                    
+                    for i, child in enumerate(child_nodes):
+                        new_x, new_y = 0,0
+                        if len(child_nodes) % 2 == 0: # Even
+                            new_x = round(start_x / self.grid_size) * self.grid_size
+                            new_y = round((start_y + i * 300) / self.grid_size) * (self.grid_size * 2)
+                        else:                         # Odd
+                            new_x = round(start_x / self.grid_size) * self.grid_size
+                            new_y = round((start_y + i * 300) / self.grid_size) * self.grid_size
+                        child.setPos(new_x, new_y)
+                        
+                        # Update all connections for this child
+                        for point in [child.input_point, child.output_point]:
+                            for conn in point.connections:
+                                conn.updatePath()
+                        
+                    # Update parent's connections
+                    for conn in parent_node.output_point.connections:
+                        conn.updatePath()
         
         # Handle Delete key (but not Backspace)
         if event.key() == Qt.Key_Delete:
@@ -1451,49 +1538,51 @@ class BuildGraphView(BlueprintView):
         super().keyPressEvent(event)
 
     def deleteSelectedNodes(self):
-        print("Attempting to delete nodes")
         to_delete = []
+        to_update = set()  # Parent nodes that need updating
         
-        # Collect nodes to delete
+        # First pass: collect nodes and their parents
         for item in self.scene().selectedItems():
             if isinstance(item, BuildableNode) and not item.editing:
-                print(f"Adding node to delete list: {item.name}")
+                # Find parent nodes
+                if hasattr(item, 'input_point'):
+                    for conn in item.input_point.connections:
+                        parent_node = conn.start_point.parentItem()
+                        if isinstance(parent_node, BuildableNode):
+                            to_update.add(parent_node)
                 to_delete.append(item)
-        
+
         if not to_delete:
-            print("No nodes to delete")
             return
-            
-        print(f"Found {len(to_delete)} nodes to delete")
-        
-        # Process deletion
+
+        # Second pass: process deletion
         for node in to_delete:
-            # Remove connections
+            node_name = node.name
+            
+            # Remove all connections
             if hasattr(node, 'input_point'):
                 for conn in list(node.input_point.connections):
-                    print(f"Removing input connection from {node.name}")
                     conn.cleanup()
                     self.scene().removeItem(conn)
             
             if hasattr(node, 'output_point'):
                 for conn in list(node.output_point.connections):
-                    print(f"Removing output connection from {node.name}")
                     conn.cleanup()
                     self.scene().removeItem(conn)
             
-            # Remove from scene's item list before removal
-            scene_items = self.scene().items()
-            if node in scene_items:
-                print(f"Node {node.name} found in scene items")
-            
-            # Remove the node
+            # Remove node from scene
             self.scene().removeItem(node)
-            node.setParentItem(None)  # Explicitly remove parent
-            del node  # Explicitly delete the node
+            node.setParentItem(None)
             
-            # Verify removal
-            scene_items_after = self.scene().items()
-            print(f"Scene items before: {len(scene_items)}, after: {len(scene_items_after)}")
+            # Update parent nodes' code to remove function calls
+            for parent in to_update:
+                current_content = parent.text_item.toPlainText()
+                updated_content = self.remove_function_calls(current_content, node_name)
+                if current_content != updated_content:
+                    parent.text_item.setPlainText(updated_content)
+                    parent.full_content = updated_content
+                    if hasattr(self.scene(), 'check_and_create_called_functions'):
+                        self.scene().check_and_create_called_functions(parent)
 
         # Update IDE content
         if isinstance(self.scene(), BuildGraphScene) and self.scene().parent_ide:
@@ -1501,15 +1590,42 @@ class BuildGraphView(BlueprintView):
                 [node for node in self.scene().items() if isinstance(node, BuildableNode)],
                 key=lambda x: x.pos().y()
             )
-            print(f"Remaining buildable nodes: {len(remaining_nodes)}")
-            
             combined_code = [node.full_content for node in remaining_nodes]
-            self.scene().parent_ide.textEdit.setText("\n".join(combined_code))
-            print("Updated IDE content")
-        
-        # Force scene to update
+            self.scene().parent_ide.textEdit.setText("\n\n".join(combined_code))
+
+        # Force scene update
         self.scene().update()
         self.viewport().update()
+
+    def remove_function_calls(self, content, function_name):
+        lines = content.splitlines()
+        updated_lines = []
+        inside_multiline = False
+        
+        for line in lines:
+            if not inside_multiline:
+                # Check for start of multiline call
+                pattern = rf"{function_name}\([^)]*\)"
+                if f"{function_name}(" in line and line.count('(') > line.count(')'):
+                    inside_multiline = True
+                    continue
+                # Remove single-line function calls
+                if f"{function_name}(" in line:
+                    # Keep line if it's part of an assignment or has other content
+                    if '=' in line or len(re.sub(pattern, "", line).strip()) > 0:
+                        line = re.sub(pattern, "", line)
+                    else:
+                        continue
+            else:
+                # Check for end of multiline call
+                if ')' in line:
+                    inside_multiline = False
+                    continue
+                continue
+                
+            updated_lines.append(line)
+            
+        return "\n".join(updated_lines)
 
     def mousePressEvent(self, event):
         self.setFocus()
@@ -1526,39 +1642,27 @@ class BuildGraphView(BlueprintView):
 class BuildGraphWindow(QMainWindow):
     def __init__(self, parent, code_text):
         super().__init__()
-        # Store parent reference for IDE access
         self.parent_ide = parent
         self.setWindowTitle("Build Graph")
-        # Set the window to stay on top of the IDE window
         self.setWindowFlags(Qt.Window | Qt.WindowStaysOnTopHint)
         
-        # Check if there's existing code that would conflict
-        if code_text.strip() and not self.confirm_code_replacement():
-            # User cancelled - don't create window
-            self.cancelled = True
-            return
-            
-        super().__init__(parent)
+        # Remove the code replacement check - we'll handle existing code now
         self.cancelled = False
         self.setStyleSheet("QMainWindow { background: #2c3e50; color: white; }")
         self.setAttribute(Qt.WA_TranslucentBackground, False)
         
-        # Create central widget and layout
         central_widget = QWidget()
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
         
-        # Create container for contents
         container = QWidget()
         containerLayout = QVBoxLayout(container)
         
-        # Create menu bar
         menubar = QMenuBar()
         self.setup_menus(menubar)
         containerLayout.addWidget(menubar)
         
-        # Create scene and view
         self.scene = BuildGraphScene(self.parent_ide)
         self.view = BuildGraphView(self.scene)
         containerLayout.addWidget(self.view)
