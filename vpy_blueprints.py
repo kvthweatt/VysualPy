@@ -464,34 +464,123 @@ class BlueprintGraphWindow(QMainWindow, CustomWindowMixin):
         self.view.scale(0.9, 0.9)
 
     def create_nodes_from_code(self, code):
+        """Create nodes from code, handling class methods appropriately"""
         y_offset = 0
         current_block = []
-        current_block_type = None
-
+        in_class = False
+        current_class = None
+        class_init = []
+        current_indent = 0
+        method_indent = None
+        
         for line in code.splitlines():
+            if not line.strip():
+                continue
+                
+            # Calculate line indentation
+            indent = len(line) - len(line.lstrip())
             stripped = line.strip()
             
+            # Handle class definitions
             if stripped.startswith("class "):
                 if current_block:
-                    y_offset = self.add_code_block(current_block_type, current_block, "class", y_offset)
-                class_name = stripped.split()[1].split('(')[0]
-                current_block = [line]
-                current_block_type = class_name
-
-            elif stripped.startswith(("def ", "async def ")):
-                if current_block:
-                    y_offset = self.add_code_block(current_block_type, current_block, "function", y_offset)
-                func_name = stripped.split()[1 if stripped.startswith("def") else 2].split('(')[0]
-                current_block = [line]
-                current_block_type = func_name
-
-            elif stripped:
-                if not current_block_type:
-                    current_block_type = "Global"
+                    self.add_function_node(current_block, y_offset)
+                    y_offset += 270
+                current_class = stripped.split()[1].split('(')[0]
+                in_class = True
+                current_indent = indent
+                method_indent = indent + 4  # Standard Python indentation
+                class_init = [line]  # Start collecting class definition
+                continue
+                
+            # Handle end of class definition
+            if in_class and indent <= current_indent:
+                if class_init:
+                    # Create node for class with __init__
+                    content = "\n".join(class_init)
+                    node = BuildableNode(
+                        current_class,
+                        content,
+                        0, y_offset,
+                        400, 250,
+                        self.scene,
+                        True,
+                        self.parent_ide
+                    )
+                    self.scene.addItem(node)
+                    y_offset += 270
+                in_class = False
+                class_init = []
+                current_class = None
+                
+            # Handle methods within class
+            if in_class and indent == method_indent:
+                if stripped.startswith("def __init__"):
+                    # Add to class initialization
+                    class_init.append(line)
+                    continue
+                elif stripped.startswith(("def ", "async def ")):
+                    # Create new block for non-init method
+                    if current_block:
+                        self.add_function_node(current_block, y_offset)
+                        y_offset += 270
+                    current_block = [line]
+                    continue
+                    
+            # Continue collecting lines for current block
+            if in_class and stripped.startswith(("def __init__", "async def __init__")):
+                class_init.append(line)
+            elif current_block:
                 current_block.append(line)
-
+            elif not in_class and stripped.startswith(("def ", "async def ")):
+                if current_block:
+                    self.add_function_node(current_block, y_offset)
+                    y_offset += 270
+                current_block = [line]
+            elif not in_class:
+                if current_block:
+                    current_block.append(line)
+        
+        # Handle final blocks
+        if class_init:
+            content = "\n".join(class_init)
+            node = BuildableNode(
+                current_class,
+                content,
+                0, y_offset,
+                400, 250,
+                self.scene,
+                True,
+                self.parent_ide
+            )
+            self.scene.addItem(node)
+            y_offset += 270
+            
         if current_block:
-            self.add_code_block(current_block_type, current_block, "global", y_offset)
+            self.add_function_node(current_block, y_offset)
+
+    def add_function_node(self, block_lines, y_offset):
+        """Create a node for a function block"""
+        content = "\n".join(block_lines)
+        first_line = block_lines[0].strip()
+        
+        # Extract function name
+        if first_line.startswith("async def "):
+            func_name = first_line.split()[2].split('(')[0]
+        else:
+            func_name = first_line.split()[1].split('(')[0]
+        
+        # Create node
+        node = BuildableNode(
+            func_name,
+            content,
+            0, y_offset,
+            400, 250,
+            self.scene,
+            False,
+            self.parent_ide
+        )
+        self.scene.addItem(node)
 
     def add_code_block(self, name, block_lines, block_type, y_offset):
         content = "\n".join(block_lines)
@@ -1213,8 +1302,21 @@ class BuildGraphScene(BlueprintScene):
         self.typing_node = None
         self.existing_functions = {}
         self.update_existing_functions()
+        self.grid_size = 50
         
         self.initialize_default_structure()
+
+    def get_next_grid_position(self, current_x, current_y, node_width, node_height, max_width=1150):
+        """Calculate next grid-aligned position for node placement"""
+        # Snap to grid
+        grid_x = round(current_x / self.grid_size) * self.grid_size
+        grid_y = round(current_y / self.grid_size) * self.grid_size
+        
+        # Check if we need to move to next row
+        if grid_x + node_width + self.grid_size > max_width:
+            return self.grid_size, grid_y + node_height + self.grid_size
+        
+        return grid_x, grid_y
 
     def initialize_default_structure(self):
         """Parse existing code or create default structure"""
@@ -1226,9 +1328,11 @@ class BuildGraphScene(BlueprintScene):
                 visitor = FunctionCallVisitor()
                 visitor.visit(tree)
                 
-                # Track created nodes
+                # Track created nodes and positions
                 nodes = {}
-                x, y = 50, 50
+                current_x = self.grid_size
+                current_y = self.grid_size
+                row_max_height = 0
                 
                 # Create nodes for all functions
                 for func_name, targets in visitor.execution_flow.items():
@@ -1248,24 +1352,42 @@ class BuildGraphScene(BlueprintScene):
                     
                     func_content = "\n".join(func_lines) if func_lines else f"def {func_name}():\n    pass"
                     
-                    # Create node
+                    # Create node with temporary position
                     node = BuildableNode(
                         func_name,
                         func_content,
-                        x, y,
-                        800, 400,  # Larger initial size
+                        current_x, current_y,
+                        400, 250,  # Initial size
                         self,
                         False,
                         self.parent_ide
                     )
+                    
+                    # Get actual node size after content is set
+                    rect = node.boundingRect()
+                    node_width = rect.width()
+                    node_height = rect.height()
+                    
+                    # Get next grid-aligned position
+                    grid_x, grid_y = self.get_next_grid_position(
+                        current_x, current_y, node_width, node_height
+                    )
+                    
+                    # Check if we need to move to new row
+                    if grid_y > current_y:  # New row started
+                        current_y = grid_y
+                        current_x = self.grid_size
+                        row_max_height = node_height
+                    else:
+                        row_max_height = max(row_max_height, node_height)
+                    
+                    # Set final position
+                    node.setPos(grid_x, grid_y)
                     self.addItem(node)
                     nodes[func_name] = node
                     
-                    # Adjust position for next node
-                    x += 450
-                    if x > 1350:
-                        x = 50
-                        y += 300
+                    # Update position for next node
+                    current_x = grid_x + node_width + self.grid_size
                 
                 # Create connections
                 for source_name, targets in visitor.execution_flow.items():
@@ -1280,27 +1402,38 @@ class BuildGraphScene(BlueprintScene):
                                 
             except Exception as e:
                 print(f"Error parsing existing code: {e}")
-                # Fallback to default structure
                 self._create_default_structure()
         else:
             self._create_default_structure()
 
     def _create_default_structure(self):
         """Create default entry point and main function"""
+        # Entry point
         entry_node = BuildableNode(
             "Entry Point",
             'if __name__ == "__main__":\n    main()',
-            100, 100, 800, 400, self, False, self.parent_ide
+            self.grid_size, self.grid_size,
+            400, 250,
+            self,
+            False,
+            self.parent_ide
         )
         self.addItem(entry_node)
         
+        # Main function - positioned to the right of entry point
         main_node = BuildableNode(
             "main",
             "def main():\n    return",
-            600, 100, 800, 400, self, False, self.parent_ide
+            self.grid_size * 12,  # Position after entry point with spacing
+            self.grid_size,
+            400, 250,
+            self,
+            False,
+            self.parent_ide
         )
         self.addItem(main_node)
         
+        # Connect entry to main
         connection = Connection(entry_node.output_point, main_node.input_point, self)
         connection.setEndPoint(main_node.input_point)
         self.addItem(connection)
@@ -1506,27 +1639,35 @@ class BuildGraphView(BlueprintView):
                 
                 if child_nodes:
                     parent_rect = parent_node.boundingRect()
-                    start_x = parent_node.pos().x() + parent_rect.width() + 100
-                    start_y = parent_node.pos().y() - ((len(child_nodes) - 1) * 300 / 2)
+                    parent_pos = parent_node.pos()
                     
+                    # Calculate start positions relative to parent
+                    start_x = parent_pos.x() + parent_rect.width() + self.grid_size
+                    
+                    # For even number of nodes, center them vertically around parent's y
+                    # For odd number of nodes, put middle node at parent's y
+                    total_nodes = len(child_nodes)
+                    if total_nodes % 2 == 0:  # Even
+                        start_y = parent_pos.y() - (((total_nodes - 1) * self.grid_size) / 2)
+                    else:  # Odd
+                        start_y = parent_pos.y() - ((total_nodes // 2) * self.grid_size)
+                    
+                    # Position each child node
                     for i, child in enumerate(child_nodes):
-                        new_x, new_y = 0,0
-                        if len(child_nodes) % 2 == 0: # Even
-                            new_x = round(start_x / self.grid_size) * self.grid_size
-                            new_y = round((start_y + i * 300) / self.grid_size) * (self.grid_size * 2)
-                        else:                         # Odd
-                            new_x = round(start_x / self.grid_size) * self.grid_size
-                            new_y = round((start_y + i * 300) / self.grid_size) * self.grid_size
+                        # Calculate new position
+                        new_x = round(start_x / self.grid_size) * self.grid_size
+                        new_y = round((start_y + (i * self.grid_size)) / self.grid_size) * self.grid_size
+                        
+                        # Safety check for reasonable bounds
+                        if abs(new_y - parent_pos.y()) > 1000:  # Limit vertical distance
+                            new_y = parent_pos.y() + (i * self.grid_size)
+                        
                         child.setPos(new_x, new_y)
                         
                         # Update all connections for this child
                         for point in [child.input_point, child.output_point]:
                             for conn in point.connections:
                                 conn.updatePath()
-                        
-                    # Update parent's connections
-                    for conn in parent_node.output_point.connections:
-                        conn.updatePath()
         
         # Handle Delete key (but not Backspace)
         if event.key() == Qt.Key_Delete:

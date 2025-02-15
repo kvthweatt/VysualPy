@@ -13,6 +13,7 @@
         "break",
         "class",
         "continue",
+        "async def",
         "def",
         "del",
         "elif",
@@ -20,6 +21,7 @@
         "except",
         "False",
         "finally",
+        "async for",
         "for",
         "from",
         "global",
@@ -39,7 +41,16 @@
         "try",
         "while",
         "with",
-        "yield"
+        "yield",
+        "match",
+        "case",
+        "_",
+        "int",
+        "str",
+        "type",
+        "list",
+        "dict",
+        "float"
     ],
     "colors": {
         "keyword": "#FF6B6B",

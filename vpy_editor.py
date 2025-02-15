@@ -3,7 +3,7 @@ import re, os, subprocess
 from PyQt5.QtWidgets import (
     QMainWindow, QMenuBar, QAction, QTextEdit, QMessageBox, QGraphicsView,
     QFileDialog, QInputDialog, QWidget, QVBoxLayout, QSizePolicy,
-    QSplitter, QShortcut, QPlainTextEdit, QMenu
+    QSplitter, QShortcut, QPlainTextEdit, QMenu, QTabWidget
     )
 
 from PyQt5.QtGui import (
@@ -320,6 +320,165 @@ class CodeEditor(QPlainTextEdit):
         self.breakpoints.clear()
         self.line_number_area.update()
 
+class EditorTab(QWidget):
+    def __init__(self, filepath=None, parent=None):
+        super().__init__(parent)
+        self.filepath = filepath
+        self.editor = CodeEditor()
+        self.editor.textChanged.connect(self.handle_text_changed)
+        self.is_modified = False
+        
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.editor)
+        
+    def handle_text_changed(self):
+        if not self.is_modified:
+            self.is_modified = True
+            self.update_tab_title()
+            
+    def update_tab_title(self):
+        if self.parent() and isinstance(self.parent(), FileTabWidget):
+            index = self.parent().indexOf(self)
+            if index != -1:
+                title = self.get_tab_title()
+                self.parent().setTabText(index, title)
+                
+    def get_tab_title(self):
+        title = "Untitled"
+        if self.filepath:
+            title = os.path.basename(self.filepath)
+        if self.is_modified:
+            title += " *"
+        return title
+        
+    def save_content(self, filepath=None):
+        if filepath:
+            self.filepath = filepath
+        if self.filepath:
+            with open(self.filepath, 'w') as f:
+                f.write(self.editor.toPlainText())
+            self.is_modified = False
+            self.update_tab_title()
+            return True
+        return False
+
+class FileTabWidget(QTabWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setTabsClosable(True)
+        self.setMovable(True)
+        self.setDocumentMode(True)
+        
+        self.tabCloseRequested.connect(self.close_tab)
+
+
+        ## CONNECT PREFERENCES TO VALUES IN HERE FOR IDE CUSTOMIZATION
+        self.setStyleSheet("""
+            QTabWidget::pane {
+                border: none;
+                background: #1a1a1a;
+            }
+            QTabBar::tab {
+                background: #2b2b2b;
+                color: #a9b7c6;
+                border: none;
+                padding: 3px;
+                font-size: small;
+                font-family: monospace;
+                margin-right: 5px;
+                min-width: 100px;
+            }
+            QTabBar::tab:selected {
+                background: #3c3f41;
+                border-bottom: 2px solid #2d5177;
+            }
+            QTabBar::tab:hover {
+                background: #323232;
+            }
+            QTabBar::close-button {
+                image: url(close-tab.png);
+            }
+            QTabBar::close-button:hover {
+                image: url(close-tab-hover.png);
+            }
+        """)
+        
+    def add_tab(self, filepath=None, content=None):
+        tab = EditorTab(filepath, self)
+        if content:
+            tab.editor.setPlainText(content)
+        elif filepath and os.path.exists(filepath):
+            with open(filepath, 'r') as f:
+                tab.editor.setPlainText(f.read())
+        
+        title = tab.get_tab_title()
+        index = self.addTab(tab, title)
+        self.setCurrentIndex(index)
+        return tab
+        
+    def close_tab(self, index):
+        tab = self.widget(index)
+        if tab and tab.is_modified:
+            # Ask to save changes
+            reply = QMessageBox.question(
+                self, 'Save Changes',
+                f'Save changes to {tab.get_tab_title()}?',
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel
+            )
+            
+            if reply == QMessageBox.Save:
+                if not tab.filepath:
+                    filepath, _ = QFileDialog.getSaveFileName(
+                        self, "Save File As", "", 
+                        "Python Files (*.py);;All Files (*)"
+                    )
+                    if not filepath:
+                        return
+                    tab.filepath = filepath
+                if not tab.save_content():
+                    return
+            elif reply == QMessageBox.Cancel:
+                return
+                
+        self.removeTab(index)
+        
+    def save_current_tab(self):
+        current_tab = self.currentWidget()
+        if current_tab:
+            if not current_tab.filepath:
+                filepath, _ = QFileDialog.getSaveFileName(
+                    self, "Save File As", "", 
+                    "Python Files (*.py);;All Files (*)"
+                )
+                if not filepath:
+                    return False
+                current_tab.filepath = filepath
+            return current_tab.save_content()
+        return False
+        
+    def save_all_tabs(self):
+        saved = True
+        for i in range(self.count()):
+            tab = self.widget(i)
+            if tab.is_modified:
+                if not tab.filepath:
+                    self.setCurrentIndex(i)
+                    filepath, _ = QFileDialog.getSaveFileName(
+                        self, "Save File As", "", 
+                        "Python Files (*.py);;All Files (*)"
+                    )
+                    if not filepath:
+                        saved = False
+                        continue
+                    tab.filepath = filepath
+                saved &= tab.save_content()
+        return saved
+        
+    def get_current_file(self):
+        current_tab = self.currentWidget()
+        return current_tab.filepath if current_tab else None
+
 class PythonIDE(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -336,8 +495,9 @@ class PythonIDE(QMainWindow):
         menubar = self.createMenuBar()
         self.setMenuBar(menubar)
         
-        # Create text editor
-        self.textEdit = CodeEditor()
+        # Create tab widget system
+        self.tab_widget = FileTabWidget(self)
+        self.add_new_tab()  # Create initial tab
         
         # Set up the IDE layout with file browser and terminal
         IDELayout.setup(self)
@@ -352,6 +512,75 @@ class PythonIDE(QMainWindow):
         # Initialize current file reference
         self.currentFile = None
         
+        # File menu
+        fileMenu = menubar.addMenu("File")
+        fileMenu.setObjectName("FileMenu")
+        newAction = QAction("New File", self)
+        openAction = QAction("Open File", self)
+        saveAction = QAction("Save File", self)
+        saveAsAction = QAction("Save File As", self)
+        closeAction = QAction("Close Tab", self)
+        exitAction = QAction("Exit", self)
+
+        newAction.setShortcut("Ctrl+N")
+        openAction.setShortcut("Ctrl+O")
+        saveAction.setShortcut("Ctrl+S")
+        saveAsAction.setShortcut("Ctrl+Shift+S")
+        closeAction.setShortcut("Ctrl+W")
+
+        newAction.triggered.connect(self.newFile)
+        openAction.triggered.connect(self.openFile)
+        saveAction.triggered.connect(self.saveFile)
+        saveAsAction.triggered.connect(self.saveFileAs)
+        closeAction.triggered.connect(self.closeCurrentTab)
+        exitAction.triggered.connect(self.close)
+
+        fileMenu.addAction(newAction)
+        fileMenu.addAction(openAction)
+        self.setup_project_menu()
+        fileMenu.addAction(saveAction)
+        fileMenu.addAction(saveAsAction)
+        fileMenu.addAction(closeAction)
+        fileMenu.addMenu(self.recent_files_menu)
+        fileMenu.addAction(exitAction)
+        
+        # Edit menu
+        editMenu = menubar.addMenu("Edit")
+        preferencesAction = QAction("Preferences", self)
+        preferencesAction.triggered.connect(self.showPreferences)
+        editMenu.addAction(preferencesAction)
+
+        # View menu
+        viewMenu = menubar.addMenu("View")
+        bpgraphAction = QAction("Blueprint Graph", self)
+        bpgraphAction.triggered.connect(self.showGraph)
+        viewMenu.addAction(bpgraphAction)
+        exgraphAction = QAction("Execution Graph", self)
+        exgraphAction.triggered.connect(self.showExGraph)
+        viewMenu.addAction(exgraphAction)
+        bdgraphAction = QAction("Code Build Graph", self)
+        bdgraphAction.triggered.connect(self.showBdGraph)
+        viewMenu.addAction(bdgraphAction)
+
+        # Run menu
+        runMenu = menubar.addMenu("Run")
+        runAction = QAction("Run Program", self)
+        runAction.setShortcut("F5")
+        runAction.triggered.connect(self.runProgram)
+        runMenu.addAction(runAction)
+        asmAction = QAction("Assemble Program", self)
+        asmAction.triggered.connect(self.showAssemblyView)
+        runMenu.addAction(asmAction)
+
+        # Help menu
+        helpMenu = menubar.addMenu("Help")
+        ideHelpAction = QAction("IDE Help", self)
+        aboutAction = QAction("About", self)
+        ideHelpAction.triggered.connect(self.showIDEHelp)
+        aboutAction.triggered.connect(self.showAbout)
+        helpMenu.addAction(ideHelpAction)
+        helpMenu.addAction(aboutAction)
+
         # Apply dark theme
         self.setStyleSheet("""
             QMainWindow {
@@ -384,96 +613,17 @@ class PythonIDE(QMainWindow):
                 padding-bottom: 2px;
             }
         """)
-        
-        # File menu
-        fileMenu = menubar.addMenu("File")
-        fileMenu.setObjectName("FileMenu")
-        newAction = QAction("New File", self)
-        openAction = QAction("Open File", self)
-        saveAction = QAction("Save File", self)
-        saveAsAction = QAction("Save File As", self)
-        exitAction = QAction("Exit", self)
 
-        newAction.triggered.connect(self.newFile)
-        openAction.triggered.connect(self.openFile)
-        saveAction.triggered.connect(self.saveFile)
-        saveAsAction.triggered.connect(self.saveFileAs)
-        exitAction.triggered.connect(self.close)
-
-        fileMenu.addAction(newAction)
-        fileMenu.addAction(openAction)
-        self.setup_project_menu()
-        fileMenu.addAction(saveAction)
-        fileMenu.addAction(saveAsAction)
-        fileMenu.addMenu(self.recent_files_menu)
-        fileMenu.addAction(exitAction)
+    def add_new_tab(self):
+        """Add a new empty tab and return it"""
+        return self.tab_widget.add_tab()
         
-        # Edit menu
-        editMenu = menubar.addMenu("Edit")
-        preferencesAction = QAction("Preferences", self)
-        preferencesAction.triggered.connect(self.showPreferences)
-        editMenu.addAction(preferencesAction)
+    def closeCurrentTab(self):
+        """Close the current tab"""
+        current_index = self.tab_widget.currentIndex()
+        if current_index >= 0:
+            self.tab_widget.close_tab(current_index)
 
-        # View menu
-        viewMenu = menubar.addMenu("View")
-        bpgraphAction = QAction("Blueprint Graph", self)
-        bpgraphAction.triggered.connect(self.showGraph)
-        viewMenu.addAction(bpgraphAction)
-        exgraphAction = QAction("Execution Graph", self)
-        exgraphAction.triggered.connect(self.showExGraph)
-        viewMenu.addAction(exgraphAction)
-        bdgraphAction = QAction("Code Build Graph", self)
-        bdgraphAction.triggered.connect(self.showBdGraph)
-        viewMenu.addAction(bdgraphAction)
-
-        # Run menu
-        runMenu = menubar.addMenu("Run")
-        runAction = QAction("Run Program", self)
-        runAction.triggered.connect(self.runProgram)
-        runMenu.addAction(runAction)
-        asmAction = QAction("Assemble Program", self)
-        asmAction.triggered.connect(self.showAssemblyView)
-        runMenu.addAction(asmAction)
-
-        # Help menu
-        helpMenu = menubar.addMenu("Help")
-        ideHelpAction = QAction("IDE Help", self)
-        aboutAction = QAction("About", self)
-        ideHelpAction.triggered.connect(self.showIDEHelp)
-        aboutAction.triggered.connect(self.showAbout)
-        helpMenu.addAction(ideHelpAction)
-        helpMenu.addAction(aboutAction)
-
-        self.setMenuBar(menubar)
-        
-        # Text editor
-        central_widget = QWidget()
-        layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        self.textEdit = CodeEditor()
-        
-        # Ensure the text editor can expand
-        self.textEdit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        # Connect text editor signals to status bar
-        self.textEdit.textChanged.connect(lambda: self.status_bar.handle_text_changed(self.textEdit))
-        self.textEdit.cursorPositionChanged.connect(lambda: self.status_bar.handle_text_changed(self.textEdit))
-     
-        # Add editor to layout
-        layout.addWidget(self.textEdit)
-        
-        # Set central widget
-        self.setCentralWidget(central_widget)
-        
-        # Configure window
-        self.resize(1024, 768)
-        self.setMinimumSize(400, 300)
-        
-        # Store current file reference
-        self.currentFile = None
-        
     def createMenuBar(self):
         menubar = QMenuBar()
         # [Rest of menu creation code remains the same]
@@ -497,23 +647,38 @@ class PythonIDE(QMainWindow):
             event.accept()
 
     def newFile(self):
-        self.textEdit.clear()
-        self.currentFile = None
+        """Create a new file in a new tab"""
+        self.add_new_tab()
 
     def openFile(self):
-        options = QFileDialog.Options()
-        filePath, _ = QFileDialog.getOpenFileName(self, "Open File", "", 
-                                                "Python Files (*.py);;All Files (*)", options=options)
-        if filePath:
-            try:
-                with open(filePath, 'r') as file:
-                    self.textEdit.setText(file.read())
-                self.currentFile = filePath
-                self.setWindowTitle(f"Visual Python IDE - {filePath}")
-                self.status_bar.handle_save(filePath)  # Initialize status bar with file info
-                self.status_bar.handle_text_changed(self.textEdit)  # Update line count and cursor position
-            except Exception as e:
-                self.show_error_message(f"Error opening file: {e}")
+            """Open a file in a new tab"""
+            options = QFileDialog.Options()
+            filePath, _ = QFileDialog.getOpenFileName(
+                self, 
+                "Open File", 
+                "", 
+                "Python Files (*.py);;All Files (*)", 
+                options=options
+            )
+            if filePath:
+                # Check if file is already open
+                for i in range(self.tab_widget.count()):
+                    tab = self.tab_widget.widget(i)
+                    if tab.filepath == filePath:
+                        self.tab_widget.setCurrentIndex(i)
+                        return True
+
+                try:
+                    tab = self.tab_widget.add_tab(filePath)
+                    if tab:
+                        self.currentFile = filePath
+                        self.setWindowTitle(f"Vysual Python IDE - {filePath}")
+                        self.status_bar.handle_save(filePath)
+                        self.recent_files_menu.add_recent_file(filePath)
+                        return True
+                except Exception as e:
+                    self.show_error_message(f"Error opening file: {e}")
+                return False
 
     def show_error_message(self, message):
         QMessageBox.critical(self, "Error", message)

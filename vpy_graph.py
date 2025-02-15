@@ -407,50 +407,81 @@ class EditableTextItem(QGraphicsTextItem):
 
 class BuildableNode(QGraphicsRectItem):
     def __init__(self, name, content, x, y, width, height, scene, is_class: bool, parent_ide):
-        super().__init__(0, 0, width, height)
-        self.setFlag(QGraphicsRectItem.ItemIsMovable)
-        self.setFlag(QGraphicsRectItem.ItemIsSelectable)
-        self.setFlag(QGraphicsItem.ItemIsSelectable)
-        self.setFlag(QGraphicsItem.ItemIsFocusable)
-        
-        self.name = name
-        self.full_content = content
-        self.is_class = is_class
-        self.parent_ide = parent_ide
-        self.editing = False
-        self.grid_size = 50
-        self.fixed_width = width
-        self.scene = scene
-        
-        # Set position
-        self.setPos(x, y)
-        
-        # Set appearance
-        self.setBrush(QColor(47, 79, 79))
-        self.setPen(QPen(Qt.gray, 1))
-        
-        # Create title
-        self.title_item = QGraphicsTextItem(self)
-        self.title_item.setFont(QFont("Arial", 10, QFont.Bold))
-        self.title_item.setDefaultTextColor(Qt.white)
-        self.title_item.setPos(5, 5)
-        self.updateTitle()
-        
-        # Create editable text item
-        self.text_item = EditableTextItem(self)
-        self.text_item.setDefaultTextColor(Qt.white)
-        self.text_item.setFont(QFont("Courier", 10))
-        self.text_item.setPos(5, 25)
-        self.text_item.setTextWidth(self.fixed_width - 10)
-        self.text_item.setPlainText(content)
-        self.text_item.setTextInteractionFlags(Qt.NoTextInteraction)
-        
-        # Add connection points
-        self.input_point = ConnectionPoint(scene, self, False)
-        self.output_point = ConnectionPoint(scene, self, True)
-        self.updateConnectionPoints()
-        
-        self.setAcceptHoverEvents(True)
+            super().__init__(0, 0, width, height)
+            self.setFlag(QGraphicsRectItem.ItemIsMovable)
+            self.setFlag(QGraphicsRectItem.ItemIsSelectable)
+            self.setFlag(QGraphicsItem.ItemIsSelectable)
+            self.setFlag(QGraphicsItem.ItemIsFocusable)
+            
+            self.name = name
+            self.full_content = content
+            self.is_class = is_class
+            self.parent_ide = parent_ide
+            self.editing = False
+            self.grid_size = 50
+            self.fixed_width = width
+            self.scene = scene
+            
+            # Set position
+            self.setPos(x, y)
+            
+            # Set appearance
+            self.setBrush(QColor(47, 79, 79))
+            self.setPen(QPen(Qt.gray, 1))
+            
+            # Create title
+            self.title_item = QGraphicsTextItem(self)
+            self.title_item.setFont(QFont("Arial", 10, QFont.Bold))
+            self.title_item.setDefaultTextColor(Qt.white)
+            self.title_item.setPos(5, 5)
+            self.updateTitle()
+
+            # Create editable text item
+            self.text_item = EditableTextItem(self)
+            self.text_item.setDefaultTextColor(Qt.white)
+            self.text_item.setFont(QFont("Courier", 10))
+            self.text_item.setPos(5, 25)
+            self.text_item.setPlainText(content)
+            self.text_item.setTextInteractionFlags(Qt.NoTextInteraction)
+            
+            # Add connection points
+            self.input_point = ConnectionPoint(scene, self, False)
+            self.output_point = ConnectionPoint(scene, self, True)
+            
+            # Now calculate size
+            self.adjustNodeSize()
+            
+            self.setAcceptHoverEvents(True)
+
+    def adjustNodeSize(self):
+            """Calculate and set the proper node size based on content"""
+            doc = self.text_item.document()
+            
+            # Calculate width needed for text
+            ideal_width = doc.idealWidth()
+            # Set width between 400 and 800 pixels
+            self.fixed_width = max(400, min(800, ideal_width + 40))  # Add padding
+            
+            # Set text width and calculate required height
+            doc.setTextWidth(self.fixed_width - 20)  # Padding on both sides
+            text_height = doc.size().height()
+            new_height = text_height + 50  # Add padding for title and margins
+            
+            # Update rect and set new size
+            self.setRect(0, 0, self.fixed_width, new_height)
+            self.text_item.setTextWidth(self.fixed_width - 20)
+            
+            # Ensure text is properly positioned
+            self.title_item.setPos(10, 5)
+            self.text_item.setPos(10, 25)
+            
+            # Update connection points
+            self.updateConnectionPoints()
+            
+            # Update any existing connections
+            for point in [self.input_point, self.output_point]:
+                for connection in point.connections:
+                    connection.updatePath()
 
     def updateConnectionPoints(self):
         rect = self.rect()

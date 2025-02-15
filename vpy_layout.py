@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (
     QTreeView, QFileSystemModel, QDockWidget, QPlainTextEdit,
     QSplitter, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
-    QStyle, QSizePolicy, QTabWidget, QLabel
+    QStyle, QSizePolicy, QLabel, QTabWidget
 )
 from PyQt5.QtCore import Qt, QDir
 import sys
@@ -69,6 +69,10 @@ class BrowserTabs(QDockWidget):
         super().__init__("File Management", parent)
         self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         
+        # Only enable movable and closable, remove floatable
+        self.setFeatures(QDockWidget.DockWidgetMovable | 
+                        QDockWidget.DockWidgetClosable)
+        
         # Create tab widget
         self.tab_widget = QTabWidget()
         self.tab_widget.setStyleSheet("""
@@ -100,6 +104,10 @@ class BrowserTabs(QDockWidget):
         self.tab_widget.addTab(self.project_browser, "Project Browser")
         
         self.setWidget(self.tab_widget)
+
+    def mouseDoubleClickEvent(self, event):
+        """Override to prevent floating on double click"""
+        event.ignore()  # Ignore the double-click event
 
 class Terminal(QDockWidget):
     def __init__(self, parent=None):
@@ -214,7 +222,7 @@ class IDELayout:
         editor_widget = QWidget()
         editor_layout = QVBoxLayout(editor_widget)
         editor_layout.setContentsMargins(0, 0, 0, 0)
-        editor_layout.addWidget(ide_window.textEdit)
+        editor_layout.addWidget(ide_window.tab_widget)
         
         # Add the editor to the splitter
         ide_window.main_splitter.addWidget(editor_widget)

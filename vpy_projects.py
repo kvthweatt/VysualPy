@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QFileDialog, QMessageBox, QTreeWidget,
-    QTreeWidgetItem, QMenu, QSpinBox, QWidget
+    QTreeWidgetItem, QMenu, QSpinBox, QWidget, QGroupBox
 )
 from PyQt5.QtCore import Qt
 
@@ -42,32 +42,118 @@ class NewProjectDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("New Project")
         self.setModal(True)
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #2b2b2b;
+                min-width: 600px;
+                min-height: 400px;
+            }
+            QLabel {
+                color: #e0e0e0;
+                font-size: 13px;
+            }
+            QLineEdit {
+                background-color: #3b3b3b;
+                color: #e0e0e0;
+                border: 1px solid #505050;
+                border-radius: 4px;
+                padding: 8px;
+                min-width: 300px;
+            }
+            QLineEdit:focus {
+                border: 1px solid #6c98d2;
+            }
+            QPushButton {
+                background-color: #3c5a7d;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 8px 16px;
+                min-width: 100px;
+            }
+            QPushButton:hover {
+                background-color: #446b96;
+            }
+            QPushButton:pressed {
+                background-color: #345179;
+            }
+            QSpinBox {
+                background-color: #3b3b3b;
+                color: #e0e0e0;
+                border: 1px solid #505050;
+                border-radius: 4px;
+                padding: 6px;
+                min-width: 60px;
+            }
+            QSpinBox:focus {
+                border: 1px solid #6c98d2;
+            }
+            QSpinBox::up-button, QSpinBox::down-button {
+                background-color: #505050;
+                border: none;
+                border-radius: 2px;
+                width: 16px;
+            }
+            QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+                background-color: #606060;
+            }
+        """)
         self.initUI()
 
     def initUI(self):
         layout = QVBoxLayout()
+        layout.setSpacing(20)
+        layout.setContentsMargins(30, 30, 30, 30)
 
         # Project Name
-        name_layout = QHBoxLayout()
+        name_group = QGroupBox("Project Details")
+        name_group.setStyleSheet("""
+            QGroupBox {
+                color: #e0e0e0;
+                border: 1px solid #505050;
+                border-radius: 6px;
+                margin-top: 12px;
+                padding-top: 16px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px;
+            }
+        """)
+        name_layout = QVBoxLayout()
+        name_layout.setSpacing(15)
+
+        name_field = QHBoxLayout()
         name_label = QLabel("Project Name:")
         self.name_edit = QLineEdit()
-        name_layout.addWidget(name_label)
-        name_layout.addWidget(self.name_edit)
-        layout.addLayout(name_layout)
+        name_field.addWidget(name_label)
+        name_field.addWidget(self.name_edit)
+        name_layout.addLayout(name_field)
 
         # Version Number
-        version_layout = QHBoxLayout()
+        version_field = QHBoxLayout()
         version_label = QLabel("Version:")
         self.version_major = QSpinBox()
         self.version_minor = QSpinBox()
         self.version_patch = QSpinBox()
-        version_layout.addWidget(version_label)
-        version_layout.addWidget(self.version_major)
-        version_layout.addWidget(QLabel("."))
-        version_layout.addWidget(self.version_minor)
-        version_layout.addWidget(QLabel("."))
-        version_layout.addWidget(self.version_patch)
-        layout.addLayout(version_layout)
+        version_field.addWidget(version_label)
+        version_field.addWidget(self.version_major)
+        version_field.addWidget(QLabel("."))
+        version_field.addWidget(self.version_minor)
+        version_field.addWidget(QLabel("."))
+        version_field.addWidget(self.version_patch)
+        version_field.addStretch()
+        name_layout.addLayout(version_field)
+        
+        name_group.setLayout(name_layout)
+        layout.addWidget(name_group)
+
+        # Environment Group
+        env_group = QGroupBox("Environment")
+        env_group.setStyleSheet(name_group.styleSheet())
+        env_layout = QVBoxLayout()
+        env_layout.setSpacing(15)
 
         # Python Virtual Environment
         venv_layout = QHBoxLayout()
@@ -78,7 +164,7 @@ class NewProjectDialog(QDialog):
         venv_layout.addWidget(venv_label)
         venv_layout.addWidget(self.venv_edit)
         venv_layout.addWidget(venv_browse)
-        layout.addLayout(venv_layout)
+        env_layout.addLayout(venv_layout)
 
         # Project Location
         location_layout = QHBoxLayout()
@@ -89,16 +175,33 @@ class NewProjectDialog(QDialog):
         location_layout.addWidget(location_label)
         location_layout.addWidget(self.location_edit)
         location_layout.addWidget(location_browse)
-        layout.addLayout(location_layout)
+        env_layout.addLayout(location_layout)
+
+        env_group.setLayout(env_layout)
+        layout.addWidget(env_group)
+
+        # Add stretch to push buttons to bottom
+        layout.addStretch()
 
         # Buttons
         button_layout = QHBoxLayout()
-        create_button = QPushButton("Create")
+        button_layout.setSpacing(10)
+        create_button = QPushButton("Create Project")
+        create_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2d8657;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #35a066;
+            }
+        """)
         cancel_button = QPushButton("Cancel")
         create_button.clicked.connect(self.accept)
         cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(create_button)
+        button_layout.addStretch()
         button_layout.addWidget(cancel_button)
+        button_layout.addWidget(create_button)
         layout.addLayout(button_layout)
 
         self.setLayout(layout)
