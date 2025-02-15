@@ -1,0 +1,158 @@
+{
+
+{
+    "lang": {
+        "name": "Python",
+        "extensions": [
+            "py",
+            "pyc",
+            "pyw"
+        ]
+    },
+    "keywords": [
+        "and",
+        "assert",
+        "break",
+        "class",
+        "continue",
+        "async def",
+        "def",
+        "del",
+        "elif",
+        "else",
+        "except",
+        "False",
+        "finally",
+        "async for",
+        "for",
+        "from",
+        "global",
+        "if",
+        "import",
+        "in",
+        "is",
+        "lambda",
+        "None",
+        "nonlocal",
+        "not",
+        "or",
+        "pass",
+        "raise",
+        "return",
+        "True",
+        "try",
+        "while",
+        "with",
+        "yield",
+        "match",
+        "case",
+        "_",
+        "int",
+        "str",
+        "type",
+        "list",
+        "dict",
+        "float"
+    ],
+    "colors": {
+        "keyword": "#FF6B6B",
+        "string": "#98C379",
+        "comment": "#5C6370",
+        "function": "#61AFEF",
+        "class": "#E5C07B",
+        "number": "#D19A66",
+        "decorator": "#C678DD"
+    }
+}
+
+{
+    "lang": {
+        "name": "C",
+        "extensions": ["c", "h"]
+    },
+    "keywords": [
+        "auto", "break", "case", "char", "const", "continue", "default", 
+        "do", "double", "else", "enum", "extern", "float", "for", "goto", 
+        "if", "int", "long", "register", "return", "short", "signed", 
+        "sizeof", "static", "struct", "switch", "typedef", "union", 
+        "unsigned", "void", "volatile", "while", "inline", "restrict"
+    ],
+    "colors": {
+        "keyword": "#FF6B6B",
+        "string": "#98C379",
+        "comment": "#5C6370",
+        "function": "#61AFEF",
+        "class": "#E5C07B",
+        "number": "#D19A66",
+        "decorator": "#C678DD"
+    }
+}
+
+{
+    "lang": {
+        "name": "C++",
+        "extensions": ["cpp", "hpp", "cc", "h", "cxx", "hxx"]
+    },
+    "keywords": [
+        "alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", 
+        "bitor", "bool", "break", "case", "catch", "char", "char8_t", 
+        "char16_t", "char32_t", "class", "compl", "concept", "const", 
+        "consteval", "constexpr", "constinit", "const_cast", "continue", 
+        "co_await", "co_return", "co_yield", "decltype", "default", "delete", 
+        "do", "double", "dynamic_cast", "else", "enum", "explicit", "export",
+        "extern", "false", "float", "for", "friend", "goto", "if", "inline",
+        "int", "long", "mutable", "namespace", "new", "noexcept", "not",
+        "not_eq", "nullptr", "operator", "or", "or_eq", "private",
+        "protected", "public", "register", "reinterpret_cast",
+        "requires", "return", "short", "signed", "sizeof", "static",
+        "static_assert", "static_cast", "struct", "switch", "template",
+        "this", "thread_local", "throw", "true", "try", "typedef", "typeid",
+        "typename", "union", "unsigned", "using", "virtual", "void",
+        "volatile", "wchar_t", "while", "xor", "xor_eq"
+    ],
+    "colors": {
+        "keyword": "#FF6B6B",
+        "string": "#98C379",
+        "comment": "#5C6370",
+        "function": "#61AFEF",
+        "class": "#E5C07B",
+        "number": "#D19A66",
+        "decorator": "#C678DD"
+    }
+}
+
+{
+    "lang": {
+        "name": "C#",
+        "extensions": ["cs"]
+    },
+    "keywords": [
+        "abstract", "as", "base", "bool", "break", "byte", "case", "catch",
+        "char", "checked", "class", "const", "continue", "decimal", "default",
+        "delegate", "do", "double", "else", "enum", "event", "explicit",
+        "extern", "false", "finally", "fixed", "float", "for", "foreach",
+        "goto", "if", "implicit", "in", "int", "interface", "internal",
+        "is", "lock", "long", "namespace", "new", "null", "object",
+        "operator", "out", "override", "params", "private", "protected",
+        "public", "readonly", "ref", "return", "sbyte", "sealed",
+        "short", "sizeof", "stackalloc", "static", "string", "struct",
+        "switch", "this", "throw", "true", "try", "typeof", "uint",
+        "ulong", "unchecked", "unsafe", "ushort", "using", "virtual",
+        "void", "volatile", "while", "add", "alias", "ascending",
+        "async", "await", "by", "descending", "dynamic", "equals",
+        "from", "get", "global", "group", "into", "join", "let",
+        "nameof", "on", "orderby", "partial", "remove", "select", "set",
+        "value", "var", "when", "where", "yield"
+    ],
+    "colors": {
+        "keyword": "#FF6B6B",
+        "string": "#98C379",
+        "comment": "#5C6370",
+        "function": "#61AFEF",
+        "class": "#E5C07B",
+        "number": "#D19A66",
+        "decorator": "#C678DD"
+    }
+}
+
+}

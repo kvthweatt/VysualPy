@@ -6,19 +6,33 @@ class LanguageConfig:
     def __init__(self):
         self.config_path = "config"
         self.languages = {}
-        self.load_configs()
+        self.load_config()
     
-    def load_configs(self):
-        if not ospath.exists(self.config_path):
-            makedirs(self.config_path)
-            self.create_default_config()
-        
-        for file in listdir(self.config_path):
-            if file.endswith('.json'):
-                with open(ospath.join(self.config_path, file)) as f:
-                    config = json.load(f)
-                    if 'lang' in config:
-                        self.languages[config['lang']['name']] = config
+    def load_config(self):
+            if not ospath.exists(self.config_path):
+                makedirs(self.config_path)
+                self.create_default_config()
+            
+            # Check for langs.json in config directory
+            langs_path = ospath.join(self.config_path, 'langs.json')
+            if ospath.exists(langs_path):
+                with open(langs_path) as f:
+                    content = f.read()
+                    # Split content into individual JSON objects
+                    json_blocks = [block.strip() for block in content.split('\n\n') if block.strip()]
+                    for block in json_blocks:
+                        try:
+                            config = json.loads(block)
+                            if 'lang' in config:
+                                self.languages[config['lang']['name']] = config
+                        except json.JSONDecodeError:
+                            continue
+            else:
+                # Copy langs.json to config directory
+                default_langs = ospath.join(ospath.dirname(ospath.abspath(__file__)), 'langs.json')
+                if ospath.exists(default_langs):
+                    with open(default_langs) as src, open(langs_path, 'w') as dst:
+                        dst.write(src.read())
     
     def create_default_config(self):
         python_config = {

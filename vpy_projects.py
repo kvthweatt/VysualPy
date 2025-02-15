@@ -6,9 +6,13 @@ from dataclasses import dataclass
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QFileDialog, QMessageBox, QTreeWidget,
-    QTreeWidgetItem, QMenu, QSpinBox, QWidget, QGroupBox
+    QTreeWidgetItem, QMenu, QSpinBox, QWidget, QGroupBox,
+    QComboBox
 )
 from PyQt5.QtCore import Qt
+
+
+from vpy_config import LanguageConfig
 
 @dataclass
 class ProjectConfig:
@@ -17,6 +21,10 @@ class ProjectConfig:
     venv_path: str
     files: List[str]
     working_dir: str
+    language: str
+    compiler_path: str = ""
+    linker_path: str = ""
+    build_system: str = ""
 
     @classmethod
     def from_dict(cls, data: Dict) -> 'ProjectConfig':
@@ -25,23 +33,32 @@ class ProjectConfig:
             version=data['version'],
             venv_path=data.get('venv_path', ''),
             files=data.get('files', []),
-            working_dir=data.get('working_dir', '')
+            working_dir=data.get('working_dir', ''),
+            language=data.get('language', 'Python'),
+            compiler_path=data.get('compiler_path', ''),
+            linker_path=data.get('linker_path', ''),
+            build_system=data.get('build_system', '')
         )
-
+    
     def to_dict(self) -> Dict:
-        return {
-            'name': self.name,
-            'version': self.version,
-            'venv_path': self.venv_path,
-            'files': self.files,
-            'working_dir': self.working_dir
-        }
+            return {
+                'name': self.name,
+                'version': self.version,
+                'venv_path': self.venv_path,
+                'files': self.files,
+                'working_dir': self.working_dir,
+                'language': self.language,
+                'compiler_path': self.compiler_path,
+                'linker_path': self.linker_path,
+                'build_system': self.build_system
+            }
 
 class NewProjectDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("New Project")
         self.setModal(True)
+        self.config = LanguageConfig()
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
@@ -51,8 +68,9 @@ class NewProjectDialog(QDialog):
             QLabel {
                 color: #e0e0e0;
                 font-size: 13px;
+                height: 20px;
             }
-            QLineEdit {
+            QLineEdit, QComboBox {
                 background-color: #3b3b3b;
                 color: #e0e0e0;
                 border: 1px solid #505050;
@@ -60,16 +78,22 @@ class NewProjectDialog(QDialog):
                 padding: 8px;
                 min-width: 300px;
             }
-            QLineEdit:focus {
+            QLineEdit:focus, QComboBox:focus {
                 border: 1px solid #6c98d2;
+            }
+            QGroupBox {
+                min-height: 50px;
+                padding: 8px;
             }
             QPushButton {
                 background-color: #3c5a7d;
                 color: white;
                 border: none;
                 border-radius: 4px;
-                padding: 8px 16px;
+                padding: 4px 10px;
                 min-width: 100px;
+                min-height: 12px;
+                font-size: small;
             }
             QPushButton:hover {
                 background-color: #446b96;
@@ -84,18 +108,13 @@ class NewProjectDialog(QDialog):
                 border-radius: 4px;
                 padding: 6px;
                 min-width: 60px;
+                min-height: 18px;
             }
             QSpinBox:focus {
                 border: 1px solid #6c98d2;
             }
-            QSpinBox::up-button, QSpinBox::down-button {
-                background-color: #505050;
-                border: none;
-                border-radius: 2px;
-                width: 16px;
-            }
-            QSpinBox::up-button:hover, QSpinBox::down-button:hover {
-                background-color: #606060;
+            QGroupBox:disabled {
+                color: #666666;
             }
         """)
         self.initUI()
@@ -105,22 +124,21 @@ class NewProjectDialog(QDialog):
         layout.setSpacing(20)
         layout.setContentsMargins(30, 30, 30, 30)
 
+        self.env_group = QGroupBox("Environment")
+
+        # Language Selection
+        lang_group = QGroupBox("Language")
+        lang_layout = QHBoxLayout()
+        self.lang_combo = QComboBox()
+        self.lang_combo.addItems(sorted(self.config.languages.keys()))
+        self.lang_combo.currentTextChanged.connect(self.on_language_changed)
+        lang_layout.addWidget(QLabel("Language:"))
+        lang_layout.addWidget(self.lang_combo)
+        lang_group.setLayout(lang_layout)
+        layout.addWidget(lang_group)
+
         # Project Name
         name_group = QGroupBox("Project Details")
-        name_group.setStyleSheet("""
-            QGroupBox {
-                color: #e0e0e0;
-                border: 1px solid #505050;
-                border-radius: 6px;
-                margin-top: 12px;
-                padding-top: 16px;
-            }
-            QGroupBox::title {
-                subcontrol-origin: margin;
-                left: 10px;
-                padding: 0 5px;
-            }
-        """)
         name_layout = QVBoxLayout()
         name_layout.setSpacing(15)
 
@@ -149,22 +167,73 @@ class NewProjectDialog(QDialog):
         name_group.setLayout(name_layout)
         layout.addWidget(name_group)
 
-        # Environment Group
-        env_group = QGroupBox("Environment")
-        env_group.setStyleSheet(name_group.styleSheet())
-        env_layout = QVBoxLayout()
-        env_layout.setSpacing(15)
+        # Project Location
+        location_layout = QHBoxLayout()
+        location_label = QLabel("Location:")
+        self.location_edit = QLineEdit()
+        location_browse = QPushButton("Browse...")
+        location_browse.clicked.connect(self.browse_location)
+        location_layout.addWidget(location_label)
+        location_layout.addWidget(self.location_edit)
+        location_layout.addWidget(location_browse)
+        env_layout = QHBoxLayout()
+        env_layout.addLayout(location_layout)
 
-        # Python Virtual Environment
+        # Language-specific environments
+        self.python_env = QWidget()
+        python_layout = QVBoxLayout(self.python_env)
+        
         venv_layout = QHBoxLayout()
-        venv_label = QLabel("Python venv:")
+        venv_label = QLabel("Virtual Environment:")
         self.venv_edit = QLineEdit()
         venv_browse = QPushButton("Browse...")
         venv_browse.clicked.connect(self.browse_venv)
         venv_layout.addWidget(venv_label)
         venv_layout.addWidget(self.venv_edit)
         venv_layout.addWidget(venv_browse)
-        env_layout.addLayout(venv_layout)
+        python_layout.addLayout(venv_layout)
+        
+        self.compiled_env = QWidget()
+        compiled_layout = QVBoxLayout(self.compiled_env)
+        
+        compiler_layout = QHBoxLayout()
+        compiler_label = QLabel("Compiler:")
+        self.compiler_edit = QLineEdit()
+        compiler_browse = QPushButton("Browse...")
+        compiler_browse.clicked.connect(self.browse_compiler)
+        compiler_layout.addWidget(compiler_label)
+        compiler_layout.addWidget(self.compiler_edit)
+        compiler_layout.addWidget(compiler_browse)
+        compiled_layout.addLayout(compiler_layout)
+        
+        linker_layout = QHBoxLayout()
+        linker_label = QLabel("Linker:")
+        self.linker_edit = QLineEdit()
+        linker_browse = QPushButton("Browse...")
+        linker_browse.clicked.connect(self.browse_linker)
+        linker_layout.addWidget(linker_label)
+        linker_layout.addWidget(self.linker_edit)
+        linker_layout.addWidget(linker_browse)
+        compiled_layout.addLayout(linker_layout)
+        
+        build_layout = QHBoxLayout()
+        build_label = QLabel("Build System:")
+        self.build_combo = QComboBox()
+        self.build_combo.addItems(["Make", "CMake", "MSBuild"])
+        build_layout.addWidget(build_label)
+        build_layout.addWidget(self.build_combo)
+        compiled_layout.addLayout(build_layout)
+
+        # Add both environments to main layout
+        env_layout.addWidget(self.python_env)
+        env_layout.addWidget(self.compiled_env)
+        
+        # Initially hide both
+        self.python_env.hide()
+        self.compiled_env.hide()
+
+        self.env_group.setLayout(env_layout)
+        layout.addWidget(self.env_group)
 
         # Project Location
         location_layout = QHBoxLayout()
@@ -177,15 +246,11 @@ class NewProjectDialog(QDialog):
         location_layout.addWidget(location_browse)
         env_layout.addLayout(location_layout)
 
-        env_group.setLayout(env_layout)
-        layout.addWidget(env_group)
-
-        # Add stretch to push buttons to bottom
-        layout.addStretch()
+        self.env_group.setLayout(env_layout)
+        layout.addWidget(self.env_group)
 
         # Buttons
         button_layout = QHBoxLayout()
-        button_layout.setSpacing(10)
         create_button = QPushButton("Create Project")
         create_button.setStyleSheet("""
             QPushButton {
@@ -206,32 +271,61 @@ class NewProjectDialog(QDialog):
 
         self.setLayout(layout)
 
+    def on_language_changed(self, language):
+        self.env_group.setEnabled(True)
+        
+        # Show/hide appropriate environment settings
+        if language == "Python":
+            self.python_env.show()
+            self.compiled_env.hide()
+        elif language in ["C", "C++", "C#"]:
+            self.python_env.hide()
+            self.compiled_env.show()
+        
+        # Update window layout
+        self.adjustSize()
+
     def browse_venv(self):
-        path = QFileDialog.getExistingDirectory(self, "Select Python Virtual Environment")
+        path = QFileDialog.getExistingDirectory(self, "Select Virtual Environment")
         if path:
             self.venv_edit.setText(path)
+            
+    def browse_compiler(self):
+        path, _ = QFileDialog.getOpenFileName(self, "Select Compiler")
+        if path:
+            self.compiler_edit.setText(path)
+            
+    def browse_linker(self):
+        path, _ = QFileDialog.getOpenFileName(self, "Select Linker")
+        if path:
+            self.linker_edit.setText(path)
 
     def browse_location(self):
         path = QFileDialog.getExistingDirectory(self, "Select Project Location")
         if path:
             self.location_edit.setText(path)
 
-    def get_project_data(self) -> Optional[ProjectConfig]:
+    def get_project_data(self):
         if not self.validate():
             return None
 
         version = f"{self.version_major.value()}.{self.version_minor.value()}.{self.version_patch.value()}"
         working_dir = os.path.join(self.location_edit.text(), self.name_edit.text())
+        language = self.lang_combo.currentText()
 
         return ProjectConfig(
             name=self.name_edit.text(),
             version=version,
-            venv_path=self.venv_edit.text(),
+            venv_path=self.venv_edit.text() if language == "Python" else "",
             files=[],
-            working_dir=working_dir
+            working_dir=working_dir,
+            language=language,
+            compiler_path=self.compiler_edit.text() if language in ["C", "C++", "C#"] else "",
+            linker_path=self.linker_edit.text() if language in ["C", "C++", "C#"] else "",
+            build_system=self.build_combo.currentText() if language in ["C", "C++", "C#"] else ""
         )
 
-    def validate(self) -> bool:
+    def validate(self):
         if not self.name_edit.text():
             QMessageBox.warning(self, "Validation Error", "Project name is required")
             return False
