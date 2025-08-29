@@ -1,13 +1,13 @@
 # VysualPy Project Structure Report
 
-Generated on: 2025-08-29 14:21:51
-Total files analyzed: 16
+Generated on: 2025-08-29 16:17:51
+Total files analyzed: 19
 
 ## Overview
 
-- Total Classes: 69
-- Total Functions: 10
-- Total Lines of Code: 7659
+- Total Classes: 78
+- Total Functions: 13
+- Total Lines of Code: 10223
 
 ## File Details
 
@@ -65,6 +65,132 @@ Usage:
 
 ---
 
+### debug_multiselect.py
+
+**Lines:** 116 | **Classes:** 1 | **Functions:** 1
+
+**Description:**
+> Debug script to test multi-selection functionality with new node system.
+
+**Key Imports:**
+
+- `sys`
+- `from PyQt5.QtWidgets import QApplication`
+- `from PyQt5.QtWidgets import QMainWindow`
+- `from PyQt5.QtWidgets import QVBoxLayout`
+- `from PyQt5.QtWidgets import QWidget`
+- `from PyQt5.QtWidgets import QLabel`
+- `from PyQt5.QtCore import Qt`
+- `from PyQt5.QtGui import QBrush`
+- `from PyQt5.QtGui import QColor`
+- `from vpy_node_types import BlueprintNode`
+- ... and 3 more
+
+**Classes:**
+
+- `MultiSelectDebugWindow(QMainWindow)` (line 15)
+  - `__init__()` (method)
+  - `create_test_nodes()` (method)
+
+**Functions:**
+
+- `main()` (function, line 102)
+
+---
+
+### debug_node_system.py
+
+**Lines:** 1181 | **Classes:** 4 | **Functions:** 1
+
+**Description:**
+> Comprehensive debug application for VysualPy node system.
+
+Features:
+- Right-click context menus for creating nodes
+- Full support for Blueprint, Execution, and Buildable nodes
+- Multi-selection and group operations
+- Node editing and property management
+- Visual feedback and state management
+
+**Key Imports:**
+
+- `sys`
+- `from PyQt5.QtWidgets import QApplication`
+- `from PyQt5.QtWidgets import QMainWindow`
+- `from PyQt5.QtWidgets import QVBoxLayout`
+- `from PyQt5.QtWidgets import QWidget`
+- `from PyQt5.QtWidgets import QLabel`
+- `from PyQt5.QtWidgets import QMenu`
+- `from PyQt5.QtWidgets import QAction`
+- `from PyQt5.QtWidgets import QInputDialog`
+- `from PyQt5.QtWidgets import QMessageBox`
+- ... and 20 more
+
+**Classes:**
+
+- `NodeCreationDialog(QDialog)` (line 28)
+  - `__init__()` (method)
+  - `get_default_content()` (method)
+  - `get_node_data()` (method)
+- `SimpleConnection(QGraphicsPathItem)` (line 103)
+  - `__init__()` (method)
+  - `updatePath()` (method)
+  - `paint()` (method)
+  - `setEndPoint()` (method)
+  - `updateForNodeMovement()` (method)
+  - ... and 9 more methods
+- `EnhancedBlueprintScene(BlueprintScene)` (line 486)
+  - `__init__()` (method)
+  - `showContextMenu()` (method)
+  - `create_node_at_position()` (method)
+  - `clear_all_nodes()` (method)
+  - `delete_selected_nodes()` (method)
+  - ... and 9 more methods
+- `NodeSystemDebugWindow(QMainWindow)` (line 987)
+  - `__init__()` (method)
+  - `create_sample_nodes()` (method)
+  - `update_window_title()` (method)
+  - `open_demo_text_editor()` (method)
+
+**Functions:**
+
+- `main()` (function, line 1157)
+
+---
+
+### debug_nodes.py
+
+**Lines:** 81 | **Classes:** 1 | **Functions:** 1
+
+**Description:**
+> Debug script to test node rendering in isolation.
+
+**Key Imports:**
+
+- `sys`
+- `from PyQt5.QtWidgets import QApplication`
+- `from PyQt5.QtWidgets import QGraphicsScene`
+- `from PyQt5.QtWidgets import QGraphicsView`
+- `from PyQt5.QtWidgets import QMainWindow`
+- `from PyQt5.QtWidgets import QVBoxLayout`
+- `from PyQt5.QtWidgets import QWidget`
+- `from PyQt5.QtCore import QRectF`
+- `from PyQt5.QtCore import QPointF`
+- `from PyQt5.QtGui import QColor`
+- ... and 2 more
+
+**Classes:**
+
+- `DebugWindow(QMainWindow)` (line 14)
+  - `__init__()` (method)
+  - `create_test_nodes()` (method)
+
+**Functions:**
+
+- `main()` (function, line 72)
+
+---
+
 ### main.py
 
 **Lines:** 10 | **Classes:** 0 | **Functions:** 0
@@ -79,7 +205,7 @@ Usage:
 
 ### vpy_blueprints.py
 
-**Lines:** 1584 | **Classes:** 11 | **Functions:** 1
+**Lines:** 1602 | **Classes:** 12 | **Functions:** 1
 
 **Key Imports:**
 
@@ -93,68 +219,71 @@ Usage:
 - `from PyQt5.QtWidgets import QVBoxLayout`
 - `from PyQt5.QtWidgets import QMenuBar`
 - `from PyQt5.QtWidgets import QAction`
-- ... and 19 more
+- ... and 22 more
 
 **Classes:**
 
-- `FunctionCallCollector(NodeVisitor)` (line 62)
+- `GraphLayoutOptimizer` (line 18)
+  - `__init__()` (method)
+  - `optimize()` (method)
+- `FunctionCallCollector(NodeVisitor)` (line 70)
   - `__init__()` (method)
   - `visit_FunctionDef()` (method)
   - `visit_AsyncFunctionDef()` (method)
   - `visit_Call()` (method)
   - `_get_callable_name()` (method)
   - ... and 1 more methods
-- `BlueprintScene(QGraphicsScene)` (line 116)
+- `BlueprintScene(QGraphicsScene)` (line 124)
   - `__init__()` (method)
   - `mouseMoveEvent()` (method)
   - `mouseReleaseEvent()` (method)
   - `mousePressEvent()` (method)
   - `showContextMenu()` (method)
-- `BlueprintView(QGraphicsView)` (line 180)
+- `BlueprintView(QGraphicsView)` (line 203)
   - `__init__()` (method)
   - `keyPressEvent()` (method)
   - `mousePressEvent()` (method)
   - `mouseMoveEvent()` (method)
   - `mouseReleaseEvent()` (method)
   - ... and 2 more methods
-- `BlueprintGraphWindow(QMainWindow, CustomWindowMixin)` (line 281)
+- `BlueprintGraphWindow(QMainWindow, CustomWindowMixin)` (line 304)
   - `__init__()` (method)
   - `showPreferences()` (method)
   - `updateGridSize()` (method)
   - `saveBlueprintWorkspace()` (method)
   - `loadBlueprintWorkspace()` (method)
   - ... and 6 more methods
-- `FunctionCallVisitor(NodeVisitor)` (line 642)
+- `FunctionCallVisitor(NodeVisitor)` (line 668)
   - `__init__()` (method)
   - `should_include_call()` (method)
   - `visit_Module()` (method)
   - `visit_If()` (method)
   - `visit_While()` (method)
   - ... and 9 more methods
-- `ExecutionScene(BlueprintScene)` (line 826)
+- `ExecutionScene(BlueprintScene)` (line 852)
   - `__init__()` (method)
-- `ExecutionView(BlueprintView)` (line 831)
+- `ExecutionView(BlueprintView)` (line 857)
   - `__init__()` (method)
-- `ExecutionGraphWindow(QMainWindow, CustomWindowMixin)` (line 836)
+- `ExecutionGraphWindow(QMainWindow, CustomWindowMixin)` (line 862)
   - `__init__()` (method)
   - `addCommentBoxToScene()` (method)
   - `create_menus()` (method)
   - `showPreferences()` (method)
   - `updateGridSize()` (method)
   - ... and 8 more methods
-- `BuildGraphScene(BlueprintScene)` (line 1209)
+- `BuildGraphScene(BlueprintScene)` (line 1227)
   - `__init__()` (method)
   - `should_initialize()` (method)
   - `initialize_default_structure()` (method)
   - `keyPressEvent()` (method)
   - `mousePressEvent()` (method)
   - ... and 3 more methods
-- `BuildGraphView(BlueprintView)` (line 1391)
+- `BuildGraphView(BlueprintView)` (line 1409)
   - `__init__()` (method)
   - `keyPressEvent()` (method)
   - `deleteSelectedNodes()` (method)
   - `mousePressEvent()` (method)
-- `BuildGraphWindow(QMainWindow)` (line 1484)
+- `BuildGraphWindow(QMainWindow)` (line 1502)
   - `__init__()` (method)
   - `addCommentBoxToScene()` (method)
   - `confirm_code_replacement()` (method)
@@ -163,7 +292,7 @@ Usage:
 
 **Functions:**
 
-- `detect_function_calls(source_code)` (function, line 20)
+- `detect_function_calls(source_code)` (function, line 28)
 
 ---
 
@@ -306,7 +435,7 @@ while maintaining backward compatibility with the existing system.
 
 ### vpy_editor.py
 
-**Lines:** 1312 | **Classes:** 6 | **Functions:** 0
+**Lines:** 1892 | **Classes:** 8 | **Functions:** 0
 
 **Key Imports:**
 
@@ -324,33 +453,47 @@ while maintaining backward compatibility with the existing system.
 
 **Classes:**
 
-- `CodeViewerWindow(QMainWindow, CustomWindowMixin)` (line 30)
+- `GlobalNodeTextEditor(QMainWindow, CustomWindowMixin)` (line 30)
   - `__init__()` (method)
-- `SyntaxHighlighter(QSyntaxHighlighter)` (line 66)
+  - `add_tracked_node()` (method)
+  - `remove_tracked_node()` (method)
+  - `refresh_tracked_nodes()` (method)
+  - `refresh_node_selector()` (method)
+  - ... and 8 more methods
+- `ExternalTextEditorDialog(QMainWindow, CustomWindowMixin)` (line 390)
+  - `__init__()` (method)
+  - `on_content_changed()` (method)
+  - `save_and_sync()` (method)
+  - `cancel_editing()` (method)
+  - `closeEvent()` (method)
+  - ... and 2 more methods
+- `CodeViewerWindow(QMainWindow, CustomWindowMixin)` (line 610)
+  - `__init__()` (method)
+- `SyntaxHighlighter(QSyntaxHighlighter)` (line 646)
   - `__init__()` (method)
   - `setup_default_format()` (method)
   - `load_language()` (method)
   - `setup_formats()` (method)
   - `highlightBlock()` (method)
-- `LineNumberArea(QWidget)` (line 139)
+- `LineNumberArea(QWidget)` (line 719)
   - `__init__()` (method)
   - `sizeHint()` (method)
   - `paintEvent()` (method)
-- `CodeEditor(QTextEdit)` (line 150)
+- `CodeEditor(QTextEdit)` (line 730)
   - `__init__()` (method)
   - `handleScrollRangeChange()` (method)
   - `handleTextChanged()` (method)
   - `lineNumberAreaPaintEvent()` (method)
   - `line_number_area_width()` (method)
   - ... and 7 more methods
-- `EditorTabs(QTabWidget)` (line 465)
+- `EditorTabs(QTabWidget)` (line 1045)
   - `__init__()` (method)
   - `add_new_tab()` (method)
   - `_create_code_editor()` (method)
   - `_mark_dirty()` (method)
   - `_mark_clean()` (method)
   - ... and 6 more methods
-- `PythonIDE(QMainWindow)` (line 692)
+- `PythonIDE(QMainWindow)` (line 1272)
   - `__init__()` (method)
   - `initUI()` (method)
   - `createMenuBar()` (method)
@@ -561,7 +704,7 @@ that relies on the old node and connection classes.
 
 ### vpy_node_base.py
 
-**Lines:** 470 | **Classes:** 8 | **Functions:** 0
+**Lines:** 481 | **Classes:** 8 | **Functions:** 0
 
 **Description:**
 > Base node system for VysualPy graph architecture.
@@ -604,8 +747,8 @@ code duplication and provides clear interfaces for different node types.
   - `add_output_port()` (method)
   - `remove_port()` (method)
   - `_update_port_positions()` (method)
-  - ... and 17 more methods
-- `NodeRegistry` (line 440)
+  - ... and 18 more methods
+- `NodeRegistry` (line 451)
   - `__init__()` (method)
   - `register_node_class()` (method)
   - `register_factory_function()` (method)
@@ -616,7 +759,7 @@ code duplication and provides clear interfaces for different node types.
 
 ### vpy_node_mixins.py
 
-**Lines:** 532 | **Classes:** 3 | **Functions:** 0
+**Lines:** 826 | **Classes:** 3 | **Functions:** 0
 
 **Description:**
 > Mixin classes for VysualPy node system.
@@ -646,15 +789,15 @@ node types, promoting code reuse and separation of concerns.
   - `paint()` (method)
   - `get_border_color()` (method)
   - `paint_title()` (method)
-  - ... and 5 more methods
-- `InteractionMixin` (line 216)
+  - ... and 9 more methods
+- `InteractionMixin` (line 381)
   - `__init__()` (method)
   - `mousePressEvent()` (method)
+  - `mouseDoubleClickEvent()` (method)
   - `mouseMoveEvent()` (method)
   - `mouseReleaseEvent()` (method)
-  - `hoverEnterEvent()` (method)
-  - ... and 8 more methods
-- `EditableMixin` (line 396)
+  - ... and 9 more methods
+- `EditableMixin` (line 634)
   - `__init__()` (method)
   - `startEditing()` (method)
   - `stopEditing()` (method)
@@ -666,7 +809,7 @@ node types, promoting code reuse and separation of concerns.
 
 ### vpy_node_types.py
 
-**Lines:** 441 | **Classes:** 5 | **Functions:** 3
+**Lines:** 724 | **Classes:** 5 | **Functions:** 3
 
 **Description:**
 > Concrete implementations of different node types for VysualPy.
@@ -685,8 +828,8 @@ specialized node types for different use cases.
 - `from PyQt5.QtCore import QPointF`
 - `from PyQt5.QtCore import QRectF`
 - `from PyQt5.QtGui import QColor`
-- `from vpy_node_base import BaseNode`
-- ... and 8 more
+- `from PyQt5.QtGui import QFontMetrics`
+- ... and 10 more
 
 **Classes:**
 
@@ -695,30 +838,30 @@ specialized node types for different use cases.
   - `analyze_content()` (method)
   - `get_display_name()` (method)
   - `get_tooltip_text()` (method)
-  - `can_accept_content()` (method)
-  - ... and 1 more methods
-- `ExecutionNode(BaseNode, RenderMixin, InteractionMixin)` (line 100)
+  - `auto_resize_to_content()` (method)
+  - ... and 3 more methods
+- `ExecutionNode(BaseNode, RenderMixin, InteractionMixin)` (line 177)
   - `__init__()` (method)
   - `set_conditional()` (method)
   - `set_has_return()` (method)
   - `get_display_name()` (method)
   - `get_tooltip_text()` (method)
   - ... and 2 more methods
-- `BuildableNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin)` (line 169)
+- `BuildableNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin)` (line 246)
   - `__init__()` (method)
-  - `analyze_and_update()` (method)
-  - `analyze_content()` (method)
-  - `detect_function_calls()` (method)
-  - `get_display_name()` (method)
-  - ... and 4 more methods
-- `LegacyConnectionPoint` (line 314)
+  - `_setup_initial_ports()` (method)
+  - `_update_buildable_port_positions()` (method)
+  - `auto_resize_to_content()` (method)
+  - `calculate_text_editor_dimensions()` (method)
+  - ... and 11 more methods
+- `LegacyConnectionPoint` (line 597)
   - `__init__()` (method)
   - `setPos()` (method)
   - `pos()` (method)
   - `scenePos()` (method)
   - `parentItem()` (method)
   - ... and 2 more methods
-- `CommentNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin)` (line 353)
+- `CommentNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin)` (line 636)
   - `__init__()` (method)
   - `get_display_name()` (method)
   - `get_tooltip_text()` (method)
@@ -727,9 +870,9 @@ specialized node types for different use cases.
 
 **Functions:**
 
-- `register_node_types()` (function, line 409)
-- `create_draggable_rect()` (function, line 417)
-- `create_execution_draggable_rect()` (function, line 426)
+- `register_node_types()` (function, line 692)
+- `create_draggable_rect()` (function, line 700)
+- `create_execution_draggable_rect()` (function, line 709)
 
 ---
 

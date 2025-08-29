@@ -76,32 +76,55 @@ class RenderMixin:
         
         rect = self.rect()
         
-        # Enable antialiasing for smooth rendering
-        painter.setRenderHint(QPainter.Antialiasing, True)
+        # Enable antialiasing for smooth rendering (except for BuildableNode which wants sharp edges)
+        use_antialiasing = not (hasattr(self, 'node_type') and self.node_type.value == 'buildable')
+        painter.setRenderHint(QPainter.Antialiasing, use_antialiasing)
         
-        # Create rounded rectangle path
-        path = QPainterPath()
-        path.addRoundedRect(rect, self.corner_radius, self.corner_radius)
+        # Get corner radius (BuildableNode sets this to 0 for sharp corners)
+        corner_radius = getattr(self, 'corner_radius', 8)
         
-        # Fill background with gradient
-        gradient = QLinearGradient(rect.topLeft(), rect.bottomLeft())
-        node_color = self.get_node_color()
-        gradient.setColorAt(0, node_color.lighter(110))
-        gradient.setColorAt(1, node_color.darker(110))
-        
-        painter.fillPath(path, QBrush(gradient))
-        
-        # Draw border
-        border_pen = QPen(self.get_border_color(), self.border_width)
-        painter.setPen(border_pen)
-        painter.drawPath(path)
+        # Create path (rounded or sharp based on corner radius)
+        if corner_radius > 0:
+            path = QPainterPath()
+            path.addRoundedRect(rect, corner_radius, corner_radius)
+            
+            # Fill background with gradient
+            gradient = QLinearGradient(rect.topLeft(), rect.bottomLeft())
+            node_color = self.get_node_color()
+            gradient.setColorAt(0, node_color.lighter(110))
+            gradient.setColorAt(1, node_color.darker(110))
+            
+            painter.fillPath(path, QBrush(gradient))
+            
+            # Draw border
+            border_pen = QPen(self.get_border_color(), self.border_width)
+            painter.setPen(border_pen)
+            painter.drawPath(path)
+        else:
+            # Sharp corners for BuildableNode
+            node_color = self.get_node_color()
+            painter.fillRect(rect, QBrush(node_color))
+            
+            # Draw border
+            border_pen = QPen(self.get_border_color(), self.border_width)
+            painter.setPen(border_pen)
+            painter.drawRect(rect)
         
         # Draw title
         self.paint_title(painter, rect)
         
         # Draw content if available
-        if hasattr(self, 'content') and self.content.strip():
-            self.paint_content(painter, rect)
+        if hasattr(self, 'content'):
+            # Handle BuildableNode specially
+            if hasattr(self, 'node_type') and self.node_type.value == 'buildable':
+                # Always draw the text editor background
+                self.paint_text_editor_background(painter, rect)
+                # Only draw text content when not editing (to avoid duplication)
+                if not getattr(self, 'editing', False):
+                    self.paint_text_editor_content_only(painter, rect)
+            # For other node types, only draw when not editing
+            elif not getattr(self, 'editing', False):
+                self.paint_content(painter, rect)
             
         # Draw ports
         self.paint_ports(painter)
@@ -139,6 +162,138 @@ class RenderMixin:
         
     def paint_content(self, painter: QPainter, rect: QRectF):
         """Paint the node content."""
+        # Handle BuildableNode text editor appearance
+        if hasattr(self, 'node_type') and self.node_type.value == 'buildable':
+            self.paint_text_editor_content(painter, rect)
+        else:
+            self.paint_standard_content(painter, rect)
+            
+    def paint_text_editor_content(self, painter: QPainter, rect: QRectF):
+        """Paint content with text editor appearance for BuildableNode."""
+        painter.setFont(QFont("Consolas", 9))  # Monospace font for code
+        
+        # Text editor background area
+        editor_rect = QRectF(
+            rect.left() + 8,
+            rect.top() + 28,
+            rect.width() - 16,
+            rect.height() - 36
+        )
+        
+        # Draw text editor background with subtle gradient (grayscale)
+        gradient = QLinearGradient(editor_rect.topLeft(), editor_rect.bottomLeft())
+        gradient.setColorAt(0, QColor(250, 250, 250))  # Very light gray at top
+        gradient.setColorAt(1, QColor(245, 245, 245))  # Slightly darker gray at bottom
+        painter.fillRect(editor_rect, QBrush(gradient))
+        
+        # Draw text editor border (clean, sharp)
+        editor_border = QPen(QColor(200, 200, 200), 1)  # Light gray border
+        painter.setPen(editor_border)
+        painter.drawRect(editor_rect)
+        
+        # Draw inner shadow/inset effect for depth
+        inner_shadow = QPen(QColor(235, 235, 235), 1)
+        painter.setPen(inner_shadow)
+        inner_rect = QRectF(
+            editor_rect.left() + 1,
+            editor_rect.top() + 1,
+            editor_rect.width() - 2,
+            editor_rect.height() - 2
+        )
+        painter.drawRect(inner_rect)
+        
+        # Draw content text
+        if hasattr(self, 'content') and self.content.strip():
+            text_rect = QRectF(
+                editor_rect.left() + 6,
+                editor_rect.top() + 6,
+                editor_rect.width() - 12,
+                editor_rect.height() - 12
+            )
+            
+            # Use dark text for readability on light background
+            painter.setPen(QPen(QColor(40, 40, 40)))
+            painter.drawText(text_rect, Qt.AlignLeft | Qt.AlignTop | Qt.TextWordWrap, self.content)
+        else:
+            # Show placeholder text for empty editor
+            placeholder_rect = QRectF(
+                editor_rect.left() + 6,
+                editor_rect.top() + 6,
+                editor_rect.width() - 12,
+                20
+            )
+            painter.setPen(QPen(QColor(150, 150, 150)))  # Medium gray placeholder
+            painter.drawText(placeholder_rect, Qt.AlignLeft | Qt.AlignVCenter, "# Enter code here...")
+            
+    def paint_text_editor_background(self, painter: QPainter, rect: QRectF):
+        """Paint only the text editor background for BuildableNode (used during editing)."""
+        # Text editor background area
+        editor_rect = QRectF(
+            rect.left() + 8,
+            rect.top() + 28,
+            rect.width() - 16,
+            rect.height() - 36
+        )
+        
+        # Draw text editor background with subtle gradient (grayscale)
+        gradient = QLinearGradient(editor_rect.topLeft(), editor_rect.bottomLeft())
+        gradient.setColorAt(0, QColor(250, 250, 250))  # Very light gray at top
+        gradient.setColorAt(1, QColor(245, 245, 245))  # Slightly darker gray at bottom
+        painter.fillRect(editor_rect, QBrush(gradient))
+        
+        # Draw text editor border (clean, sharp)
+        editor_border = QPen(QColor(200, 200, 200), 1)  # Light gray border
+        painter.setPen(editor_border)
+        painter.drawRect(editor_rect)
+        
+        # Draw inner shadow/inset effect for depth
+        inner_shadow = QPen(QColor(235, 235, 235), 1)
+        painter.setPen(inner_shadow)
+        inner_rect = QRectF(
+            editor_rect.left() + 1,
+            editor_rect.top() + 1,
+            editor_rect.width() - 2,
+            editor_rect.height() - 2
+        )
+        painter.drawRect(inner_rect)
+        
+    def paint_text_editor_content_only(self, painter: QPainter, rect: QRectF):
+        """Paint only the text content for BuildableNode (without background)."""
+        painter.setFont(QFont("Consolas", 9))  # Monospace font for code
+        
+        # Text editor background area
+        editor_rect = QRectF(
+            rect.left() + 8,
+            rect.top() + 28,
+            rect.width() - 16,
+            rect.height() - 36
+        )
+        
+        # Draw content text or placeholder
+        if hasattr(self, 'content') and self.content.strip():
+            text_rect = QRectF(
+                editor_rect.left() + 6,
+                editor_rect.top() + 6,
+                editor_rect.width() - 12,
+                editor_rect.height() - 12
+            )
+            
+            # Use dark text for readability on light background
+            painter.setPen(QPen(QColor(40, 40, 40)))
+            painter.drawText(text_rect, Qt.AlignLeft | Qt.AlignTop | Qt.TextWordWrap, self.content)
+        else:
+            # Show placeholder text for empty editor
+            placeholder_rect = QRectF(
+                editor_rect.left() + 6,
+                editor_rect.top() + 6,
+                editor_rect.width() - 12,
+                20
+            )
+            painter.setPen(QPen(QColor(150, 150, 150)))  # Medium gray placeholder
+            painter.drawText(placeholder_rect, Qt.AlignLeft | Qt.AlignVCenter, "# Enter code here...")
+            
+    def paint_standard_content(self, painter: QPainter, rect: QRectF):
+        """Paint content for standard nodes (Blueprint, Execution, etc.)."""
         painter.setPen(QPen(self.text_color.darker(150)))
         painter.setFont(self.content_font)
         
@@ -152,7 +307,7 @@ class RenderMixin:
         
         # For Blueprint nodes with auto-resize, show full content
         # For other nodes, truncate if too long
-        content = self.content
+        content = self.content if hasattr(self, 'content') else ""
         if (hasattr(self, 'node_type') and 
             hasattr(self, 'auto_resize_to_content') and
             self.node_type.value == 'blueprint'):
@@ -289,6 +444,19 @@ class InteractionMixin:
         # Only call super if it exists
         if hasattr(super(), 'mousePressEvent'):
             super().mousePressEvent(event)
+            
+    def mouseDoubleClickEvent(self, event):
+        """Handle mouse double-click events."""
+        if event.button() == Qt.LeftButton:
+            # Start editing for editable nodes (like BuildableNode)
+            if hasattr(self, 'startEditing'):
+                self.startEditing()
+                event.accept()
+                return
+                
+        # Only call super if it exists
+        if hasattr(super(), 'mouseDoubleClickEvent'):
+            super().mouseDoubleClickEvent(event)
         
     def mouseMoveEvent(self, event):
         """Handle mouse move events with multi-selection support."""
@@ -396,6 +564,17 @@ class InteractionMixin:
         """Show context menu for the node."""
         menu = QMenu()
         
+        # BuildableNode specific actions
+        if hasattr(self, 'node_type') and self.node_type.value == 'buildable':
+            external_editor_action = QAction("📝 Open External Editor", menu)
+            if hasattr(self, 'open_external_editor'):
+                external_editor_action.triggered.connect(self.open_external_editor)
+            else:
+                external_editor_action.setEnabled(False)
+            menu.addAction(external_editor_action)
+            
+            menu.addSeparator()
+        
         # Standard actions
         delete_action = QAction("Delete", menu)
         delete_action.triggered.connect(self.request_deletion)
@@ -481,14 +660,27 @@ class EditableMixin:
             
         # Create text editor
         self.text_item = QGraphicsTextItem(self.original_content, self)
-        self.text_item.setFont(QFont("Courier New", 9))
+        self.text_item.setFont(QFont("Consolas", 9))  # Monospace for code
         self.text_item.setTextInteractionFlags(Qt.TextEditorInteraction)
-        self.text_item.setDefaultTextColor(QColor(255, 255, 255))
         
-        # Position the text item
+        # Set text color based on node type
+        if hasattr(self, 'node_type') and self.node_type.value == 'buildable':
+            # Dark text for BuildableNode (light background)
+            self.text_item.setDefaultTextColor(QColor(40, 40, 40))
+        else:
+            # Light text for other nodes (dark background)
+            self.text_item.setDefaultTextColor(QColor(255, 255, 255))
+        
+        # Position the text item over the editor area
         rect = self.rect()
-        self.text_item.setPos(rect.left() + 8, rect.top() + 28)
-        self.text_item.setTextWidth(rect.width() - 16)
+        editor_padding = 10 if hasattr(self, 'node_type') and self.node_type.value == 'buildable' else 8
+        self.text_item.setPos(rect.left() + editor_padding, rect.top() + 32)
+        
+        # For BuildableNode: disable word wrapping to allow horizontal expansion
+        if hasattr(self, 'node_type') and self.node_type.value == 'buildable':
+            self.text_item.setTextWidth(-1)  # -1 disables word wrapping
+        else:
+            self.text_item.setTextWidth(rect.width() - (editor_padding * 2))
         
         # Focus the text editor
         self.text_item.setFocus()
@@ -496,6 +688,9 @@ class EditableMixin:
         # Connect signals
         document = self.text_item.document()
         document.contentsChanged.connect(self.on_text_changed)
+        
+        # Force visual update to hide painted content during editing
+        self.update()
         
     def stopEditing(self):
         """Stop editing and save changes."""
@@ -521,15 +716,28 @@ class EditableMixin:
             return
             
         new_content = self.text_item.toPlainText()
+        old_content = self.original_content
         
         # Process content change
         if hasattr(self, 'process_content_change'):
-            self.process_content_change(self.original_content, new_content)
+            self.process_content_change(old_content, new_content)
         else:
             # Default behavior: just update content
             self.content = new_content
             
         self._cleanup_editing()
+        
+        # Trigger auto-generation if this is a BuildableNode and content changed
+        if (old_content != new_content and 
+            hasattr(self, 'node_type') and 
+            self.node_type.value == 'buildable' and 
+            hasattr(self, 'scene') and 
+            self.scene()):
+            
+            scene = self.scene()
+            if hasattr(scene, 'check_and_create_called_functions'):
+                # Trigger the auto-generation functionality
+                scene.check_and_create_called_functions(self)
         
         # Trigger update hooks
         if hasattr(self, 'on_update'):
@@ -554,18 +762,43 @@ class EditableMixin:
         if not self.editing or not self.text_item:
             return
             
-        # Update node size if needed
+        # Update node size based on text content
         text_rect = self.text_item.boundingRect()
         current_rect = self.rect()
         
-        min_height = text_rect.height() + 40  # Title + padding
-        if current_rect.height() < min_height:
-            new_rect = QRectF(
-                current_rect.x(), current_rect.y(),
-                current_rect.width(), min_height
-            )
-            self.setRect(new_rect)
-            self.update()
+        # Calculate minimum required dimensions
+        min_height = text_rect.height() + 50  # Title + padding
+        
+        # For BuildableNode: also expand horizontally without word wrapping
+        if hasattr(self, 'node_type') and self.node_type.value == 'buildable':
+            min_width = max(text_rect.width() + 30, self.min_width)  # Text + padding + minimum
+            
+            # Expand both horizontally and vertically as needed
+            new_width = max(current_rect.width(), min_width)
+            new_height = max(current_rect.height(), min_height)
+            
+            if new_width != current_rect.width() or new_height != current_rect.height():
+                new_rect = QRectF(
+                    current_rect.x(), current_rect.y(),
+                    new_width, new_height
+                )
+                self.setRect(new_rect)
+                self.size = new_rect
+                
+                # Update port positions after resize
+                if hasattr(self, '_update_buildable_port_positions'):
+                    self._update_buildable_port_positions()
+                    
+                self.update()
+        else:
+            # Standard behavior: only expand vertically
+            if current_rect.height() < min_height:
+                new_rect = QRectF(
+                    current_rect.x(), current_rect.y(),
+                    current_rect.width(), min_height
+                )
+                self.setRect(new_rect)
+                self.update()
             
     def keyPressEvent(self, event):
         """Handle key press events during editing."""
@@ -579,7 +812,9 @@ class EditableMixin:
                 event.accept()
                 return
                 
-        super().keyPressEvent(event)
+        # Only call super if it exists
+        if hasattr(super(), 'keyPressEvent'):
+            super().keyPressEvent(event)
         
     def focusOutEvent(self, event):
         """Handle focus out events."""

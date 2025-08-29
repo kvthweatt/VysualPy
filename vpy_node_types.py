@@ -247,8 +247,10 @@ class BuildableNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin):
     """
     Node type for live code editing/building.
     
-    Supports in-place editing and automatically creates connections to
-    undefined functions.
+    Looks like a mini text editor with:
+    - Top left: Input connection (execution flow in)
+    - Bottom left: Return connection (execution flow out)  
+    - Right side: Multiple outputs for each function call made in the code
     """
     
     def __init__(self, name: str = "Buildable Node", content: str = "", 
@@ -261,20 +263,151 @@ class BuildableNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin):
         self.is_class = False
         self.function_calls = []
         
-        # Add default ports
-        self.add_input_port("input", "code", "Input")
-        self.add_output_port("output", "code", "Output")
+        # Mini text editor sizing properties
+        self.min_width = 200   # Wider for text editor look
+        self.min_height = 120  # Taller for multiple lines
+        self.padding_x = 12    # Text editor padding
+        self.padding_y = 45    # Space for title and margins
+        self.line_height = 14  # Readable line height for code
         
-        # Set buildable-specific visual properties
-        self.background_color = QColor(255, 140, 0)  # Dark orange
+        # Set buildable-specific visual properties (clean text editor style)
+        self.background_color = QColor(240, 240, 240)   # Light gray background
+        self.border_color = QColor(180, 180, 180)       # Medium gray border
+        self.text_color = QColor(60, 60, 60)            # Dark gray text
+        self.corner_radius = 0                          # Sharp corners for clean look
+        
+        # Setup initial port layout
+        self._setup_initial_ports()
         
         # Analyze content on creation
         if content.strip():
             self.analyze_and_update()
+        
+        # Auto-resize to fit content like a text editor
+        self.auto_resize_to_content()
             
-        # Analyze content on creation
-        if content.strip():
-            self.analyze_and_update()
+    def _setup_initial_ports(self):
+        """Setup the initial port layout for buildable nodes."""
+        # Clear any existing ports
+        self.input_ports.clear()
+        self.output_ports.clear()
+        
+        # Top left: Execution input (flow coming in)
+        self.add_input_port("exec_in", "execution", "In")
+        
+        # Bottom left: Return/output (execution flow going out)
+        self.add_output_port("exec_out", "execution", "Return")
+        
+        # Update port positions for this specific layout
+        self._update_buildable_port_positions()
+        
+    def _update_buildable_port_positions(self):
+        """Update port positions for the buildable node layout."""
+        rect = self.rect()
+        port_radius = 8
+        
+        # Top left: Execution input
+        if "exec_in" in self.input_ports:
+            self.input_ports["exec_in"].position = QPointF(
+                -port_radius, 
+                rect.height() * 0.15  # Near the top
+            )
+        
+        # Bottom left: Return output
+        if "exec_out" in self.output_ports:
+            self.output_ports["exec_out"].position = QPointF(
+                -port_radius,
+                rect.height() * 0.85  # Near the bottom
+            )
+        
+        # Right side: Function call outputs (distributed vertically)
+        function_output_ports = [port_id for port_id in self.output_ports.keys() 
+                               if port_id.startswith("call_")]
+        
+        if function_output_ports:
+            # Distribute function call ports evenly on the right side
+            for i, port_id in enumerate(function_output_ports):
+                # Calculate position for this function call port
+                y_ratio = 0.2 + (0.6 * i / max(1, len(function_output_ports) - 1)) if len(function_output_ports) > 1 else 0.5
+                y_pos = rect.height() * y_ratio
+                
+                self.output_ports[port_id].position = QPointF(
+                    rect.width() + port_radius,
+                    y_pos
+                )
+                
+    def auto_resize_to_content(self):
+        """Auto-resize like a text editor to fit content."""
+        # Calculate dimensions based on text content
+        content_font = QFont("Consolas", 9)  # Monospace font for code
+        title_font = QFont("Segoe UI", 9, QFont.Bold)
+        
+        required_width, required_height = self.calculate_text_editor_dimensions(
+            title_font, content_font
+        )
+        
+        # Ensure minimum text editor size
+        final_width = max(required_width, self.min_width)
+        final_height = max(required_height, self.min_height)
+        
+        # Update rect
+        current_rect = self.rect()
+        new_rect = QRectF(
+            current_rect.x(),
+            current_rect.y(), 
+            final_width,
+            final_height
+        )
+        
+        self.size = new_rect
+        self.setRect(new_rect)
+        
+        # Update port positions after resize
+        self._update_buildable_port_positions()
+        
+        # Update scene connections if available
+        if hasattr(self, 'scene') and self.scene():
+            scene = self.scene()
+            if hasattr(scene, 'update_all_connections'):
+                scene.update_all_connections()
+                
+    def calculate_text_editor_dimensions(self, title_font: QFont, content_font: QFont) -> tuple:
+        """Calculate required dimensions for text editor appearance."""
+        title_metrics = QFontMetrics(title_font)
+        content_metrics = QFontMetrics(content_font)
+        
+        # Title dimensions
+        title_text = self.get_display_name()
+        title_width = title_metrics.horizontalAdvance(title_text)
+        title_height = title_metrics.height()
+        
+        # Content dimensions (like a text editor)
+        content_width = 0
+        content_height = 0
+        
+        if self.content.strip():
+            lines = self.content.split('\n')
+            # Ensure minimum lines for text editor appearance
+            line_count = max(len(lines), 4)  # At least 4 lines visible
+            content_height = line_count * content_metrics.height()
+            
+            # Find widest line for width calculation
+            for line in lines:
+                line_width = content_metrics.horizontalAdvance(line)
+                content_width = max(content_width, line_width)
+                
+            # Add some width for text editor appearance
+            content_width = max(content_width, 180)  # Minimum readable width
+        else:
+            # Empty editor size
+            content_width = 180
+            content_height = 4 * content_metrics.height()  # 4 empty lines
+        
+        # Calculate total required dimensions
+        required_width = max(title_width, content_width) + self.padding_x
+        required_height = title_height + content_height + self.padding_y
+        
+        return required_width, required_height
             
     def analyze_and_update(self):
         """Analyze content and update node properties."""
@@ -322,37 +455,64 @@ class BuildableNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin):
                 self.name = "Code Block"
                 
     def detect_function_calls(self):
-        """Detect function calls in the content."""
+        """Detect function calls in the content and create output ports for them."""
         # Import here to avoid circular imports
         from vpy_blueprints import detect_function_calls
         
         try:
+            old_function_calls = self.function_calls.copy()
             self.function_calls = detect_function_calls(self.content)
+            
+            # Update function call output ports
+            self._update_function_call_ports(old_function_calls, self.function_calls)
+            
         except Exception as e:
             print(f"Error detecting function calls: {e}")
             self.function_calls = []
             
+    def _update_function_call_ports(self, old_calls: List[str], new_calls: List[str]):
+        """Update output ports based on function calls in the code."""
+        # Remove ports for function calls that are no longer present
+        for old_call in old_calls:
+            port_id = f"call_{old_call}"
+            if port_id in self.output_ports and old_call not in new_calls:
+                self.remove_port(port_id)
+        
+        # Add ports for new function calls
+        for new_call in new_calls:
+            port_id = f"call_{new_call}"
+            if port_id not in self.output_ports:
+                self.add_output_port(port_id, "execution", new_call)
+        
+        # Update port positions after changes
+        self._update_buildable_port_positions()
+            
     def get_display_name(self) -> str:
         """Get the display name for this node."""
         if self.editing:
-            return f"[Edit] {self.name}"
+            return f"📝 {self.name} (editing)"
         elif self.is_class:
-            return f"[Build Class] {self.name}"
+            return f"🏗️ {self.name}"
         elif self.content.strip().startswith(('def ', 'async def ')):
-            return f"[Build Func] {self.name}"
+            return f"⚡ {self.name}"
         else:
-            return f"[Build] {self.name}"
+            return f"📄 {self.name}"
             
     def get_tooltip_text(self) -> str:
         """Get tooltip text for this node."""
-        tooltip = f"{self.name}"
+        tooltip = f"Code Editor: {self.name}"
         if self.function_calls:
-            tooltip += f"\nCalls: {', '.join(self.function_calls[:3])}"
-            if len(self.function_calls) > 3:
-                tooltip += "..."
+            tooltip += f"\n\nFunction Calls:"
+            for call in self.function_calls[:5]:  # Show up to 5 calls
+                tooltip += f"\n  • {call}()"
+            if len(self.function_calls) > 5:
+                tooltip += f"\n  ... and {len(self.function_calls) - 5} more"
         if self.editing:
-            tooltip += "\nPress Ctrl+Enter to save"
-            tooltip += "\nPress Escape to cancel"
+            tooltip += "\n\n📝 Editing Mode:"
+            tooltip += "\n  Ctrl+Enter: Save changes"
+            tooltip += "\n  Escape: Cancel editing"
+        else:
+            tooltip += "\n\n💡 Double-click to edit"
         return tooltip
         
     def can_accept_content(self, content: str) -> bool:
@@ -370,12 +530,58 @@ class BuildableNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin):
         self.content = new_content
         self.full_content = new_content
         
-        # Re-analyze content
+        # Re-analyze content and update ports
         self.analyze_and_update()
+        
+        # Auto-resize to fit new content
+        self.auto_resize_to_content()
+        
+        # Update visual appearance
+        self.update()
+        
+        # Sync with external editors (if any are open)
+        self.sync_with_external_editors(new_content)
         
         # Sync with IDE if available
         if self.parent_ide and hasattr(self.scene(), 'check_and_create_called_functions'):
             self.scene().check_and_create_called_functions(self)
+            
+    def open_external_editor(self):
+        """Open the external text editor dialog for this node."""
+        # Import here to avoid circular imports
+        from vpy_editor import ExternalTextEditorDialog
+        
+        # Create and show the external editor dialog
+        dialog = ExternalTextEditorDialog(
+            title=self.name,
+            content=self.content,
+            node_reference=self,
+            parent=None  # Make it a standalone window
+        )
+        
+        dialog.show()
+        
+        # Store reference to prevent garbage collection
+        if not hasattr(self, '_external_editors'):
+            self._external_editors = []
+        self._external_editors.append(dialog)
+        
+        # Clean up reference when dialog closes
+        def cleanup_reference():
+            if dialog in getattr(self, '_external_editors', []):
+                self._external_editors.remove(dialog)
+                
+        dialog.destroyed.connect(cleanup_reference)
+        
+        return dialog
+        
+    def sync_with_external_editors(self, new_content: str):
+        """Sync content changes with any open external editors."""
+        if hasattr(self, '_external_editors'):
+            for editor in self._external_editors:
+                # Check if the content is different to avoid infinite loops
+                if editor.get_content() != new_content:
+                    editor.set_content(new_content)
             
     def stopEditing(self):
         """Override to ensure proper editing cleanup and callbacks."""

@@ -27,6 +27,592 @@ from vpy_blueprints import (
 
 from vpy_layout import IDELayout
 
+class GlobalNodeTextEditor(QMainWindow, CustomWindowMixin):
+    """Global text editor that tracks and displays all BuildableNodes."""
+    
+    def __init__(self, title="All Nodes Editor", parent=None):
+        super().__init__(parent)
+        self.tracked_nodes = []
+        self.current_node_index = 0
+        self.unsaved_changes = False
+        
+        self.setWindowTitle(f"Global Editor - {title}")
+        self.setStyleSheet("QMainWindow { background: #2c3e50; color: white; }")
+        self.setAttribute(Qt.WA_TranslucentBackground, False)
+        
+        # Create central widget and layout
+        central_widget = QWidget()
+        main_layout = QVBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Setup custom title bar
+        container, containerLayout, titleBar = self.setupCustomTitleBar(f"Global Node Editor - {title}")
+        main_layout.addWidget(titleBar)
+        
+        # Create node selector
+        from PyQt5.QtWidgets import QComboBox, QHBoxLayout, QLabel
+        node_selector_widget = QWidget()
+        node_selector_layout = QHBoxLayout(node_selector_widget)
+        node_selector_layout.setContentsMargins(10, 5, 10, 5)
+        
+        node_label = QLabel("Current Node:")
+        node_label.setStyleSheet("color: #95a5a6; font-weight: bold;")
+        
+        self.node_selector = QComboBox()
+        self.node_selector.setStyleSheet("""
+            QComboBox {
+                background-color: #34495e;
+                color: white;
+                border: 1px solid #7f8c8d;
+                padding: 5px;
+                border-radius: 3px;
+                min-width: 200px;
+            }
+            QComboBox::drop-down {
+                border: none;
+            }
+            QComboBox::down-arrow {
+                border: none;
+            }
+        """)
+        self.node_selector.currentIndexChanged.connect(self.on_node_changed)
+        
+        node_selector_layout.addWidget(node_label)
+        node_selector_layout.addWidget(self.node_selector)
+        node_selector_layout.addStretch()
+        
+        main_layout.addWidget(node_selector_widget)
+        
+        # Create the code editor
+        self.code_editor = CodeEditor()
+        
+        # Connect change detection
+        self.code_editor.textChanged.connect(self.on_content_changed)
+        
+        main_layout.addWidget(self.code_editor)
+        
+        # Create button bar
+        button_widget = QWidget()
+        button_layout = QVBoxLayout(button_widget)
+        button_layout.setContentsMargins(10, 5, 10, 10)
+        button_layout.setSpacing(5)
+        
+        from PyQt5.QtWidgets import QPushButton
+        
+        button_row = QWidget()
+        button_row_layout = QHBoxLayout(button_row)
+        button_row_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Save button
+        self.save_button = QPushButton("Save & Sync Current Node")
+        self.save_button.setStyleSheet("""
+            QPushButton {
+                background-color: #27ae60;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #2ecc71;
+            }
+            QPushButton:pressed {
+                background-color: #229954;
+            }
+        """)
+        self.save_button.clicked.connect(self.save_current_node)
+        
+        # Refresh button
+        self.refresh_button = QPushButton("Refresh Nodes")
+        self.refresh_button.setStyleSheet("""
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #5dade2;
+            }
+            QPushButton:pressed {
+                background-color: #2980b9;
+            }
+        """)
+        self.refresh_button.clicked.connect(self.refresh_tracked_nodes)
+        
+        button_row_layout.addWidget(self.save_button)
+        button_row_layout.addWidget(self.refresh_button)
+        button_row_layout.addStretch()
+        
+        # Status label
+        self.status_label = QWidget()
+        self.status_label.setStyleSheet("color: #95a5a6; padding: 4px;")
+        status_layout = QHBoxLayout(self.status_label)
+        status_layout.setContentsMargins(0, 0, 0, 0)
+        
+        from PyQt5.QtWidgets import QLabel
+        self.status_text = QLabel("No nodes tracked")
+        self.status_text.setStyleSheet("color: #95a5a6;")
+        status_layout.addWidget(self.status_text)
+        status_layout.addStretch()
+        
+        button_layout.addWidget(button_row)
+        button_layout.addWidget(self.status_label)
+        
+        main_layout.addWidget(button_widget)
+        
+        # Set up window properties
+        titleBar.mousePressEvent = self.titleBarMousePressEvent
+        titleBar.mouseMoveEvent = self.titleBarMouseMoveEvent
+        
+        self.setCentralWidget(central_widget)
+        self.resize(900, 700)
+        
+        # Set focus to the code editor
+        self.code_editor.setFocus()
+        
+        # Initial refresh
+        self.refresh_tracked_nodes()
+        
+    def add_tracked_node(self, node):
+        """Add a BuildableNode to be tracked by this editor."""
+        if node not in self.tracked_nodes:
+            self.tracked_nodes.append(node)
+            # Register this editor with the node for synchronization
+            if not hasattr(node, '_external_editors'):
+                node._external_editors = []
+            if self not in node._external_editors:
+                node._external_editors.append(self)
+            self.refresh_node_selector()
+            
+    def remove_tracked_node(self, node):
+        """Remove a BuildableNode from tracking."""
+        if node in self.tracked_nodes:
+            self.tracked_nodes.remove(node)
+            # Unregister from node
+            if hasattr(node, '_external_editors') and self in node._external_editors:
+                node._external_editors.remove(self)
+            self.refresh_node_selector()
+            
+    def refresh_tracked_nodes(self):
+        """Find and track all BuildableNodes in the scene."""
+        # Clear current tracking
+        for node in self.tracked_nodes[:]:
+            self.remove_tracked_node(node)
+        
+        # Find all BuildableNodes in active scenes
+        from PyQt5.QtWidgets import QApplication
+        app = QApplication.instance()
+        if app:
+            for widget in app.allWidgets():
+                # Check if this is a scene with BuildableNodes
+                if hasattr(widget, 'items'):
+                    for item in widget.items():
+                        if hasattr(item, 'node_type') and hasattr(item.node_type, 'value'):
+                            if item.node_type.value == 'buildable':
+                                self.add_tracked_node(item)
+        
+        # Update status
+        count = len(self.tracked_nodes)
+        if count == 0:
+            self.status_text.setText("No BuildableNodes found")
+            self.status_text.setStyleSheet("color: #e74c3c;")
+        else:
+            self.status_text.setText(f"Tracking {count} BuildableNode(s)")
+            self.status_text.setStyleSheet("color: #27ae60;")
+            
+    def refresh_node_selector(self):
+        """Update the node selector dropdown."""
+        self.node_selector.blockSignals(True)
+        self.node_selector.clear()
+        
+        if self.tracked_nodes:
+            for node in self.tracked_nodes:
+                self.node_selector.addItem(f"{node.name} ({id(node)})")
+            
+            # Select current node or first one
+            if self.current_node_index < len(self.tracked_nodes):
+                self.node_selector.setCurrentIndex(self.current_node_index)
+            else:
+                self.current_node_index = 0
+                self.node_selector.setCurrentIndex(0)
+                
+            self.load_current_node_content()
+        else:
+            self.code_editor.setPlainText("# No BuildableNodes to display")
+            
+        self.node_selector.blockSignals(False)
+        
+    def on_node_changed(self, index):
+        """Handle node selection change."""
+        if 0 <= index < len(self.tracked_nodes):
+            # Save current node first if there are changes
+            if self.unsaved_changes:
+                reply = QMessageBox.question(
+                    self, "Unsaved Changes",
+                    "Save changes to current node before switching?",
+                    QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel
+                )
+                if reply == QMessageBox.Save:
+                    self.save_current_node()
+                elif reply == QMessageBox.Cancel:
+                    # Revert selection
+                    self.node_selector.blockSignals(True)
+                    self.node_selector.setCurrentIndex(self.current_node_index)
+                    self.node_selector.blockSignals(False)
+                    return
+                    
+            self.current_node_index = index
+            self.load_current_node_content()
+            
+    def load_current_node_content(self):
+        """Load content from the currently selected node."""
+        if 0 <= self.current_node_index < len(self.tracked_nodes):
+            node = self.tracked_nodes[self.current_node_index]
+            content = getattr(node, 'content', '') or getattr(node, 'full_content', '')
+            self.code_editor.setPlainText(content)
+            self.unsaved_changes = False
+            self.update_status()
+            
+    def on_content_changed(self):
+        """Handle content changes in the editor."""
+        if 0 <= self.current_node_index < len(self.tracked_nodes):
+            node = self.tracked_nodes[self.current_node_index]
+            current_content = self.code_editor.toPlainText()
+            original_content = getattr(node, 'content', '') or getattr(node, 'full_content', '')
+            
+            if current_content != original_content:
+                self.unsaved_changes = True
+                self.status_text.setText(f"● Unsaved changes to {node.name}")
+                self.status_text.setStyleSheet("color: #f39c12;")
+            else:
+                self.unsaved_changes = False
+                self.update_status()
+                
+    def save_current_node(self):
+        """Save changes to the currently selected node."""
+        if 0 <= self.current_node_index < len(self.tracked_nodes):
+            node = self.tracked_nodes[self.current_node_index]
+            new_content = self.code_editor.toPlainText()
+            
+            # Get original content for change processing
+            original_content = getattr(node, 'content', '') or getattr(node, 'full_content', '')
+            
+            # Update the node's content
+            node.content = new_content
+            node.full_content = new_content
+            
+            # Process content change to trigger analysis and auto-generation
+            if hasattr(node, 'process_content_change'):
+                node.process_content_change(original_content, new_content)
+            
+            # Update visual representation
+            node.update()
+            
+            # AUTOMATIC CONNECTION DETECTION: Analyze code references and create connections
+            if hasattr(node, 'scene') and node.scene():
+                scene = node.scene()
+                if hasattr(scene, 'analyze_node_references'):
+                    scene.analyze_node_references(node)
+            
+            # Update status
+            self.unsaved_changes = False
+            self.status_text.setText(f"✓ Saved {node.name}")
+            self.status_text.setStyleSheet("color: #27ae60;")
+            
+            # Reset status after a delay
+            QTimer.singleShot(2000, lambda: self.update_status())
+            
+    def update_status(self):
+        """Update the status display."""
+        if self.tracked_nodes:
+            count = len(self.tracked_nodes)
+            if 0 <= self.current_node_index < count:
+                current_node = self.tracked_nodes[self.current_node_index]
+                self.status_text.setText(f"Editing {current_node.name} ({self.current_node_index + 1}/{count})")
+            else:
+                self.status_text.setText(f"Tracking {count} node(s)")
+            self.status_text.setStyleSheet("color: #95a5a6;")
+        else:
+            self.status_text.setText("No nodes tracked")
+            self.status_text.setStyleSheet("color: #e74c3c;")
+            
+    def set_content(self, content):
+        """Set content for external synchronization compatibility."""
+        # This method is called by BuildableNode.sync_with_external_editors
+        if 0 <= self.current_node_index < len(self.tracked_nodes):
+            current_node = self.tracked_nodes[self.current_node_index]
+            current_content = self.code_editor.toPlainText()
+            
+            # Only update if the content is for the currently displayed node
+            # This prevents interference when multiple nodes are being synchronized
+            if content != current_content:
+                # Check if this content matches any of our tracked nodes
+                for i, node in enumerate(self.tracked_nodes):
+                    node_content = getattr(node, 'content', '') or getattr(node, 'full_content', '')
+                    if content == node_content:
+                        # This content belongs to one of our nodes
+                        if i == self.current_node_index:
+                            # It's the currently displayed node, update the editor
+                            self.code_editor.blockSignals(True)
+                            self.code_editor.setPlainText(content)
+                            self.code_editor.blockSignals(False)
+                            self.unsaved_changes = False
+                            self.update_status()
+                        break
+                        
+    def get_content(self):
+        """Get content for external synchronization compatibility."""
+        return self.code_editor.toPlainText()
+        
+    def closeEvent(self, event):
+        """Handle window close event."""
+        if self.unsaved_changes:
+            reply = QMessageBox.question(
+                self, "Unsaved Changes",
+                "You have unsaved changes. Do you want to save before closing?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel
+            )
+            
+            if reply == QMessageBox.Save:
+                self.save_current_node()
+                event.accept()
+            elif reply == QMessageBox.Discard:
+                event.accept()
+            else:
+                event.ignore()
+                return
+        else:
+            event.accept()
+            
+        # Clean up tracking
+        for node in self.tracked_nodes[:]:
+            self.remove_tracked_node(node)
+
+class ExternalTextEditorDialog(QMainWindow, CustomWindowMixin):
+    """External text editor dialog for BuildableNode editing."""
+    
+    def __init__(self, title="Code Editor", content="", node_reference=None, parent=None):
+        super().__init__(parent)
+        self.node_reference = node_reference
+        self.original_content = content
+        self.unsaved_changes = False
+        
+        self.setWindowTitle(f"External Editor - {title}")
+        self.setStyleSheet("QMainWindow { background: #2c3e50; color: white; }")
+        self.setAttribute(Qt.WA_TranslucentBackground, False)
+        
+        # Create central widget and layout
+        central_widget = QWidget()
+        main_layout = QVBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Setup custom title bar
+        container, containerLayout, titleBar = self.setupCustomTitleBar(f"Code Editor - {title}")
+        main_layout.addWidget(titleBar)
+        
+        # Create the code editor
+        self.code_editor = CodeEditor()
+        self.code_editor.setPlainText(content)
+        
+        # Connect change detection
+        self.code_editor.textChanged.connect(self.on_content_changed)
+        
+        main_layout.addWidget(self.code_editor)
+        
+        # Create button bar
+        button_widget = QWidget()
+        button_layout = QVBoxLayout(button_widget)
+        button_layout.setContentsMargins(10, 5, 10, 10)
+        button_layout.setSpacing(5)
+        
+        from PyQt5.QtWidgets import QPushButton, QHBoxLayout
+        
+        button_row = QWidget()
+        button_row_layout = QHBoxLayout(button_row)
+        button_row_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Save button
+        self.save_button = QPushButton("Save & Sync")
+        self.save_button.setStyleSheet("""
+            QPushButton {
+                background-color: #27ae60;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #2ecc71;
+            }
+            QPushButton:pressed {
+                background-color: #229954;
+            }
+        """)
+        self.save_button.clicked.connect(self.save_and_sync)
+        
+        # Cancel button
+        self.cancel_button = QPushButton("Cancel")
+        self.cancel_button.setStyleSheet("""
+            QPushButton {
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #c0392b;
+            }
+            QPushButton:pressed {
+                background-color: #922b21;
+            }
+        """)
+        self.cancel_button.clicked.connect(self.cancel_editing)
+        
+        button_row_layout.addWidget(self.save_button)
+        button_row_layout.addWidget(self.cancel_button)
+        button_row_layout.addStretch()
+        
+        # Status label
+        self.status_label = QWidget()
+        self.status_label.setStyleSheet("color: #95a5a6; padding: 4px;")
+        status_layout = QHBoxLayout(self.status_label)
+        status_layout.setContentsMargins(0, 0, 0, 0)
+        
+        from PyQt5.QtWidgets import QLabel
+        self.status_text = QLabel("No changes")
+        self.status_text.setStyleSheet("color: #95a5a6;")
+        status_layout.addWidget(self.status_text)
+        status_layout.addStretch()
+        
+        button_layout.addWidget(button_row)
+        button_layout.addWidget(self.status_label)
+        
+        main_layout.addWidget(button_widget)
+        
+        # Set up window properties
+        titleBar.mousePressEvent = self.titleBarMousePressEvent
+        titleBar.mouseMoveEvent = self.titleBarMouseMoveEvent
+        
+        self.setCentralWidget(central_widget)
+        self.resize(800, 600)
+        
+        # Set focus to the code editor
+        self.code_editor.setFocus()
+        
+    def on_content_changed(self):
+        """Handle content changes in the editor."""
+        current_content = self.code_editor.toPlainText()
+        if current_content != self.original_content:
+            self.unsaved_changes = True
+            self.status_text.setText("● Unsaved changes")
+            self.status_text.setStyleSheet("color: #f39c12;")
+            
+            # Update window title to show unsaved changes
+            title = self.windowTitle()
+            if not title.endswith(" *"):
+                self.setWindowTitle(title + " *")
+        else:
+            self.unsaved_changes = False
+            self.status_text.setText("No changes")
+            self.status_text.setStyleSheet("color: #95a5a6;")
+            
+            # Remove asterisk from title
+            title = self.windowTitle()
+            if title.endswith(" *"):
+                self.setWindowTitle(title[:-2])
+                
+    def save_and_sync(self):
+        """Save changes and synchronize with the BuildableNode."""
+        new_content = self.code_editor.toPlainText()
+        
+        # Update the node if reference exists
+        if self.node_reference:
+            # Update the node's content
+            self.node_reference.content = new_content
+            self.node_reference.full_content = new_content
+            
+            # Process content change to trigger analysis and auto-generation
+            if hasattr(self.node_reference, 'process_content_change'):
+                self.node_reference.process_content_change(self.original_content, new_content)
+            
+            # Update visual representation
+            self.node_reference.update()
+            
+        # Update original content and reset change status
+        self.original_content = new_content
+        self.unsaved_changes = False
+        self.on_content_changed()  # Refresh status
+        
+        # Show success message briefly
+        self.status_text.setText("✓ Saved and synchronized")
+        self.status_text.setStyleSheet("color: #27ae60;")
+        
+        # Reset status after a delay
+        QTimer.singleShot(2000, lambda: (
+            self.status_text.setText("No changes"),
+            self.status_text.setStyleSheet("color: #95a5a6;")
+        ))
+        
+    def cancel_editing(self):
+        """Cancel editing and close the dialog."""
+        if self.unsaved_changes:
+            # Ask for confirmation
+            from PyQt5.QtWidgets import QMessageBox
+            reply = QMessageBox.question(
+                self, "Unsaved Changes",
+                "You have unsaved changes. Are you sure you want to close without saving?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            
+            if reply == QMessageBox.No:
+                return
+                
+        self.close()
+        
+    def closeEvent(self, event):
+        """Handle window close event."""
+        if self.unsaved_changes:
+            # Ask for confirmation
+            from PyQt5.QtWidgets import QMessageBox
+            reply = QMessageBox.question(
+                self, "Unsaved Changes",
+                "You have unsaved changes. Do you want to save before closing?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                QMessageBox.Save
+            )
+            
+            if reply == QMessageBox.Save:
+                self.save_and_sync()
+                event.accept()
+            elif reply == QMessageBox.Discard:
+                event.accept()
+            else:
+                event.ignore()
+                return
+        else:
+            event.accept()
+            
+    def get_content(self):
+        """Get the current content of the editor."""
+        return self.code_editor.toPlainText()
+        
+    def set_content(self, content):
+        """Set the content of the editor."""
+        self.code_editor.setPlainText(content)
+        self.original_content = content
+        self.unsaved_changes = False
+        self.on_content_changed()
+
 class CodeViewerWindow(QMainWindow, CustomWindowMixin):
     def __init__(self, title, content):
         super().__init__()

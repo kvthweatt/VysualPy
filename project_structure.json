@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-29 14:21:51",
+  "timestamp": "2025-08-29 16:17:51",
   "files": {
     "analyze_project.py": {
       "file_path": "analyze_project.py",
@@ -305,6 +305,689 @@
       ],
       "docstring": "VysualPy Project Analyzer\n\nThis tool scans the VysualPy source files and generates a structural overview\nof classes, functions, and their relationships. It helps track the codebase\nduring refactoring and provides quick reference information.\n\nUsage:\n    python analyze_project.py [--output PROJECT_STRUCTURE.md] [--json project_structure.json]"
     },
+    "debug_multiselect.py": {
+      "file_path": "debug_multiselect.py",
+      "line_count": 116,
+      "classes": [
+        {
+          "name": "MultiSelectDebugWindow",
+          "line_number": 15,
+          "base_classes": [
+            "QMainWindow"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 16,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "MultiSelectDebugWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_test_nodes",
+              "line_number": 50,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "MultiSelectDebugWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [
+        {
+          "name": "main",
+          "line_number": 102,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": null,
+          "parameters": [],
+          "decorators": []
+        }
+      ],
+      "imports": [
+        "sys",
+        "from PyQt5.QtWidgets import QApplication",
+        "from PyQt5.QtWidgets import QMainWindow",
+        "from PyQt5.QtWidgets import QVBoxLayout",
+        "from PyQt5.QtWidgets import QWidget",
+        "from PyQt5.QtWidgets import QLabel",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtGui import QBrush",
+        "from PyQt5.QtGui import QColor",
+        "from vpy_node_types import BlueprintNode",
+        "from vpy_node_types import ExecutionNode",
+        "from vpy_blueprints import BlueprintScene",
+        "from vpy_blueprints import BlueprintView"
+      ],
+      "docstring": "Debug script to test multi-selection functionality with new node system."
+    },
+    "debug_nodes.py": {
+      "file_path": "debug_nodes.py",
+      "line_count": 81,
+      "classes": [
+        {
+          "name": "DebugWindow",
+          "line_number": 14,
+          "base_classes": [
+            "QMainWindow"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 15,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DebugWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_test_nodes",
+              "line_number": 36,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DebugWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [
+        {
+          "name": "main",
+          "line_number": 72,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": null,
+          "parameters": [],
+          "decorators": []
+        }
+      ],
+      "imports": [
+        "sys",
+        "from PyQt5.QtWidgets import QApplication",
+        "from PyQt5.QtWidgets import QGraphicsScene",
+        "from PyQt5.QtWidgets import QGraphicsView",
+        "from PyQt5.QtWidgets import QMainWindow",
+        "from PyQt5.QtWidgets import QVBoxLayout",
+        "from PyQt5.QtWidgets import QWidget",
+        "from PyQt5.QtCore import QRectF",
+        "from PyQt5.QtCore import QPointF",
+        "from PyQt5.QtGui import QColor",
+        "from vpy_node_types import BlueprintNode",
+        "from vpy_node_types import ExecutionNode"
+      ],
+      "docstring": "Debug script to test node rendering in isolation."
+    },
+    "debug_node_system.py": {
+      "file_path": "debug_node_system.py",
+      "line_count": 1181,
+      "classes": [
+        {
+          "name": "NodeCreationDialog",
+          "line_number": 28,
+          "base_classes": [
+            "QDialog"
+          ],
+          "docstring": "Dialog for creating new nodes with custom properties.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 31,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeCreationDialog",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node_type",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_default_content",
+              "line_number": 81,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeCreationDialog",
+              "docstring": "Get default content for different node types.",
+              "parameters": [
+                "self",
+                "node_type"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_node_data",
+              "line_number": 89,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeCreationDialog",
+              "docstring": "Get the data needed to create the node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "SimpleConnection",
+          "line_number": 103,
+          "base_classes": [
+            "QGraphicsPathItem"
+          ],
+          "docstring": "Curved connection line for blueprint nodes (like Unreal Engine).",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 106,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "start_port",
+                "start_pos",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updatePath",
+              "line_number": 174,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Update the curved path like Unreal Engine blueprints.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint",
+              "line_number": 236,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Custom paint with smooth width animation.",
+              "parameters": [
+                "self",
+                "painter",
+                "option",
+                "widget"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setEndPoint",
+              "line_number": 266,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Complete the connection to an end port.",
+              "parameters": [
+                "self",
+                "end_port"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updateForNodeMovement",
+              "line_number": 286,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Update connection when connected nodes have moved.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "hoverEnterEvent",
+              "line_number": 298,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Handle mouse hover enter - start thickening animation.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "hoverLeaveEvent",
+              "line_number": 305,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Handle mouse hover leave - start thinning animation.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_pen_style",
+              "line_number": 312,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Update pen style based on current state.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 328,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Handle mouse press on connection line for dragging.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 350,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Handle dragging the connection line to move both nodes.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseReleaseEvent",
+              "line_number": 398,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Handle mouse release to stop dragging.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "contextMenuEvent",
+              "line_number": 418,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Handle right-click context menu on connection.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "break_connection",
+              "line_number": 448,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Break this connection and remove it from the scene.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "cancel_connection",
+              "line_number": 467,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SimpleConnection",
+              "docstring": "Cancel an in-progress connection.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "EnhancedBlueprintScene",
+          "line_number": 486,
+          "base_classes": [
+            "BlueprintScene"
+          ],
+          "docstring": "Enhanced scene with comprehensive node creation capabilities.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 489,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showContextMenu",
+              "line_number": 497,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Enhanced context menu with node creation options.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_node_at_position",
+              "line_number": 577,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Create a new node at the specified position.",
+              "parameters": [
+                "self",
+                "node_type",
+                "position"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "clear_all_nodes",
+              "line_number": 626,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Clear all nodes from the scene.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "delete_selected_nodes",
+              "line_number": 648,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Delete all selected nodes.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "align_selected_nodes",
+              "line_number": 670,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Align selected nodes.",
+              "parameters": [
+                "self",
+                "alignment"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "distribute_selected_nodes",
+              "line_number": 695,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Distribute selected nodes evenly.",
+              "parameters": [
+                "self",
+                "direction"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 730,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Enhanced mouse press handling for connection creation.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "check_port_proximity",
+              "line_number": 781,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Check if scene position is close to any port on the given node.\n        \n        Returns (bool, port) where bool indicates if a port was found,\n        and port is the ConnectionPort object if found, None otherwise.",
+              "parameters": [
+                "self",
+                "node",
+                "scene_pos"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseReleaseEvent",
+              "line_number": 818,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Handle connection completion.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "check_port_proximity_for_connection",
+              "line_number": 887,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Check if scene position is close to a compatible port for connection.\n        \n        Only returns ports that can connect to the source port AND are on compatible node types.",
+              "parameters": [
+                "self",
+                "node",
+                "scene_pos",
+                "source_port"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "check_blueprint_connection_exists",
+              "line_number": 935,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Check if a connection already exists between two blueprint nodes.\n        \n        Args:\n            start_node: The source node of the potential connection\n            end_node: The target node of the potential connection\n            \n        Returns:\n            bool: True if a connection already exists between these nodes (in either direction)",
+              "parameters": [
+                "self",
+                "start_node",
+                "end_node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 969,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Handle connection dragging.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_all_connections",
+              "line_number": 980,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EnhancedBlueprintScene",
+              "docstring": "Update all connection lines to follow moving nodes.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "NodeSystemDebugWindow",
+          "line_number": 987,
+          "base_classes": [
+            "QMainWindow"
+          ],
+          "docstring": "Comprehensive debug window for the node system.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 990,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeSystemDebugWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_sample_nodes",
+              "line_number": 1038,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeSystemDebugWindow",
+              "docstring": "Create some sample nodes to demonstrate functionality.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_window_title",
+              "line_number": 1116,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeSystemDebugWindow",
+              "docstring": "Update window title with current node count.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "open_demo_text_editor",
+              "line_number": 1121,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeSystemDebugWindow",
+              "docstring": "Open a global text editor that tracks all BuildableNodes.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [
+        {
+          "name": "main",
+          "line_number": 1157,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": null,
+          "parameters": [],
+          "decorators": []
+        }
+      ],
+      "imports": [
+        "sys",
+        "from PyQt5.QtWidgets import QApplication",
+        "from PyQt5.QtWidgets import QMainWindow",
+        "from PyQt5.QtWidgets import QVBoxLayout",
+        "from PyQt5.QtWidgets import QWidget",
+        "from PyQt5.QtWidgets import QLabel",
+        "from PyQt5.QtWidgets import QMenu",
+        "from PyQt5.QtWidgets import QAction",
+        "from PyQt5.QtWidgets import QInputDialog",
+        "from PyQt5.QtWidgets import QMessageBox",
+        "from PyQt5.QtWidgets import QTextEdit",
+        "from PyQt5.QtWidgets import QDialog",
+        "from PyQt5.QtWidgets import QFormLayout",
+        "from PyQt5.QtWidgets import QLineEdit",
+        "from PyQt5.QtWidgets import QPushButton",
+        "from PyQt5.QtWidgets import QHBoxLayout",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtCore import QPointF",
+        "from PyQt5.QtGui import QBrush",
+        "from PyQt5.QtGui import QColor",
+        "from PyQt5.QtGui import QFont",
+        "from vpy_node_types import BlueprintNode",
+        "from vpy_node_types import ExecutionNode",
+        "from vpy_node_types import BuildableNode",
+        "from vpy_blueprints import BlueprintScene",
+        "from vpy_blueprints import BlueprintView",
+        "from PyQt5.QtWidgets import QGraphicsLineItem",
+        "from PyQt5.QtWidgets import QGraphicsPathItem",
+        "from PyQt5.QtGui import QPen",
+        "from PyQt5.QtGui import QPainterPath"
+      ],
+      "docstring": "Comprehensive debug application for VysualPy node system.\n\nFeatures:\n- Right-click context menus for creating nodes\n- Full support for Blueprint, Execution, and Buildable nodes\n- Multi-selection and group operations\n- Node editing and property management\n- Visual feedback and state management"
+    },
     "main.py": {
       "file_path": "main.py",
       "line_count": 10,
@@ -319,11 +1002,45 @@
     },
     "vpy_blueprints.py": {
       "file_path": "vpy_blueprints.py",
-      "line_count": 1584,
+      "line_count": 1602,
       "classes": [
         {
+          "name": "GraphLayoutOptimizer",
+          "line_number": 18,
+          "base_classes": [],
+          "docstring": "Simple graph layout optimizer stub for legacy compatibility",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 20,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GraphLayoutOptimizer",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "optimize",
+              "line_number": 23,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GraphLayoutOptimizer",
+              "docstring": "Placeholder for layout optimization",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
           "name": "FunctionCallCollector",
-          "line_number": 62,
+          "line_number": 70,
           "base_classes": [
             "NodeVisitor"
           ],
@@ -331,7 +1048,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 65,
+              "line_number": 73,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -344,7 +1061,7 @@
             },
             {
               "name": "visit_FunctionDef",
-              "line_number": 70,
+              "line_number": 78,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -357,7 +1074,7 @@
             },
             {
               "name": "visit_AsyncFunctionDef",
-              "line_number": 75,
+              "line_number": 83,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -370,7 +1087,7 @@
             },
             {
               "name": "visit_Call",
-              "line_number": 80,
+              "line_number": 88,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -383,7 +1100,7 @@
             },
             {
               "name": "_get_callable_name",
-              "line_number": 89,
+              "line_number": 97,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -396,7 +1113,7 @@
             },
             {
               "name": "_should_include_call",
-              "line_number": 98,
+              "line_number": 106,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -412,7 +1129,7 @@
         },
         {
           "name": "BlueprintScene",
-          "line_number": 116,
+          "line_number": 124,
           "base_classes": [
             "QGraphicsScene"
           ],
@@ -420,7 +1137,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 117,
+              "line_number": 125,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintScene",
@@ -432,7 +1149,7 @@
             },
             {
               "name": "mouseMoveEvent",
-              "line_number": 122,
+              "line_number": 130,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintScene",
@@ -445,7 +1162,7 @@
             },
             {
               "name": "mouseReleaseEvent",
-              "line_number": 128,
+              "line_number": 136,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintScene",
@@ -458,7 +1175,7 @@
             },
             {
               "name": "mousePressEvent",
-              "line_number": 152,
+              "line_number": 160,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintScene",
@@ -471,7 +1188,7 @@
             },
             {
               "name": "showContextMenu",
-              "line_number": 160,
+              "line_number": 183,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintScene",
@@ -487,7 +1204,7 @@
         },
         {
           "name": "BlueprintView",
-          "line_number": 180,
+          "line_number": 203,
           "base_classes": [
             "QGraphicsView"
           ],
@@ -495,7 +1212,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 181,
+              "line_number": 204,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -509,7 +1226,7 @@
             },
             {
               "name": "keyPressEvent",
-              "line_number": 197,
+              "line_number": 220,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -522,7 +1239,7 @@
             },
             {
               "name": "mousePressEvent",
-              "line_number": 205,
+              "line_number": 228,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -535,7 +1252,7 @@
             },
             {
               "name": "mouseMoveEvent",
-              "line_number": 222,
+              "line_number": 245,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -548,7 +1265,7 @@
             },
             {
               "name": "mouseReleaseEvent",
-              "line_number": 232,
+              "line_number": 255,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -561,7 +1278,7 @@
             },
             {
               "name": "drawBackground",
-              "line_number": 242,
+              "line_number": 265,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -575,7 +1292,7 @@
             },
             {
               "name": "wheelEvent",
-              "line_number": 271,
+              "line_number": 294,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -591,7 +1308,7 @@
         },
         {
           "name": "BlueprintGraphWindow",
-          "line_number": 281,
+          "line_number": 304,
           "base_classes": [
             "QMainWindow",
             "CustomWindowMixin"
@@ -600,7 +1317,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 282,
+              "line_number": 305,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -614,7 +1331,7 @@
             },
             {
               "name": "showPreferences",
-              "line_number": 378,
+              "line_number": 401,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -626,7 +1343,7 @@
             },
             {
               "name": "updateGridSize",
-              "line_number": 390,
+              "line_number": 413,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -638,7 +1355,7 @@
             },
             {
               "name": "saveBlueprintWorkspace",
-              "line_number": 404,
+              "line_number": 429,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -651,7 +1368,7 @@
             },
             {
               "name": "loadBlueprintWorkspace",
-              "line_number": 463,
+              "line_number": 488,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -664,7 +1381,7 @@
             },
             {
               "name": "addCommentBoxToScene",
-              "line_number": 551,
+              "line_number": 573,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -677,7 +1394,7 @@
             },
             {
               "name": "optimize_layout",
-              "line_number": 559,
+              "line_number": 581,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -689,7 +1406,7 @@
             },
             {
               "name": "reset_view",
-              "line_number": 563,
+              "line_number": 585,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -701,7 +1418,7 @@
             },
             {
               "name": "create_nodes_from_code",
-              "line_number": 567,
+              "line_number": 589,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -714,7 +1431,7 @@
             },
             {
               "name": "add_code_block",
-              "line_number": 597,
+              "line_number": 619,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -730,7 +1447,7 @@
             },
             {
               "name": "create_graph_nodes",
-              "line_number": 612,
+              "line_number": 638,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -747,7 +1464,7 @@
         },
         {
           "name": "FunctionCallVisitor",
-          "line_number": 642,
+          "line_number": 668,
           "base_classes": [
             "NodeVisitor"
           ],
@@ -755,7 +1472,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 643,
+              "line_number": 669,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -767,7 +1484,7 @@
             },
             {
               "name": "should_include_call",
-              "line_number": 674,
+              "line_number": 700,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -780,7 +1497,7 @@
             },
             {
               "name": "visit_Module",
-              "line_number": 680,
+              "line_number": 706,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -793,7 +1510,7 @@
             },
             {
               "name": "visit_If",
-              "line_number": 685,
+              "line_number": 711,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -806,7 +1523,7 @@
             },
             {
               "name": "visit_While",
-              "line_number": 695,
+              "line_number": 721,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -819,7 +1536,7 @@
             },
             {
               "name": "visit_For",
-              "line_number": 701,
+              "line_number": 727,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -832,7 +1549,7 @@
             },
             {
               "name": "visit_Call",
-              "line_number": 707,
+              "line_number": 733,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -845,7 +1562,7 @@
             },
             {
               "name": "get_unique_name",
-              "line_number": 754,
+              "line_number": 780,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -859,7 +1576,7 @@
             },
             {
               "name": "get_callable_name",
-              "line_number": 763,
+              "line_number": 789,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -872,7 +1589,7 @@
             },
             {
               "name": "handle_function",
-              "line_number": 777,
+              "line_number": 803,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -886,7 +1603,7 @@
             },
             {
               "name": "visit_FunctionDef",
-              "line_number": 793,
+              "line_number": 819,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -899,7 +1616,7 @@
             },
             {
               "name": "visit_AsyncFunctionDef",
-              "line_number": 796,
+              "line_number": 822,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -912,7 +1629,7 @@
             },
             {
               "name": "visit_Assign",
-              "line_number": 799,
+              "line_number": 825,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -925,7 +1642,7 @@
             },
             {
               "name": "visit_Return",
-              "line_number": 811,
+              "line_number": 837,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -941,7 +1658,7 @@
         },
         {
           "name": "ExecutionScene",
-          "line_number": 826,
+          "line_number": 852,
           "base_classes": [
             "BlueprintScene"
           ],
@@ -949,7 +1666,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 827,
+              "line_number": 853,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionScene",
@@ -964,7 +1681,7 @@
         },
         {
           "name": "ExecutionView",
-          "line_number": 831,
+          "line_number": 857,
           "base_classes": [
             "BlueprintView"
           ],
@@ -972,7 +1689,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 832,
+              "line_number": 858,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionView",
@@ -989,7 +1706,7 @@
         },
         {
           "name": "ExecutionGraphWindow",
-          "line_number": 836,
+          "line_number": 862,
           "base_classes": [
             "QMainWindow",
             "CustomWindowMixin"
@@ -998,7 +1715,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 837,
+              "line_number": 863,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1013,7 +1730,7 @@
             },
             {
               "name": "addCommentBoxToScene",
-              "line_number": 926,
+              "line_number": 952,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1026,7 +1743,7 @@
             },
             {
               "name": "create_menus",
-              "line_number": 934,
+              "line_number": 960,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1038,7 +1755,7 @@
             },
             {
               "name": "showPreferences",
-              "line_number": 961,
+              "line_number": 987,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1050,7 +1767,7 @@
             },
             {
               "name": "updateGridSize",
-              "line_number": 973,
+              "line_number": 999,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1062,7 +1779,7 @@
             },
             {
               "name": "optimize_layout",
-              "line_number": 988,
+              "line_number": 1016,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1074,7 +1791,7 @@
             },
             {
               "name": "reset_view",
-              "line_number": 994,
+              "line_number": 1022,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1086,7 +1803,7 @@
             },
             {
               "name": "create_execution_graph",
-              "line_number": 1000,
+              "line_number": 1028,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1099,7 +1816,7 @@
             },
             {
               "name": "save_graph",
-              "line_number": 1010,
+              "line_number": 1038,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1111,7 +1828,7 @@
             },
             {
               "name": "load_graph",
-              "line_number": 1051,
+              "line_number": 1077,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1123,7 +1840,7 @@
             },
             {
               "name": "reset_view",
-              "line_number": 1100,
+              "line_number": 1123,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1135,7 +1852,7 @@
             },
             {
               "name": "optimize_layout",
-              "line_number": 1105,
+              "line_number": 1128,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1147,7 +1864,7 @@
             },
             {
               "name": "create_execution_nodes",
-              "line_number": 1110,
+              "line_number": 1133,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1163,7 +1880,7 @@
         },
         {
           "name": "BuildGraphScene",
-          "line_number": 1209,
+          "line_number": 1227,
           "base_classes": [
             "BlueprintScene"
           ],
@@ -1171,7 +1888,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 1210,
+              "line_number": 1228,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1184,7 +1901,7 @@
             },
             {
               "name": "should_initialize",
-              "line_number": 1222,
+              "line_number": 1240,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1196,7 +1913,7 @@
             },
             {
               "name": "initialize_default_structure",
-              "line_number": 1234,
+              "line_number": 1252,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1208,7 +1925,7 @@
             },
             {
               "name": "keyPressEvent",
-              "line_number": 1276,
+              "line_number": 1294,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1221,7 +1938,7 @@
             },
             {
               "name": "mousePressEvent",
-              "line_number": 1302,
+              "line_number": 1320,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1234,7 +1951,7 @@
             },
             {
               "name": "update_existing_functions",
-              "line_number": 1308,
+              "line_number": 1326,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1246,7 +1963,7 @@
             },
             {
               "name": "create_function_node",
-              "line_number": 1315,
+              "line_number": 1333,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1261,7 +1978,7 @@
             },
             {
               "name": "check_and_create_called_functions",
-              "line_number": 1329,
+              "line_number": 1347,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1277,7 +1994,7 @@
         },
         {
           "name": "BuildGraphView",
-          "line_number": 1391,
+          "line_number": 1409,
           "base_classes": [
             "BlueprintView"
           ],
@@ -1285,7 +2002,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 1392,
+              "line_number": 1410,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphView",
@@ -1299,7 +2016,7 @@
             },
             {
               "name": "keyPressEvent",
-              "line_number": 1398,
+              "line_number": 1416,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphView",
@@ -1312,7 +2029,7 @@
             },
             {
               "name": "deleteSelectedNodes",
-              "line_number": 1417,
+              "line_number": 1435,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphView",
@@ -1324,7 +2041,7 @@
             },
             {
               "name": "mousePressEvent",
-              "line_number": 1480,
+              "line_number": 1498,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphView",
@@ -1340,7 +2057,7 @@
         },
         {
           "name": "BuildGraphWindow",
-          "line_number": 1484,
+          "line_number": 1502,
           "base_classes": [
             "QMainWindow"
           ],
@@ -1348,7 +2065,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 1485,
+              "line_number": 1503,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphWindow",
@@ -1362,7 +2079,7 @@
             },
             {
               "name": "addCommentBoxToScene",
-              "line_number": 1526,
+              "line_number": 1544,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphWindow",
@@ -1375,7 +2092,7 @@
             },
             {
               "name": "confirm_code_replacement",
-              "line_number": 1535,
+              "line_number": 1553,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphWindow",
@@ -1387,7 +2104,7 @@
             },
             {
               "name": "create_initial_nodes",
-              "line_number": 1547,
+              "line_number": 1565,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphWindow",
@@ -1400,7 +2117,7 @@
             },
             {
               "name": "setup_menus",
-              "line_number": 1566,
+              "line_number": 1584,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphWindow",
@@ -1418,7 +2135,7 @@
       "functions": [
         {
           "name": "detect_function_calls",
-          "line_number": 20,
+          "line_number": 28,
           "is_async": false,
           "is_method": false,
           "parent_class": null,
@@ -1453,12 +2170,15 @@
         "from PyQt5.QtGui import QPen",
         "from vpy_menus import PreferencesDialog",
         "from vpy_winmix import CustomWindowMixin",
-        "from vpy_graph import CommentBox",
-        "from vpy_graph import DraggableRect",
-        "from vpy_graph import ExecutionDraggableRect",
+        "from vpy_node_types import BlueprintNode",
+        "from vpy_node_types import ExecutionNode",
         "from vpy_node_types import BuildableNode",
+        "from vpy_node_types import CommentNode",
         "from vpy_connection_core import Connection",
-        "from vpy_node_base import ConnectionPort"
+        "from vpy_connection_core import ConnectionManager",
+        "from vpy_node_base import ConnectionPort",
+        "from vpy_node_base import PortType",
+        "from vpy_graph import CommentBox"
       ],
       "docstring": null
     },
@@ -2425,11 +3145,288 @@
     },
     "vpy_editor.py": {
       "file_path": "vpy_editor.py",
-      "line_count": 1312,
+      "line_count": 1892,
       "classes": [
         {
-          "name": "CodeViewerWindow",
+          "name": "GlobalNodeTextEditor",
           "line_number": 30,
+          "base_classes": [
+            "QMainWindow",
+            "CustomWindowMixin"
+          ],
+          "docstring": "Global text editor that tracks and displays all BuildableNodes.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 33,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "title",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "add_tracked_node",
+              "line_number": 181,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Add a BuildableNode to be tracked by this editor.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "remove_tracked_node",
+              "line_number": 192,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Remove a BuildableNode from tracking.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "refresh_tracked_nodes",
+              "line_number": 201,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Find and track all BuildableNodes in the scene.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "refresh_node_selector",
+              "line_number": 228,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Update the node selector dropdown.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "on_node_changed",
+              "line_number": 250,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Handle node selection change.",
+              "parameters": [
+                "self",
+                "index"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_current_node_content",
+              "line_number": 272,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Load content from the currently selected node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "on_content_changed",
+              "line_number": 281,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Handle content changes in the editor.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_current_node",
+              "line_number": 296,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Save changes to the currently selected node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_status",
+              "line_number": 324,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Update the status display.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_content",
+              "line_number": 338,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Set content for external synchronization compatibility.",
+              "parameters": [
+                "self",
+                "content"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_content",
+              "line_number": 362,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Get content for external synchronization compatibility.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "closeEvent",
+              "line_number": 366,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "GlobalNodeTextEditor",
+              "docstring": "Handle window close event.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "ExternalTextEditorDialog",
+          "line_number": 390,
+          "base_classes": [
+            "QMainWindow",
+            "CustomWindowMixin"
+          ],
+          "docstring": "External text editor dialog for BuildableNode editing.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 393,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExternalTextEditorDialog",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "title",
+                "content",
+                "node_reference",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "on_content_changed",
+              "line_number": 505,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExternalTextEditorDialog",
+              "docstring": "Handle content changes in the editor.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_and_sync",
+              "line_number": 527,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExternalTextEditorDialog",
+              "docstring": "Save changes and synchronize with the BuildableNode.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "cancel_editing",
+              "line_number": 559,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExternalTextEditorDialog",
+              "docstring": "Cancel editing and close the dialog.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "closeEvent",
+              "line_number": 576,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExternalTextEditorDialog",
+              "docstring": "Handle window close event.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_content",
+              "line_number": 599,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExternalTextEditorDialog",
+              "docstring": "Get the current content of the editor.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_content",
+              "line_number": 603,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExternalTextEditorDialog",
+              "docstring": "Set the content of the editor.",
+              "parameters": [
+                "self",
+                "content"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "CodeViewerWindow",
+          "line_number": 610,
           "base_classes": [
             "QMainWindow",
             "CustomWindowMixin"
@@ -2438,7 +3435,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 31,
+              "line_number": 611,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeViewerWindow",
@@ -2455,7 +3452,7 @@
         },
         {
           "name": "SyntaxHighlighter",
-          "line_number": 66,
+          "line_number": 646,
           "base_classes": [
             "QSyntaxHighlighter"
           ],
@@ -2463,7 +3460,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 67,
+              "line_number": 647,
               "is_async": false,
               "is_method": true,
               "parent_class": "SyntaxHighlighter",
@@ -2477,7 +3474,7 @@
             },
             {
               "name": "setup_default_format",
-              "line_number": 83,
+              "line_number": 663,
               "is_async": false,
               "is_method": true,
               "parent_class": "SyntaxHighlighter",
@@ -2489,7 +3486,7 @@
             },
             {
               "name": "load_language",
-              "line_number": 86,
+              "line_number": 666,
               "is_async": false,
               "is_method": true,
               "parent_class": "SyntaxHighlighter",
@@ -2502,7 +3499,7 @@
             },
             {
               "name": "setup_formats",
-              "line_number": 94,
+              "line_number": 674,
               "is_async": false,
               "is_method": true,
               "parent_class": "SyntaxHighlighter",
@@ -2514,7 +3511,7 @@
             },
             {
               "name": "highlightBlock",
-              "line_number": 132,
+              "line_number": 712,
               "is_async": false,
               "is_method": true,
               "parent_class": "SyntaxHighlighter",
@@ -2530,7 +3527,7 @@
         },
         {
           "name": "LineNumberArea",
-          "line_number": 139,
+          "line_number": 719,
           "base_classes": [
             "QWidget"
           ],
@@ -2538,7 +3535,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 140,
+              "line_number": 720,
               "is_async": false,
               "is_method": true,
               "parent_class": "LineNumberArea",
@@ -2551,7 +3548,7 @@
             },
             {
               "name": "sizeHint",
-              "line_number": 144,
+              "line_number": 724,
               "is_async": false,
               "is_method": true,
               "parent_class": "LineNumberArea",
@@ -2563,7 +3560,7 @@
             },
             {
               "name": "paintEvent",
-              "line_number": 147,
+              "line_number": 727,
               "is_async": false,
               "is_method": true,
               "parent_class": "LineNumberArea",
@@ -2579,7 +3576,7 @@
         },
         {
           "name": "CodeEditor",
-          "line_number": 150,
+          "line_number": 730,
           "base_classes": [
             "QTextEdit"
           ],
@@ -2587,7 +3584,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 151,
+              "line_number": 731,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2600,7 +3597,7 @@
             },
             {
               "name": "handleScrollRangeChange",
-              "line_number": 224,
+              "line_number": 804,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2614,7 +3611,7 @@
             },
             {
               "name": "handleTextChanged",
-              "line_number": 241,
+              "line_number": 821,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2626,7 +3623,7 @@
             },
             {
               "name": "lineNumberAreaPaintEvent",
-              "line_number": 248,
+              "line_number": 828,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2639,7 +3636,7 @@
             },
             {
               "name": "line_number_area_width",
-              "line_number": 302,
+              "line_number": 882,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2651,7 +3648,7 @@
             },
             {
               "name": "update_line_number_area_width",
-              "line_number": 308,
+              "line_number": 888,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2663,7 +3660,7 @@
             },
             {
               "name": "resizeEvent",
-              "line_number": 312,
+              "line_number": 892,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2676,7 +3673,7 @@
             },
             {
               "name": "go_to_line",
-              "line_number": 333,
+              "line_number": 913,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2688,7 +3685,7 @@
             },
             {
               "name": "handleCursorPosition",
-              "line_number": 364,
+              "line_number": 944,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2700,7 +3697,7 @@
             },
             {
               "name": "wheelEvent",
-              "line_number": 388,
+              "line_number": 968,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2713,7 +3710,7 @@
             },
             {
               "name": "load_file",
-              "line_number": 401,
+              "line_number": 981,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2726,7 +3723,7 @@
             },
             {
               "name": "load_saved_colors",
-              "line_number": 440,
+              "line_number": 1020,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2741,7 +3738,7 @@
         },
         {
           "name": "EditorTabs",
-          "line_number": 465,
+          "line_number": 1045,
           "base_classes": [
             "QTabWidget"
           ],
@@ -2749,7 +3746,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 471,
+              "line_number": 1051,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2762,7 +3759,7 @@
             },
             {
               "name": "add_new_tab",
-              "line_number": 526,
+              "line_number": 1106,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2777,7 +3774,7 @@
             },
             {
               "name": "_create_code_editor",
-              "line_number": 567,
+              "line_number": 1147,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2789,7 +3786,7 @@
             },
             {
               "name": "_mark_dirty",
-              "line_number": 577,
+              "line_number": 1157,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2802,7 +3799,7 @@
             },
             {
               "name": "_mark_clean",
-              "line_number": 590,
+              "line_number": 1170,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2815,7 +3812,7 @@
             },
             {
               "name": "close_tab",
-              "line_number": 602,
+              "line_number": 1182,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2828,7 +3825,7 @@
             },
             {
               "name": "_on_current_changed",
-              "line_number": 638,
+              "line_number": 1218,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2841,7 +3838,7 @@
             },
             {
               "name": "current_editor",
-              "line_number": 646,
+              "line_number": 1226,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2853,7 +3850,7 @@
             },
             {
               "name": "find_tab_by_filepath",
-              "line_number": 651,
+              "line_number": 1231,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2866,7 +3863,7 @@
             },
             {
               "name": "get_all_editors",
-              "line_number": 663,
+              "line_number": 1243,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2878,7 +3875,7 @@
             },
             {
               "name": "set_tab_filepath",
-              "line_number": 676,
+              "line_number": 1256,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2895,7 +3892,7 @@
         },
         {
           "name": "PythonIDE",
-          "line_number": 692,
+          "line_number": 1272,
           "base_classes": [
             "QMainWindow"
           ],
@@ -2903,7 +3900,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 693,
+              "line_number": 1273,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2915,7 +3912,7 @@
             },
             {
               "name": "initUI",
-              "line_number": 702,
+              "line_number": 1282,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2927,7 +3924,7 @@
             },
             {
               "name": "createMenuBar",
-              "line_number": 757,
+              "line_number": 1337,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2939,7 +3936,7 @@
             },
             {
               "name": "createMenus",
-              "line_number": 762,
+              "line_number": 1342,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2951,7 +3948,7 @@
             },
             {
               "name": "toggleMaximized",
-              "line_number": 820,
+              "line_number": 1400,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2963,7 +3960,7 @@
             },
             {
               "name": "titleBarMousePressEvent",
-              "line_number": 826,
+              "line_number": 1406,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2976,7 +3973,7 @@
             },
             {
               "name": "titleBarMouseMoveEvent",
-              "line_number": 831,
+              "line_number": 1411,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2989,7 +3986,7 @@
             },
             {
               "name": "newFile",
-              "line_number": 837,
+              "line_number": 1417,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3001,7 +3998,7 @@
             },
             {
               "name": "openFile",
-              "line_number": 846,
+              "line_number": 1426,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3013,7 +4010,7 @@
             },
             {
               "name": "show_error_message",
-              "line_number": 865,
+              "line_number": 1445,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3026,7 +4023,7 @@
             },
             {
               "name": "saveFile",
-              "line_number": 868,
+              "line_number": 1448,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3038,7 +4035,7 @@
             },
             {
               "name": "saveFileAs",
-              "line_number": 881,
+              "line_number": 1461,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3050,7 +4047,7 @@
             },
             {
               "name": "saveBlueprintWorkspace",
-              "line_number": 894,
+              "line_number": 1474,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3063,7 +4060,7 @@
             },
             {
               "name": "loadBlueprintWorkspace",
-              "line_number": 953,
+              "line_number": 1533,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3076,7 +4073,7 @@
             },
             {
               "name": "runProgram",
-              "line_number": 1041,
+              "line_number": 1621,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3088,7 +4085,7 @@
             },
             {
               "name": "showExGraph",
-              "line_number": 1067,
+              "line_number": 1647,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3100,7 +4097,7 @@
             },
             {
               "name": "showBdGraph",
-              "line_number": 1079,
+              "line_number": 1659,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3112,7 +4109,7 @@
             },
             {
               "name": "showGraph",
-              "line_number": 1095,
+              "line_number": 1675,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3124,7 +4121,7 @@
             },
             {
               "name": "showPreferences",
-              "line_number": 1108,
+              "line_number": 1688,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3136,7 +4133,7 @@
             },
             {
               "name": "apply_preferences_changes",
-              "line_number": 1115,
+              "line_number": 1695,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3149,7 +4146,7 @@
             },
             {
               "name": "apply_color_changes_to_editors",
-              "line_number": 1133,
+              "line_number": 1713,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3162,7 +4159,7 @@
             },
             {
               "name": "showIDEHelp",
-              "line_number": 1149,
+              "line_number": 1729,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3174,7 +4171,7 @@
             },
             {
               "name": "showAbout",
-              "line_number": 1152,
+              "line_number": 1732,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3186,7 +4183,7 @@
             },
             {
               "name": "_on_current_editor_changed",
-              "line_number": 1158,
+              "line_number": 1738,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3199,7 +4196,7 @@
             },
             {
               "name": "current_editor",
-              "line_number": 1172,
+              "line_number": 1752,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3211,7 +4208,7 @@
             },
             {
               "name": "current_filepath",
-              "line_number": 1178,
+              "line_number": 1758,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3223,7 +4220,7 @@
             },
             {
               "name": "set_current_filepath",
-              "line_number": 1185,
+              "line_number": 1765,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3236,7 +4233,7 @@
             },
             {
               "name": "save_current_file",
-              "line_number": 1191,
+              "line_number": 1771,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3249,7 +4246,7 @@
             },
             {
               "name": "save_file_as",
-              "line_number": 1223,
+              "line_number": 1803,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3262,7 +4259,7 @@
             },
             {
               "name": "open_file_in_tab",
-              "line_number": 1261,
+              "line_number": 1841,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3275,7 +4272,7 @@
             },
             {
               "name": "closeEvent",
-              "line_number": 1287,
+              "line_number": 1867,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -4988,7 +5985,7 @@
     },
     "vpy_node_base.py": {
       "file_path": "vpy_node_base.py",
-      "line_count": 470,
+      "line_count": 481,
       "classes": [
         {
           "name": "QGraphicsABCMeta",
@@ -5286,8 +6283,21 @@
               "decorators": []
             },
             {
-              "name": "serialize",
+              "name": "setSelected",
               "line_number": 276,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Override setSelected to sync with our state system.",
+              "parameters": [
+                "self",
+                "selected"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "serialize",
+              "line_number": 286,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5299,7 +6309,7 @@
             },
             {
               "name": "deserialize",
-              "line_number": 309,
+              "line_number": 319,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5312,7 +6322,7 @@
             },
             {
               "name": "validate",
-              "line_number": 354,
+              "line_number": 364,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5324,7 +6334,7 @@
             },
             {
               "name": "on_connect",
-              "line_number": 368,
+              "line_number": 378,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5337,7 +6347,7 @@
             },
             {
               "name": "on_disconnect",
-              "line_number": 376,
+              "line_number": 386,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5350,7 +6360,7 @@
             },
             {
               "name": "on_update",
-              "line_number": 384,
+              "line_number": 394,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5362,7 +6372,7 @@
             },
             {
               "name": "get_display_name",
-              "line_number": 394,
+              "line_number": 404,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5376,7 +6386,7 @@
             },
             {
               "name": "get_tooltip_text",
-              "line_number": 399,
+              "line_number": 409,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5390,7 +6400,7 @@
             },
             {
               "name": "can_accept_content",
-              "line_number": 404,
+              "line_number": 414,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5405,7 +6415,7 @@
             },
             {
               "name": "process_content_change",
-              "line_number": 409,
+              "line_number": 419,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5421,7 +6431,7 @@
             },
             {
               "name": "boundingRect",
-              "line_number": 415,
+              "line_number": 425,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5433,11 +6443,11 @@
             },
             {
               "name": "paint",
-              "line_number": 420,
+              "line_number": 430,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
-              "docstring": "Basic paint implementation - can be enhanced by mixins.",
+              "docstring": "Basic paint implementation - will be enhanced by RenderMixin.",
               "parameters": [
                 "self",
                 "painter",
@@ -5451,13 +6461,13 @@
         },
         {
           "name": "NodeRegistry",
-          "line_number": 440,
+          "line_number": 451,
           "base_classes": [],
           "docstring": "Registry for node types and factory methods.",
           "methods": [
             {
               "name": "__init__",
-              "line_number": 443,
+              "line_number": 454,
               "is_async": false,
               "is_method": true,
               "parent_class": "NodeRegistry",
@@ -5469,7 +6479,7 @@
             },
             {
               "name": "register_node_class",
-              "line_number": 447,
+              "line_number": 458,
               "is_async": false,
               "is_method": true,
               "parent_class": "NodeRegistry",
@@ -5483,7 +6493,7 @@
             },
             {
               "name": "register_factory_function",
-              "line_number": 451,
+              "line_number": 462,
               "is_async": false,
               "is_method": true,
               "parent_class": "NodeRegistry",
@@ -5497,7 +6507,7 @@
             },
             {
               "name": "create_node",
-              "line_number": 455,
+              "line_number": 466,
               "is_async": false,
               "is_method": true,
               "parent_class": "NodeRegistry",
@@ -5510,7 +6520,7 @@
             },
             {
               "name": "get_available_types",
-              "line_number": 464,
+              "line_number": 475,
               "is_async": false,
               "is_method": true,
               "parent_class": "NodeRegistry",
@@ -5549,7 +6559,7 @@
     },
     "vpy_node_mixins.py": {
       "file_path": "vpy_node_mixins.py",
-      "line_count": 532,
+      "line_count": 826,
       "classes": [
         {
           "name": "RenderMixin",
@@ -5598,7 +6608,7 @@
             },
             {
               "name": "get_border_color",
-              "line_number": 110,
+              "line_number": 135,
               "is_async": false,
               "is_method": true,
               "parent_class": "RenderMixin",
@@ -5610,7 +6620,7 @@
             },
             {
               "name": "paint_title",
-              "line_number": 121,
+              "line_number": 146,
               "is_async": false,
               "is_method": true,
               "parent_class": "RenderMixin",
@@ -5624,7 +6634,7 @@
             },
             {
               "name": "paint_content",
-              "line_number": 138,
+              "line_number": 163,
               "is_async": false,
               "is_method": true,
               "parent_class": "RenderMixin",
@@ -5637,8 +6647,64 @@
               "decorators": []
             },
             {
+              "name": "paint_text_editor_content",
+              "line_number": 171,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Paint content with text editor appearance for BuildableNode.",
+              "parameters": [
+                "self",
+                "painter",
+                "rect"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint_text_editor_background",
+              "line_number": 228,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Paint only the text editor background for BuildableNode (used during editing).",
+              "parameters": [
+                "self",
+                "painter",
+                "rect"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint_text_editor_content_only",
+              "line_number": 260,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Paint only the text content for BuildableNode (without background).",
+              "parameters": [
+                "self",
+                "painter",
+                "rect"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint_standard_content",
+              "line_number": 295,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Paint content for standard nodes (Blueprint, Execution, etc.).",
+              "parameters": [
+                "self",
+                "painter",
+                "rect"
+              ],
+              "decorators": []
+            },
+            {
               "name": "paint_ports",
-              "line_number": 158,
+              "line_number": 323,
               "is_async": false,
               "is_method": true,
               "parent_class": "RenderMixin",
@@ -5651,7 +6717,7 @@
             },
             {
               "name": "paint_state_indicators",
-              "line_number": 181,
+              "line_number": 346,
               "is_async": false,
               "is_method": true,
               "parent_class": "RenderMixin",
@@ -5665,7 +6731,7 @@
             },
             {
               "name": "boundingRect",
-              "line_number": 202,
+              "line_number": 367,
               "is_async": false,
               "is_method": true,
               "parent_class": "RenderMixin",
@@ -5677,7 +6743,7 @@
             },
             {
               "name": "update_visual_style",
-              "line_number": 208,
+              "line_number": 373,
               "is_async": false,
               "is_method": true,
               "parent_class": "RenderMixin",
@@ -5692,13 +6758,13 @@
         },
         {
           "name": "InteractionMixin",
-          "line_number": 216,
+          "line_number": 381,
           "base_classes": [],
           "docstring": "Mixin that handles user interaction with nodes.\n    \n    Provides mouse event handling, context menus, and drag behavior.",
           "methods": [
             {
               "name": "__init__",
-              "line_number": 223,
+              "line_number": 388,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5710,7 +6776,7 @@
             },
             {
               "name": "mousePressEvent",
-              "line_number": 234,
+              "line_number": 399,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5722,12 +6788,25 @@
               "decorators": []
             },
             {
-              "name": "mouseMoveEvent",
-              "line_number": 258,
+              "name": "mouseDoubleClickEvent",
+              "line_number": 448,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
-              "docstring": "Handle mouse move events.",
+              "docstring": "Handle mouse double-click events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 461,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Handle mouse move events with multi-selection support.",
               "parameters": [
                 "self",
                 "event"
@@ -5736,7 +6815,7 @@
             },
             {
               "name": "mouseReleaseEvent",
-              "line_number": 274,
+              "line_number": 499,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5749,7 +6828,7 @@
             },
             {
               "name": "hoverEnterEvent",
-              "line_number": 281,
+              "line_number": 508,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5762,7 +6841,7 @@
             },
             {
               "name": "hoverLeaveEvent",
-              "line_number": 288,
+              "line_number": 515,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5775,7 +6854,7 @@
             },
             {
               "name": "hoverMoveEvent",
-              "line_number": 296,
+              "line_number": 523,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5788,7 +6867,7 @@
             },
             {
               "name": "get_port_at_position",
-              "line_number": 307,
+              "line_number": 534,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5801,7 +6880,7 @@
             },
             {
               "name": "handle_port_click",
-              "line_number": 330,
+              "line_number": 557,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5815,7 +6894,7 @@
             },
             {
               "name": "show_context_menu",
-              "line_number": 336,
+              "line_number": 563,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5828,7 +6907,7 @@
             },
             {
               "name": "request_deletion",
-              "line_number": 358,
+              "line_number": 596,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5840,7 +6919,7 @@
             },
             {
               "name": "request_duplication",
-              "line_number": 376,
+              "line_number": 614,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5852,7 +6931,7 @@
             },
             {
               "name": "show_properties",
-              "line_number": 381,
+              "line_number": 619,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5867,13 +6946,13 @@
         },
         {
           "name": "EditableMixin",
-          "line_number": 396,
+          "line_number": 634,
           "base_classes": [],
           "docstring": "Mixin that provides in-place editing functionality for nodes.\n    \n    Allows nodes to be edited directly in the graph view.",
           "methods": [
             {
               "name": "__init__",
-              "line_number": 403,
+              "line_number": 641,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5885,7 +6964,7 @@
             },
             {
               "name": "startEditing",
-              "line_number": 411,
+              "line_number": 649,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5897,7 +6976,7 @@
             },
             {
               "name": "stopEditing",
-              "line_number": 441,
+              "line_number": 695,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5909,7 +6988,7 @@
             },
             {
               "name": "cancelEdit",
-              "line_number": 448,
+              "line_number": 702,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5921,7 +7000,7 @@
             },
             {
               "name": "commitEdit",
-              "line_number": 459,
+              "line_number": 713,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5933,7 +7012,7 @@
             },
             {
               "name": "_cleanup_editing",
-              "line_number": 479,
+              "line_number": 746,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5945,7 +7024,7 @@
             },
             {
               "name": "on_text_changed",
-              "line_number": 493,
+              "line_number": 760,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5957,7 +7036,7 @@
             },
             {
               "name": "keyPressEvent",
-              "line_number": 511,
+              "line_number": 803,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5970,7 +7049,7 @@
             },
             {
               "name": "focusOutEvent",
-              "line_number": 525,
+              "line_number": 819,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -6019,7 +7098,7 @@
     },
     "vpy_node_types.py": {
       "file_path": "vpy_node_types.py",
-      "line_count": 441,
+      "line_count": 724,
       "classes": [
         {
           "name": "BlueprintNode",
@@ -6047,7 +7126,7 @@
             },
             {
               "name": "analyze_content",
-              "line_number": 41,
+              "line_number": 49,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintNode",
@@ -6059,7 +7138,7 @@
             },
             {
               "name": "get_display_name",
-              "line_number": 71,
+              "line_number": 79,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintNode",
@@ -6071,7 +7150,7 @@
             },
             {
               "name": "get_tooltip_text",
-              "line_number": 80,
+              "line_number": 88,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintNode",
@@ -6082,8 +7161,34 @@
               "decorators": []
             },
             {
+              "name": "auto_resize_to_content",
+              "line_number": 93,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintNode",
+              "docstring": "Automatically resize the node to fit its content.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "calculate_content_dimensions",
+              "line_number": 130,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintNode",
+              "docstring": "Calculate required width and height for the node content.",
+              "parameters": [
+                "self",
+                "title_font",
+                "content_font"
+              ],
+              "decorators": []
+            },
+            {
               "name": "can_accept_content",
-              "line_number": 85,
+              "line_number": 159,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintNode",
@@ -6096,7 +7201,7 @@
             },
             {
               "name": "process_content_change",
-              "line_number": 90,
+              "line_number": 164,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintNode",
@@ -6113,7 +7218,7 @@
         },
         {
           "name": "ExecutionNode",
-          "line_number": 100,
+          "line_number": 177,
           "base_classes": [
             "BaseNode",
             "RenderMixin",
@@ -6123,7 +7228,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 107,
+              "line_number": 184,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionNode",
@@ -6137,7 +7242,7 @@
             },
             {
               "name": "set_conditional",
-              "line_number": 122,
+              "line_number": 199,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionNode",
@@ -6150,7 +7255,7 @@
             },
             {
               "name": "set_has_return",
-              "line_number": 131,
+              "line_number": 208,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionNode",
@@ -6163,7 +7268,7 @@
             },
             {
               "name": "get_display_name",
-              "line_number": 144,
+              "line_number": 221,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionNode",
@@ -6175,7 +7280,7 @@
             },
             {
               "name": "get_tooltip_text",
-              "line_number": 149,
+              "line_number": 226,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionNode",
@@ -6187,7 +7292,7 @@
             },
             {
               "name": "can_accept_content",
-              "line_number": 160,
+              "line_number": 237,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionNode",
@@ -6200,7 +7305,7 @@
             },
             {
               "name": "process_content_change",
-              "line_number": 164,
+              "line_number": 241,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionNode",
@@ -6217,18 +7322,18 @@
         },
         {
           "name": "BuildableNode",
-          "line_number": 169,
+          "line_number": 246,
           "base_classes": [
             "BaseNode",
             "RenderMixin",
             "InteractionMixin",
             "EditableMixin"
           ],
-          "docstring": "Node type for live code editing/building.\n    \n    Supports in-place editing and automatically creates connections to\n    undefined functions.",
+          "docstring": "Node type for live code editing/building.\n    \n    Looks like a mini text editor with:\n    - Top left: Input connection (execution flow in)\n    - Bottom left: Return connection (execution flow out)  \n    - Right side: Multiple outputs for each function call made in the code",
           "methods": [
             {
               "name": "__init__",
-              "line_number": 177,
+              "line_number": 256,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6242,8 +7347,58 @@
               "decorators": []
             },
             {
+              "name": "_setup_initial_ports",
+              "line_number": 289,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Setup the initial port layout for buildable nodes.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_update_buildable_port_positions",
+              "line_number": 304,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Update port positions for the buildable node layout.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "auto_resize_to_content",
+              "line_number": 339,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Auto-resize like a text editor to fit content.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "calculate_text_editor_dimensions",
+              "line_number": 374,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Calculate required dimensions for text editor appearance.",
+              "parameters": [
+                "self",
+                "title_font",
+                "content_font"
+              ],
+              "decorators": []
+            },
+            {
               "name": "analyze_and_update",
-              "line_number": 202,
+              "line_number": 412,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6255,7 +7410,7 @@
             },
             {
               "name": "analyze_content",
-              "line_number": 207,
+              "line_number": 417,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6267,19 +7422,33 @@
             },
             {
               "name": "detect_function_calls",
-              "line_number": 247,
+              "line_number": 457,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
-              "docstring": "Detect function calls in the content.",
+              "docstring": "Detect function calls in the content and create output ports for them.",
               "parameters": [
                 "self"
               ],
               "decorators": []
             },
             {
+              "name": "_update_function_call_ports",
+              "line_number": 473,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Update output ports based on function calls in the code.",
+              "parameters": [
+                "self",
+                "old_calls",
+                "new_calls"
+              ],
+              "decorators": []
+            },
+            {
               "name": "get_display_name",
-              "line_number": 258,
+              "line_number": 490,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6291,7 +7460,7 @@
             },
             {
               "name": "get_tooltip_text",
-              "line_number": 269,
+              "line_number": 501,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6303,7 +7472,7 @@
             },
             {
               "name": "can_accept_content",
-              "line_number": 281,
+              "line_number": 518,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6316,7 +7485,7 @@
             },
             {
               "name": "process_content_change",
-              "line_number": 291,
+              "line_number": 528,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6329,8 +7498,33 @@
               "decorators": []
             },
             {
+              "name": "open_external_editor",
+              "line_number": 549,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Open the external text editor dialog for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "sync_with_external_editors",
+              "line_number": 578,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Sync content changes with any open external editors.",
+              "parameters": [
+                "self",
+                "new_content"
+              ],
+              "decorators": []
+            },
+            {
               "name": "stopEditing",
-              "line_number": 303,
+              "line_number": 586,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6345,13 +7539,13 @@
         },
         {
           "name": "LegacyConnectionPoint",
-          "line_number": 314,
+          "line_number": 597,
           "base_classes": [],
           "docstring": "Legacy compatibility wrapper for connection points.",
           "methods": [
             {
               "name": "__init__",
-              "line_number": 317,
+              "line_number": 600,
               "is_async": false,
               "is_method": true,
               "parent_class": "LegacyConnectionPoint",
@@ -6365,7 +7559,7 @@
             },
             {
               "name": "setPos",
-              "line_number": 323,
+              "line_number": 606,
               "is_async": false,
               "is_method": true,
               "parent_class": "LegacyConnectionPoint",
@@ -6379,7 +7573,7 @@
             },
             {
               "name": "pos",
-              "line_number": 330,
+              "line_number": 613,
               "is_async": false,
               "is_method": true,
               "parent_class": "LegacyConnectionPoint",
@@ -6391,7 +7585,7 @@
             },
             {
               "name": "scenePos",
-              "line_number": 334,
+              "line_number": 617,
               "is_async": false,
               "is_method": true,
               "parent_class": "LegacyConnectionPoint",
@@ -6403,7 +7597,7 @@
             },
             {
               "name": "parentItem",
-              "line_number": 338,
+              "line_number": 621,
               "is_async": false,
               "is_method": true,
               "parent_class": "LegacyConnectionPoint",
@@ -6415,7 +7609,7 @@
             },
             {
               "name": "addConnection",
-              "line_number": 342,
+              "line_number": 625,
               "is_async": false,
               "is_method": true,
               "parent_class": "LegacyConnectionPoint",
@@ -6428,7 +7622,7 @@
             },
             {
               "name": "removeConnection",
-              "line_number": 347,
+              "line_number": 630,
               "is_async": false,
               "is_method": true,
               "parent_class": "LegacyConnectionPoint",
@@ -6444,7 +7638,7 @@
         },
         {
           "name": "CommentNode",
-          "line_number": 353,
+          "line_number": 636,
           "base_classes": [
             "BaseNode",
             "RenderMixin",
@@ -6455,7 +7649,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 360,
+              "line_number": 643,
               "is_async": false,
               "is_method": true,
               "parent_class": "CommentNode",
@@ -6469,7 +7663,7 @@
             },
             {
               "name": "get_display_name",
-              "line_number": 374,
+              "line_number": 657,
               "is_async": false,
               "is_method": true,
               "parent_class": "CommentNode",
@@ -6481,7 +7675,7 @@
             },
             {
               "name": "get_tooltip_text",
-              "line_number": 378,
+              "line_number": 661,
               "is_async": false,
               "is_method": true,
               "parent_class": "CommentNode",
@@ -6493,7 +7687,7 @@
             },
             {
               "name": "can_accept_content",
-              "line_number": 383,
+              "line_number": 666,
               "is_async": false,
               "is_method": true,
               "parent_class": "CommentNode",
@@ -6506,7 +7700,7 @@
             },
             {
               "name": "process_content_change",
-              "line_number": 387,
+              "line_number": 670,
               "is_async": false,
               "is_method": true,
               "parent_class": "CommentNode",
@@ -6525,7 +7719,7 @@
       "functions": [
         {
           "name": "register_node_types",
-          "line_number": 409,
+          "line_number": 692,
           "is_async": false,
           "is_method": false,
           "parent_class": null,
@@ -6535,7 +7729,7 @@
         },
         {
           "name": "create_draggable_rect",
-          "line_number": 417,
+          "line_number": 700,
           "is_async": false,
           "is_method": false,
           "parent_class": null,
@@ -6545,7 +7739,7 @@
         },
         {
           "name": "create_execution_draggable_rect",
-          "line_number": 426,
+          "line_number": 709,
           "is_async": false,
           "is_method": false,
           "parent_class": null,
@@ -6564,6 +7758,8 @@
         "from PyQt5.QtCore import QPointF",
         "from PyQt5.QtCore import QRectF",
         "from PyQt5.QtGui import QColor",
+        "from PyQt5.QtGui import QFontMetrics",
+        "from PyQt5.QtGui import QFont",
         "from vpy_node_base import BaseNode",
         "from vpy_node_base import NodeType",
         "from vpy_node_base import NodeState",

@@ -617,6 +617,12 @@ class EnhancedBlueprintScene(BlueprintScene):
             # Update counter
             self.node_counter[node_type] += 1
             
+            # If this is a BuildableNode and we have a connected global editor, add it
+            if (node_type == "Buildable" and hasattr(self, 'global_editor') and 
+                self.global_editor is not None):
+                self.global_editor.add_node(node)
+                print(f"Added new BuildableNode '{data['name']}' to global editor")
+            
             print(f"Created {node_type} node '{data['name']}' at {position}")
             
         except Exception as e:
@@ -899,6 +905,12 @@ class EnhancedBlueprintScene(BlueprintScene):
         if not (hasattr(source_node, 'node_type') and hasattr(target_node, 'node_type')):
             return False, None
             
+        # DISABLE MANUAL CONNECTIONS FOR BUILDABLE NODES - they are code-driven
+        if (hasattr(source_node, 'node_type') and source_node.node_type.value == 'buildable') or \
+           (hasattr(target_node, 'node_type') and target_node.node_type.value == 'buildable'):
+            print(f"❌ Manual connections disabled for BuildableNodes - use code references instead")
+            return False, None
+            
         if source_node.node_type != target_node.node_type:
             return False, None  # Incompatible node types - don't even check ports
         
@@ -977,6 +989,149 @@ class EnhancedBlueprintScene(BlueprintScene):
             for connection in self.connections:
                 if hasattr(connection, 'updateForNodeMovement'):
                     connection.updateForNodeMovement()
+                    
+    def analyze_node_references(self, node):
+        """Analyze a node's content to find references to other nodes and create automatic connections."""
+        if not hasattr(node, 'node_type') or node.node_type.value != 'buildable':
+            return  # Only analyze BuildableNodes
+            
+        if not hasattr(node, 'content') or not node.content.strip():
+            return  # No content to analyze
+            
+        # Find all nodes in the scene
+        all_nodes = [item for item in self.items() if hasattr(item, 'node_type')]
+        buildable_nodes = [n for n in all_nodes if n.node_type.value == 'buildable' and n != node]
+        
+        if not buildable_nodes:
+            return  # No other BuildableNodes to connect to
+            
+        # Analyze code content for function/variable references
+        import re
+        import ast
+        
+        try:
+            # Parse the content as AST to find function calls and name references
+            parsed = ast.parse(node.content)
+            referenced_names = set()
+            
+            # Walk the AST to find Name and Call nodes
+            for ast_node in ast.walk(parsed):
+                if isinstance(ast_node, ast.Name):
+                    referenced_names.add(ast_node.id)
+                elif isinstance(ast_node, ast.Call):
+                    if isinstance(ast_node.func, ast.Name):
+                        referenced_names.add(ast_node.func.id)
+                    elif isinstance(ast_node.func, ast.Attribute):
+                        # Handle method calls like obj.method()
+                        if isinstance(ast_node.func.value, ast.Name):
+                            referenced_names.add(ast_node.func.value.id)
+                            
+            # Remove common built-in names that shouldn't trigger connections
+            builtin_names = {'print', 'len', 'str', 'int', 'float', 'list', 'dict', 'set', 'tuple',
+                           'range', 'enumerate', 'zip', 'map', 'filter', 'sorted', 'reversed',
+                           'min', 'max', 'sum', 'abs', 'round', 'isinstance', 'hasattr', 'getattr',
+                           'setattr', 'import', 'from', 'def', 'class', 'if', 'else', 'elif',
+                           'for', 'while', 'try', 'except', 'finally', 'with', 'return', 'yield',
+                           'pass', 'break', 'continue', 'None', 'True', 'False'}
+            referenced_names = referenced_names - builtin_names
+            
+            # Check each referenced name against other BuildableNode names
+            for target_node in buildable_nodes:
+                target_name = target_node.name.lower().strip()
+                
+                # Check if any referenced name matches the target node name
+                for ref_name in referenced_names:
+                    if self.names_match(ref_name.lower(), target_name):
+                        # Create automatic connection if it doesn't exist
+                        self.create_automatic_connection(target_node, node, ref_name)
+                        break
+                        
+        except Exception as e:
+            print(f"Error analyzing node references for {node.name}: {e}")
+            
+    def names_match(self, ref_name, node_name):
+        """Check if a referenced name matches a node name (with some fuzzy matching)."""
+        # Direct match
+        if ref_name == node_name:
+            return True
+            
+        # Remove common prefixes/suffixes and check
+        clean_ref = ref_name.replace('_', '').replace('-', '')
+        clean_node = node_name.replace('_', '').replace('-', '').replace('node', '').replace('code', '')
+        
+        if clean_ref == clean_node:
+            return True
+            
+        # Check if reference is contained in node name or vice versa
+        if len(ref_name) > 3 and (ref_name in node_name or node_name in ref_name):
+            return True
+            
+        return False
+        
+    def create_automatic_connection(self, source_node, target_node, reference_name):
+        """Create an automatic connection between two BuildableNodes."""
+        # Check if connection already exists
+        if self.connection_exists_between_nodes(source_node, target_node):
+            return  # Connection already exists
+            
+        # Find suitable ports for connection
+        source_output_port = None
+        target_input_port = None
+        
+        # Find the best output port on source node (prefer exec_out)
+        if 'exec_out' in source_node.output_ports:
+            source_output_port = source_node.output_ports['exec_out']
+        elif source_node.output_ports:
+            # Use any available output port
+            source_output_port = next(iter(source_node.output_ports.values()))
+            
+        # Find the best input port on target node (prefer exec_in)
+        if 'exec_in' in target_node.input_ports:
+            target_input_port = target_node.input_ports['exec_in']
+        elif target_node.input_ports:
+            # Use any available input port
+            target_input_port = next(iter(target_node.input_ports.values()))
+            
+        if source_output_port and target_input_port:
+            # Create the connection
+            start_pos = source_node.mapToScene(source_output_port.position)
+            connection = SimpleConnection(source_output_port, start_pos, self)
+            connection.setEndPoint(target_input_port)
+            
+            print(f"🔗 Automatic connection created: {source_node.name} → {target_node.name} (reference: '{reference_name}')")
+            
+    def connection_exists_between_nodes(self, node1, node2):
+        """Check if a connection already exists between two nodes (in either direction)."""
+        if not hasattr(self, 'connections'):
+            return False
+            
+        for connection in self.connections:
+            if (hasattr(connection, 'start_port') and hasattr(connection, 'end_port') and 
+                connection.end_port is not None):
+                
+                start_node = connection.start_port.node
+                end_node = connection.end_port.node
+                
+                # Check both directions
+                if ((start_node == node1 and end_node == node2) or
+                    (start_node == node2 and end_node == node1)):
+                    return True
+                    
+        return False
+        
+    def set_global_editor(self, global_editor):
+        """Connect this scene to a global text editor for real-time node tracking."""
+        self.global_editor = global_editor
+        
+        # Scan existing BuildableNodes and add them to the editor
+        existing_buildable_nodes = [item for item in self.items() 
+                                   if hasattr(item, 'node_type') and 
+                                   item.node_type.value == 'buildable']
+        
+        for node in existing_buildable_nodes:
+            self.global_editor.add_node(node)
+            
+        print(f"Connected scene to global editor - tracking {len(existing_buildable_nodes)} existing BuildableNodes")
 
 class NodeSystemDebugWindow(QMainWindow):
     """Comprehensive debug window for the node system."""
@@ -1026,6 +1181,9 @@ class NodeSystemDebugWindow(QMainWindow):
         self.node_count = 0
         self.update_window_title()
         
+        # Open external text editor window for demo
+        self.open_demo_text_editor()
+        
     def create_sample_nodes(self):
         """Create some sample nodes to demonstrate functionality."""
         # Sample Blueprint node
@@ -1036,14 +1194,6 @@ class NodeSystemDebugWindow(QMainWindow):
         blueprint_node.setPos(-200, -100)
         self.scene.addItem(blueprint_node)
         
-        # Sample Execution node
-        execution_node = ExecutionNode(
-            name="sample_function",
-            original_name="Sample Execution"
-        )
-        execution_node.setPos(100, -100)
-        self.scene.addItem(execution_node)
-        
         # Sample Buildable node
         buildable_node = BuildableNode(
             name="test_code",
@@ -1052,13 +1202,110 @@ class NodeSystemDebugWindow(QMainWindow):
         buildable_node.setPos(-50, 100)
         self.scene.addItem(buildable_node)
         
-        self.node_count = 3
+        # Create interconnected execution nodes to demonstrate function call relationships
+        
+        # Main function - calls validate_input and process_data
+        main_exec = ExecutionNode(
+            name="main_workflow",
+            original_name="Main Workflow Function"
+        )
+        main_exec.setPos(300, -200)
+        self.scene.addItem(main_exec)
+        
+        # Input validation function - called by main, calls log_error
+        validate_exec = ExecutionNode(
+            name="validate_input", 
+            original_name="Input Validation Function"
+        )
+        validate_exec.setPos(500, -100)
+        self.scene.addItem(validate_exec)
+        
+        # Data processing function - called by main, calls save_result and log_info
+        process_exec = ExecutionNode(
+            name="process_data",
+            original_name="Data Processing Function"
+        )
+        process_exec.setPos(500, -300)
+        self.scene.addItem(process_exec)
+        
+        # Logging functions - called by various other functions
+        log_error_exec = ExecutionNode(
+            name="log_error",
+            original_name="Error Logging Function"
+        )
+        log_error_exec.setPos(700, -50)
+        self.scene.addItem(log_error_exec)
+        
+        log_info_exec = ExecutionNode(
+            name="log_info",
+            original_name="Info Logging Function"
+        )
+        log_info_exec.setPos(700, -150)
+        self.scene.addItem(log_info_exec)
+        
+        # Utility functions
+        save_result_exec = ExecutionNode(
+            name="save_result",
+            original_name="Save Result Function"
+        )
+        save_result_exec.setPos(700, -250)
+        self.scene.addItem(save_result_exec)
+        
+        # Helper function - called by process_data and save_result
+        format_output_exec = ExecutionNode(
+            name="format_output",
+            original_name="Format Output Function"
+        )
+        format_output_exec.setPos(700, -350)
+        self.scene.addItem(format_output_exec)
+        
+        self.node_count = 9
         self.update_window_title()
         
     def update_window_title(self):
         """Update window title with current node count."""
         total_nodes = len([item for item in self.scene.items() if hasattr(item, 'node_type')])
         self.setWindowTitle(f"VysualPy Node System Debug - {total_nodes} nodes")
+        
+    def open_demo_text_editor(self):
+        """Open a global text editor that tracks all BuildableNodes."""
+        try:
+            # Import the new global text editor
+            from vpy_editor import GlobalNodeTextEditor
+            
+            # Create the global editor
+            self.global_editor = GlobalNodeTextEditor(
+                title="Debug Environment",
+                parent=None  # Make it standalone
+            )
+            
+            # IMPORTANT: Connect the scene to the global editor for real-time updates
+            if hasattr(self.scene, 'set_global_editor'):
+                self.scene.set_global_editor(self.global_editor)
+            
+            # Position it next to the debug window
+            debug_geometry = self.geometry()
+            editor_x = debug_geometry.x() + debug_geometry.width() + 20
+            editor_y = debug_geometry.y()
+            self.global_editor.move(editor_x, editor_y)
+            
+            # Show the editor
+            self.global_editor.show()
+            
+            print("\n📝 GLOBAL NODE TEXT EDITOR OPENED")
+            print("=" * 50)
+            print("This editor automatically tracks ALL BuildableNodes:")
+            print("  • Creates new nodes by coding (automatic connections)")
+            print("  • Switch between nodes using the dropdown")
+            print("  • Click 'Refresh Nodes' to find newly created nodes")
+            print("  • Edit content and save to sync with the graph")
+            print("  • Automatic connection detection based on code references")
+            print("=" * 50)
+            
+        except Exception as e:
+            print(f"Error opening global text editor: {e}")
+            import traceback
+            traceback.print_exc()
 
 def main():
     app = QApplication(sys.argv)
