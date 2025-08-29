@@ -1,13 +1,13 @@
 # VysualPy Project Structure Report
 
-Generated on: 2025-08-29 12:58:44
-Total files analyzed: 11
+Generated on: 2025-08-29 13:12:43
+Total files analyzed: 16
 
 ## Overview
 
-- Total Classes: 42
-- Total Functions: 2
-- Total Lines of Code: 5268
+- Total Classes: 67
+- Total Functions: 10
+- Total Lines of Code: 7496
 
 ## File Details
 
@@ -227,6 +227,51 @@ Usage:
 
 ---
 
+### vpy_connection_core.py
+
+**Lines:** 498 | **Classes:** 4 | **Functions:** 0
+
+**Description:**
+> Enhanced connection system for VysualPy.
+
+Provides improved connection management, validation, and visual feedback
+while maintaining backward compatibility with the existing system.
+
+**Key Imports:**
+
+- `from typing import Dict`
+- `from typing import List`
+- `from typing import Any`
+- `from typing import Optional`
+- `from typing import Callable`
+- `from typing import Set`
+- `from enum import Enum`
+- `uuid`
+- `from PyQt5.QtWidgets import QGraphicsPathItem`
+- `from PyQt5.QtWidgets import QGraphicsScene`
+- ... and 11 more
+
+**Classes:**
+
+- `ConnectionStyle(Enum)` (line 19)
+- `ConnectionState(Enum)` (line 27)
+- `Connection(QGraphicsPathItem, BaseConnection)` (line 36)
+  - `__init__()` (method)
+  - `setEndPoint()` (method)
+  - `updatePath()` (method)
+  - `updatePen()` (method)
+  - `validate()` (method)
+  - ... and 9 more methods
+- `ConnectionManager(QObject)` (line 340)
+  - `__init__()` (method)
+  - `add_validation_rule()` (method)
+  - `start_connection()` (method)
+  - `update_connection()` (method)
+  - `complete_connection()` (method)
+  - ... and 9 more methods
+
+---
+
 ### vpy_defs.py
 
 **Lines:** 76 | **Classes:** 2 | **Functions:** 0
@@ -406,6 +451,67 @@ Usage:
 
 ---
 
+### vpy_legacy_compat.py
+
+**Lines:** 351 | **Classes:** 7 | **Functions:** 5
+
+**Description:**
+> Backward compatibility layer for VysualPy refactored architecture.
+
+This module provides compatibility wrappers and import paths for existing code
+that relies on the old node and connection classes.
+
+**Key Imports:**
+
+- `warnings`
+- `from typing import Any`
+- `from typing import Dict`
+- `from typing import Optional`
+- `from PyQt5.QtCore import QPointF`
+- `from PyQt5.QtCore import QRectF`
+- `from PyQt5.QtWidgets import QGraphicsScene`
+- `from vpy_node_base import BaseNode`
+- `from vpy_node_base import NodeType`
+- `from vpy_node_base import NodeState`
+- ... and 7 more
+
+**Classes:**
+
+- `DraggableRect(BlueprintNode)` (line 30)
+  - `__init__()` (method)
+  - `full_content()` (method)
+  - `full_content()` (method)
+  - `snapToGrid()` (method)
+- `ExecutionDraggableRect(ExecutionNode)` (line 74)
+  - `__init__()` (method)
+  - `full_content()` (method)
+  - `full_content()` (method)
+- `LegacyConnection` (line 109)
+  - `__init__()` (method)
+  - `setEndPoint()` (method)
+  - `updatePath()` (method)
+  - `__getattr__()` (method)
+- `CommentBox(CommentNode)` (line 157)
+  - `__init__()` (method)
+- `ConnectionPoint` (line 177)
+  - `__init__()` (method)
+  - `parentItem()` (method)
+  - `connections()` (method)
+- `LegacyGraphModule` (line 240)
+  - `__getattr__()` (method)
+- `LegacyConnectionModule` (line 257)
+  - `__getattr__()` (method)
+
+**Functions:**
+
+- `_deprecated_warning(old_name, new_name, version)` (function, line 20)
+- `create_legacy_node(node_type)` (function, line 214)
+- `setup_legacy_imports()` (function, line 231)
+- `migrate_workspace_data(old_data)` (function, line 270)
+- `check_compatibility()` (function, line 309)
+
+---
+
 ### vpy_menus.py
 
 **Lines:** 648 | **Classes:** 4 | **Functions:** 0
@@ -449,6 +555,172 @@ Usage:
   - `add_recent_file()` (method)
   - `open_recent_file()` (method)
   - `clear_recent_files()` (method)
+
+---
+
+### vpy_node_base.py
+
+**Lines:** 452 | **Classes:** 7 | **Functions:** 0
+
+**Description:**
+> Base node system for VysualPy graph architecture.
+
+This module provides the foundation for a unified node system that eliminates
+code duplication and provides clear interfaces for different node types.
+
+**Key Imports:**
+
+- `from abc import ABC`
+- `from abc import abstractmethod`
+- `from typing import Dict`
+- `from typing import List`
+- `from typing import Any`
+- `from typing import Optional`
+- `from typing import Set`
+- `from typing import Union`
+- `from typing import Callable`
+- `from enum import Enum`
+- ... and 8 more
+
+**Classes:**
+
+- `NodeType(Enum)` (line 19)
+- `PortType(Enum)` (line 27)
+- `ConnectionPort` (line 34)
+  - `__init__()` (method)
+  - `can_connect_to()` (method)
+  - `add_connection()` (method)
+  - `remove_connection()` (method)
+- `BaseConnection` (line 76)
+  - `__init__()` (method)
+  - `disconnect()` (method)
+  - `serialize()` (method)
+- `NodeState(Enum)` (line 109)
+- `BaseNode(QGraphicsRectItem, ABC)` (line 119)
+  - `__init__()` (method)
+  - `add_input_port()` (method)
+  - `add_output_port()` (method)
+  - `remove_port()` (method)
+  - `_update_port_positions()` (method)
+  - ... and 17 more methods
+- `NodeRegistry` (line 422)
+  - `__init__()` (method)
+  - `register_node_class()` (method)
+  - `register_factory_function()` (method)
+  - `create_node()` (method)
+  - `get_available_types()` (method)
+
+---
+
+### vpy_node_mixins.py
+
+**Lines:** 528 | **Classes:** 3 | **Functions:** 0
+
+**Description:**
+> Mixin classes for VysualPy node system.
+
+These mixins provide shared functionality that can be composed into different
+node types, promoting code reuse and separation of concerns.
+
+**Key Imports:**
+
+- `from typing import Optional`
+- `from typing import Dict`
+- `from typing import Any`
+- `from abc import ABC`
+- `from abc import abstractmethod`
+- `from PyQt5.QtWidgets import QGraphicsTextItem`
+- `from PyQt5.QtWidgets import QGraphicsRectItem`
+- `from PyQt5.QtWidgets import QMenu`
+- `from PyQt5.QtWidgets import QAction`
+- `from PyQt5.QtWidgets import QInputDialog`
+- ... and 17 more
+
+**Classes:**
+
+- `RenderMixin` (line 24)
+  - `__init__()` (method)
+  - `get_node_color()` (method)
+  - `paint()` (method)
+  - `get_border_color()` (method)
+  - `paint_title()` (method)
+  - ... and 5 more methods
+- `InteractionMixin` (line 216)
+  - `__init__()` (method)
+  - `mousePressEvent()` (method)
+  - `mouseMoveEvent()` (method)
+  - `mouseReleaseEvent()` (method)
+  - `hoverEnterEvent()` (method)
+  - ... and 8 more methods
+- `EditableMixin` (line 393)
+  - `__init__()` (method)
+  - `startEditing()` (method)
+  - `stopEditing()` (method)
+  - `cancelEdit()` (method)
+  - `commitEdit()` (method)
+  - ... and 4 more methods
+
+---
+
+### vpy_node_types.py
+
+**Lines:** 399 | **Classes:** 4 | **Functions:** 3
+
+**Description:**
+> Concrete implementations of different node types for VysualPy.
+
+These classes combine the BaseNode with appropriate mixins to create
+specialized node types for different use cases.
+
+**Key Imports:**
+
+- `ast`
+- `re`
+- `from typing import Dict`
+- `from typing import List`
+- `from typing import Any`
+- `from typing import Optional`
+- `from PyQt5.QtCore import QPointF`
+- `from PyQt5.QtCore import QRectF`
+- `from PyQt5.QtGui import QColor`
+- `from vpy_node_base import BaseNode`
+- ... and 8 more
+
+**Classes:**
+
+- `BlueprintNode(BaseNode, RenderMixin, InteractionMixin)` (line 19)
+  - `__init__()` (method)
+  - `analyze_content()` (method)
+  - `get_display_name()` (method)
+  - `get_tooltip_text()` (method)
+  - `can_accept_content()` (method)
+  - ... and 1 more methods
+- `ExecutionNode(BaseNode, RenderMixin, InteractionMixin)` (line 100)
+  - `__init__()` (method)
+  - `set_conditional()` (method)
+  - `set_has_return()` (method)
+  - `get_display_name()` (method)
+  - `get_tooltip_text()` (method)
+  - ... and 2 more methods
+- `BuildableNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin)` (line 169)
+  - `__init__()` (method)
+  - `analyze_and_update()` (method)
+  - `analyze_content()` (method)
+  - `detect_function_calls()` (method)
+  - `get_display_name()` (method)
+  - ... and 4 more methods
+- `CommentNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin)` (line 311)
+  - `__init__()` (method)
+  - `get_display_name()` (method)
+  - `get_tooltip_text()` (method)
+  - `can_accept_content()` (method)
+  - `process_content_change()` (method)
+
+**Functions:**
+
+- `register_node_types()` (function, line 367)
+- `create_draggable_rect()` (function, line 375)
+- `create_execution_draggable_rect()` (function, line 384)
 
 ---
 

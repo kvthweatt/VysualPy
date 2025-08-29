@@ -71,16 +71,30 @@ python analyze_project.py --output PROJECT_STRUCTURE.md --json project_structure
 ### Core Module Structure
 
 ```
+# Main Application
+main.py             - Application entry point
 vpy_editor.py       - Main IDE window, text editor with syntax highlighting
-vpy_blueprints.py   - Three graph workspace implementations
-vpy_graph.py        - Node classes (DraggableRect, ExecutionDraggableRect, BuildableNode)
-vpy_connection.py   - Node connection system for graph relationships  
 vpy_layout.py       - IDE layout with file browser and project management
 vpy_menus.py        - Menu system and preferences dialog
 vpy_config.py       - Configuration management and language settings
 vpy_winmix.py       - Custom window styling and behavior
 vpy_defs.py         - Common definitions and constants
-main.py             - Application entry point
+
+# Legacy Graph System (being refactored)
+vpy_blueprints.py   - Three graph workspace implementations
+vpy_graph.py        - Node classes (DraggableRect, ExecutionDraggableRect, BuildableNode)
+vpy_connection.py   - Node connection system for graph relationships
+
+# New Refactored Architecture
+vpy_node_base.py         - BaseNode abstract class with unified interface
+vpy_node_mixins.py       - RenderMixin, InteractionMixin, EditableMixin
+vpy_node_types.py        - Concrete node implementations (BlueprintNode, etc.)
+vpy_connection_core.py   - Enhanced connection system with validation
+vpy_legacy_compat.py     - Backward compatibility layer
+
+# Documentation & Analysis
+ARCHITECTURE.md          - Detailed architecture documentation
+analyze_project.py       - Project structure analysis tool
 ```
 
 ### Graph System Architecture
@@ -244,9 +258,14 @@ The graph and node system is undergoing refactoring to improve maintainability a
 #### Progress Tracking
 - ✅ **Project Structure Analysis**: Created `analyze_project.py` tool for tracking changes
 - ✅ **Baseline Documentation**: Generated `PROJECT_STRUCTURE.md` with current architecture
-- 🔄 **Utility Functions**: Working on `utils/ast_tools.py` for AST parsing functions
-- ⏳ **Node Hierarchy**: Planning unified base classes and mixins
-- ⏳ **Connection System**: Redesigning for extensibility and validation
+- ✅ **Architecture Design**: Complete architecture documented in `ARCHITECTURE.md`
+- ✅ **Node Hierarchy**: Implemented unified BaseNode with port management and serialization
+- ✅ **Mixin System**: Created RenderMixin, InteractionMixin, EditableMixin for code reuse
+- ✅ **Node Types**: Implemented BlueprintNode, ExecutionNode, BuildableNode, CommentNode
+- ✅ **Connection System**: Enhanced connection system with validation and multiple styles
+- ✅ **Legacy Compatibility**: Backward compatibility layer with deprecation warnings
+- 🔄 **Scene Refactoring**: In progress - updating scene classes to use new architecture
+- ⏳ **Testing**: Unit tests and integration testing
 
 ### New Development Tools
 

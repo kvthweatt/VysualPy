@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-29 12:58:44",
+  "timestamp": "2025-08-29 13:12:43",
   "files": {
     "analyze_project.py": {
       "file_path": "analyze_project.py",
@@ -1800,6 +1800,440 @@
       ],
       "docstring": null
     },
+    "vpy_connection_core.py": {
+      "file_path": "vpy_connection_core.py",
+      "line_count": 498,
+      "classes": [
+        {
+          "name": "ConnectionStyle",
+          "line_number": 19,
+          "base_classes": [
+            "Enum"
+          ],
+          "docstring": "Different visual styles for connections.",
+          "methods": [],
+          "decorators": []
+        },
+        {
+          "name": "ConnectionState",
+          "line_number": 27,
+          "base_classes": [
+            "Enum"
+          ],
+          "docstring": "States a connection can be in.",
+          "methods": [],
+          "decorators": []
+        },
+        {
+          "name": "Connection",
+          "line_number": 36,
+          "base_classes": [
+            "QGraphicsPathItem",
+            "BaseConnection"
+          ],
+          "docstring": "Enhanced connection class with improved visuals and functionality.\n    \n    Supports multiple styles, validation, and proper event handling.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 43,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "start_port",
+                "end_pos_or_port",
+                "scene",
+                "connection_id",
+                "style"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setEndPoint",
+              "line_number": 108,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Set the end port for this connection.",
+              "parameters": [
+                "self",
+                "end_port"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updatePath",
+              "line_number": 124,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Update the visual path of the connection.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updatePen",
+              "line_number": 170,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Update the pen based on current state.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "validate",
+              "line_number": 190,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Validate this connection and update visual state.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_state",
+              "line_number": 220,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Change the connection state and update visuals.",
+              "parameters": [
+                "self",
+                "new_state"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "disconnect",
+              "line_number": 225,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Override to handle QGraphicsItem cleanup.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 234,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Handle mouse press events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "hoverEnterEvent",
+              "line_number": 253,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Handle hover enter events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "hoverLeaveEvent",
+              "line_number": 267,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Handle hover leave events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "show_context_menu",
+              "line_number": 281,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Show context menu for the connection.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "request_deletion",
+              "line_number": 298,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Request deletion of this connection.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "show_properties",
+              "line_number": 311,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Show properties dialog for this connection.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "serialize",
+              "line_number": 326,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": "Enhanced serialization with style and metadata.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "ConnectionManager",
+          "line_number": 340,
+          "base_classes": [
+            "QObject"
+          ],
+          "docstring": "Manages connections within a scene.\n    \n    Handles creation, validation, and lifecycle management of connections.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 352,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "add_validation_rule",
+              "line_number": 366,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Add a global validation rule for all connections.",
+              "parameters": [
+                "self",
+                "rule"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "start_connection",
+              "line_number": 375,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Start creating a new connection.",
+              "parameters": [
+                "self",
+                "start_port",
+                "pos"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_connection",
+              "line_number": 392,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Update the active connection endpoint.",
+              "parameters": [
+                "self",
+                "pos"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "complete_connection",
+              "line_number": 398,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Complete the active connection to an end port.",
+              "parameters": [
+                "self",
+                "end_port"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "cancel_connection",
+              "line_number": 421,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Cancel the active connection.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "can_connect",
+              "line_number": 427,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Check if two ports can be connected.",
+              "parameters": [
+                "self",
+                "start_port",
+                "end_port"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "remove_connection",
+              "line_number": 456,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Remove a connection.",
+              "parameters": [
+                "self",
+                "connection"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_connections_for_node",
+              "line_number": 463,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Get all connections for a specific node.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_connections_for_port",
+              "line_number": 472,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Get all connections for a specific port.",
+              "parameters": [
+                "self",
+                "port"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "clear_all_connections",
+              "line_number": 476,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Remove all connections.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "validate_all_connections",
+              "line_number": 481,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Validate all existing connections.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_connection_style",
+              "line_number": 490,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Set the default style for new connections.",
+              "parameters": [
+                "self",
+                "style"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "apply_style_to_all",
+              "line_number": 494,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionManager",
+              "docstring": "Apply a style to all existing connections.",
+              "parameters": [
+                "self",
+                "style"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "from typing import Dict",
+        "from typing import List",
+        "from typing import Any",
+        "from typing import Optional",
+        "from typing import Callable",
+        "from typing import Set",
+        "from enum import Enum",
+        "uuid",
+        "from PyQt5.QtWidgets import QGraphicsPathItem",
+        "from PyQt5.QtWidgets import QGraphicsScene",
+        "from PyQt5.QtCore import QPointF",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtCore import pyqtSignal",
+        "from PyQt5.QtCore import QObject",
+        "from PyQt5.QtGui import QPainter",
+        "from PyQt5.QtGui import QPen",
+        "from PyQt5.QtGui import QColor",
+        "from PyQt5.QtGui import QBrush",
+        "from PyQt5.QtGui import QPainterPath",
+        "from vpy_node_base import BaseConnection",
+        "from vpy_node_base import ConnectionPort"
+      ],
+      "docstring": "Enhanced connection system for VysualPy.\n\nProvides improved connection management, validation, and visual feedback\nwhile maintaining backward compatibility with the existing system."
+    },
     "vpy_defs.py": {
       "file_path": "vpy_defs.py",
       "line_count": 76,
@@ -3594,6 +4028,409 @@
       ],
       "docstring": null
     },
+    "vpy_legacy_compat.py": {
+      "file_path": "vpy_legacy_compat.py",
+      "line_count": 351,
+      "classes": [
+        {
+          "name": "DraggableRect",
+          "line_number": 30,
+          "base_classes": [
+            "BlueprintNode"
+          ],
+          "docstring": "Backward compatibility wrapper for DraggableRect.\n    \n    This class provides the same interface as the original DraggableRect\n    but uses the new BlueprintNode implementation internally.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 38,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "content",
+                "x",
+                "y",
+                "width",
+                "scene",
+                "is_class"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "full_content",
+              "line_number": 60,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": "Compatibility property.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": [
+                "property"
+              ]
+            },
+            {
+              "name": "full_content",
+              "line_number": 65,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": "Compatibility property setter.",
+              "parameters": [
+                "self",
+                "value"
+              ],
+              "decorators": [
+                "setter"
+              ]
+            },
+            {
+              "name": "snapToGrid",
+              "line_number": 69,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": "Compatibility method - now handled by BaseNode.",
+              "parameters": [
+                "self",
+                "value"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "ExecutionDraggableRect",
+          "line_number": 74,
+          "base_classes": [
+            "ExecutionNode"
+          ],
+          "docstring": "Backward compatibility wrapper for ExecutionDraggableRect.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 79,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionDraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "content",
+                "x",
+                "y",
+                "width",
+                "height",
+                "scene",
+                "is_class"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "full_content",
+              "line_number": 100,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionDraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": [
+                "property"
+              ]
+            },
+            {
+              "name": "full_content",
+              "line_number": 104,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionDraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "value"
+              ],
+              "decorators": [
+                "setter"
+              ]
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "LegacyConnection",
+          "line_number": 109,
+          "base_classes": [],
+          "docstring": "Compatibility wrapper for the old Connection class.\n    \n    Maps old connection interface to new Connection system.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 116,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnection",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "start_point",
+                "end_pos",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setEndPoint",
+              "line_number": 133,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnection",
+              "docstring": "Compatibility method.",
+              "parameters": [
+                "self",
+                "end_point"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updatePath",
+              "line_number": 148,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnection",
+              "docstring": "Compatibility method.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "__getattr__",
+              "line_number": 152,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnection",
+              "docstring": "Delegate unknown attributes to the new connection.",
+              "parameters": [
+                "self",
+                "name"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "CommentBox",
+          "line_number": 157,
+          "base_classes": [
+            "CommentNode"
+          ],
+          "docstring": "Backward compatibility wrapper for CommentBox.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 162,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentBox",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "x",
+                "y",
+                "width",
+                "height"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "ConnectionPoint",
+          "line_number": 177,
+          "base_classes": [],
+          "docstring": "Compatibility wrapper for ConnectionPoint.\n    \n    Maps to the new port system while maintaining old interface.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 184,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPoint",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "x",
+                "y",
+                "is_output",
+                "parent_item"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "parentItem",
+              "line_number": 201,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPoint",
+              "docstring": "Compatibility method.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "connections",
+              "line_number": 206,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPoint",
+              "docstring": "Compatibility property.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": [
+                "property"
+              ]
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "LegacyGraphModule",
+          "line_number": 240,
+          "base_classes": [],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__getattr__",
+              "line_number": 241,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyGraphModule",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "LegacyConnectionModule",
+          "line_number": 257,
+          "base_classes": [],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__getattr__",
+              "line_number": 258,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnectionModule",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [
+        {
+          "name": "_deprecated_warning",
+          "line_number": 20,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": "Generate a deprecation warning.",
+          "parameters": [
+            "old_name",
+            "new_name",
+            "version"
+          ],
+          "decorators": []
+        },
+        {
+          "name": "create_legacy_node",
+          "line_number": 214,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": "Factory function for creating nodes with legacy interface.",
+          "parameters": [
+            "node_type"
+          ],
+          "decorators": []
+        },
+        {
+          "name": "setup_legacy_imports",
+          "line_number": 231,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": "Set up legacy import paths for backward compatibility.\n    \n    This allows existing code to continue using old import statements.",
+          "parameters": [],
+          "decorators": []
+        },
+        {
+          "name": "migrate_workspace_data",
+          "line_number": 270,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": "Migrate old workspace data format to new format.\n    \n    Converts serialized data from old node format to new node format.",
+          "parameters": [
+            "old_data"
+          ],
+          "decorators": []
+        },
+        {
+          "name": "check_compatibility",
+          "line_number": 309,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": "Check compatibility with existing codebase.\n    \n    Returns a dictionary of compatibility checks and their status.",
+          "parameters": [],
+          "decorators": []
+        }
+      ],
+      "imports": [
+        "warnings",
+        "from typing import Any",
+        "from typing import Dict",
+        "from typing import Optional",
+        "from PyQt5.QtCore import QPointF",
+        "from PyQt5.QtCore import QRectF",
+        "from PyQt5.QtWidgets import QGraphicsScene",
+        "from vpy_node_base import BaseNode",
+        "from vpy_node_base import NodeType",
+        "from vpy_node_base import NodeState",
+        "from vpy_node_types import BlueprintNode",
+        "from vpy_node_types import ExecutionNode",
+        "from vpy_node_types import BuildableNode",
+        "from vpy_node_types import CommentNode",
+        "from vpy_connection_core import Connection",
+        "from vpy_connection_core import ConnectionManager",
+        "sys"
+      ],
+      "docstring": "Backward compatibility layer for VysualPy refactored architecture.\n\nThis module provides compatibility wrappers and import paths for existing code\nthat relies on the old node and connection classes."
+    },
     "vpy_menus.py": {
       "file_path": "vpy_menus.py",
       "line_count": 648,
@@ -4085,6 +4922,1488 @@
         "from vpy_defs import ColorButton"
       ],
       "docstring": null
+    },
+    "vpy_node_base.py": {
+      "file_path": "vpy_node_base.py",
+      "line_count": 452,
+      "classes": [
+        {
+          "name": "NodeType",
+          "line_number": 19,
+          "base_classes": [
+            "Enum"
+          ],
+          "docstring": "Enumeration of available node types.",
+          "methods": [],
+          "decorators": []
+        },
+        {
+          "name": "PortType",
+          "line_number": 27,
+          "base_classes": [
+            "Enum"
+          ],
+          "docstring": "Enumeration of port types for connections.",
+          "methods": [],
+          "decorators": []
+        },
+        {
+          "name": "ConnectionPort",
+          "line_number": 34,
+          "base_classes": [],
+          "docstring": "Represents a connection port on a node.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 37,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPort",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "port_id",
+                "port_type",
+                "node",
+                "position",
+                "data_type",
+                "label"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "can_connect_to",
+              "line_number": 52,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPort",
+              "docstring": "Check if this port can connect to another port.",
+              "parameters": [
+                "self",
+                "other_port"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "add_connection",
+              "line_number": 67,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPort",
+              "docstring": "Add a connection to this port.",
+              "parameters": [
+                "self",
+                "connection"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "remove_connection",
+              "line_number": 71,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPort",
+              "docstring": "Remove a connection from this port.",
+              "parameters": [
+                "self",
+                "connection"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "BaseConnection",
+          "line_number": 76,
+          "base_classes": [],
+          "docstring": "Base class for connections between nodes.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 79,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseConnection",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "start_port",
+                "end_port",
+                "connection_id"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "disconnect",
+              "line_number": 92,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseConnection",
+              "docstring": "Remove this connection.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "serialize",
+              "line_number": 97,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseConnection",
+              "docstring": "Serialize connection to dictionary.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "NodeState",
+          "line_number": 109,
+          "base_classes": [
+            "Enum"
+          ],
+          "docstring": "Enumeration of node states.",
+          "methods": [],
+          "decorators": []
+        },
+        {
+          "name": "BaseNode",
+          "line_number": 119,
+          "base_classes": [
+            "QGraphicsRectItem",
+            "ABC"
+          ],
+          "docstring": "Abstract base class for all node types in the VysualPy system.\n    \n    This class defines the common interface and functionality that all nodes\n    must implement, promoting code reuse and consistent behavior.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 127,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node_id",
+                "name",
+                "position",
+                "size"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "add_input_port",
+              "line_number": 172,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Add an input port to this node.",
+              "parameters": [
+                "self",
+                "port_id",
+                "data_type",
+                "label"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "add_output_port",
+              "line_number": 179,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Add an output port to this node.",
+              "parameters": [
+                "self",
+                "port_id",
+                "data_type",
+                "label"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "remove_port",
+              "line_number": 186,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Remove a port from this node.",
+              "parameters": [
+                "self",
+                "port_id"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_update_port_positions",
+              "line_number": 206,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Update the positions of all ports based on node geometry.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_all_connections",
+              "line_number": 222,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Get all connections from this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "disconnect_all",
+              "line_number": 229,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Disconnect all connections from this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_state",
+              "line_number": 234,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Change the node's state and trigger callbacks.",
+              "parameters": [
+                "self",
+                "new_state"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "snapToGrid",
+              "line_number": 249,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Snap a value to the grid if snapping is enabled.",
+              "parameters": [
+                "self",
+                "value"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setPos",
+              "line_number": 255,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Override setPos to support grid snapping.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "serialize",
+              "line_number": 271,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Serialize node to dictionary for saving.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "deserialize",
+              "line_number": 304,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Deserialize node from dictionary.",
+              "parameters": [
+                "self",
+                "data"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "validate",
+              "line_number": 349,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Validate the node and return any error messages.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "on_connect",
+              "line_number": 363,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Called when a connection is made to this node.",
+              "parameters": [
+                "self",
+                "connection"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "on_disconnect",
+              "line_number": 371,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Called when a connection is removed from this node.",
+              "parameters": [
+                "self",
+                "connection"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "on_update",
+              "line_number": 379,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Called when the node content or state changes.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_display_name",
+              "line_number": 389,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Get the name to display on the node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": [
+                "abstractmethod"
+              ]
+            },
+            {
+              "name": "get_tooltip_text",
+              "line_number": 394,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Get the tooltip text for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": [
+                "abstractmethod"
+              ]
+            },
+            {
+              "name": "can_accept_content",
+              "line_number": 399,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Check if this node can accept the given content.",
+              "parameters": [
+                "self",
+                "content"
+              ],
+              "decorators": [
+                "abstractmethod"
+              ]
+            },
+            {
+              "name": "process_content_change",
+              "line_number": 404,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Process a change in node content.",
+              "parameters": [
+                "self",
+                "old_content",
+                "new_content"
+              ],
+              "decorators": [
+                "abstractmethod"
+              ]
+            },
+            {
+              "name": "boundingRect",
+              "line_number": 410,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Return the bounding rectangle of the node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint",
+              "line_number": 415,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BaseNode",
+              "docstring": "Basic paint implementation - to be enhanced by RenderMixin.",
+              "parameters": [
+                "self",
+                "painter",
+                "option",
+                "widget"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "NodeRegistry",
+          "line_number": 422,
+          "base_classes": [],
+          "docstring": "Registry for node types and factory methods.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 425,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeRegistry",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "register_node_class",
+              "line_number": 429,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeRegistry",
+              "docstring": "Register a node class for a given type.",
+              "parameters": [
+                "self",
+                "node_type",
+                "node_class"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "register_factory_function",
+              "line_number": 433,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeRegistry",
+              "docstring": "Register a factory function for a given type.",
+              "parameters": [
+                "self",
+                "node_type",
+                "factory_func"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_node",
+              "line_number": 437,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeRegistry",
+              "docstring": "Create a node of the specified type.",
+              "parameters": [
+                "self",
+                "node_type"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_available_types",
+              "line_number": 446,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "NodeRegistry",
+              "docstring": "Get a list of all available node types.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "from abc import ABC",
+        "from abc import abstractmethod",
+        "from typing import Dict",
+        "from typing import List",
+        "from typing import Any",
+        "from typing import Optional",
+        "from typing import Set",
+        "from typing import Union",
+        "from typing import Callable",
+        "from enum import Enum",
+        "uuid",
+        "json",
+        "from PyQt5.QtCore import QPointF",
+        "from PyQt5.QtCore import QRectF",
+        "from PyQt5.QtCore import QObject",
+        "from PyQt5.QtCore import pyqtSignal",
+        "from PyQt5.QtWidgets import QGraphicsRectItem",
+        "from PyQt5.QtGui import QPainter"
+      ],
+      "docstring": "Base node system for VysualPy graph architecture.\n\nThis module provides the foundation for a unified node system that eliminates\ncode duplication and provides clear interfaces for different node types."
+    },
+    "vpy_node_mixins.py": {
+      "file_path": "vpy_node_mixins.py",
+      "line_count": 528,
+      "classes": [
+        {
+          "name": "RenderMixin",
+          "line_number": 24,
+          "base_classes": [],
+          "docstring": "Mixin that handles visual rendering of nodes.\n    \n    Provides consistent styling and visual feedback across different node types.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 31,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_node_color",
+              "line_number": 54,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Get the primary color for this node based on its type and state.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint",
+              "line_number": 73,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Enhanced paint method with proper styling.",
+              "parameters": [
+                "self",
+                "painter",
+                "option",
+                "widget"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_border_color",
+              "line_number": 110,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Get the border color based on node state.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint_title",
+              "line_number": 121,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Paint the node title.",
+              "parameters": [
+                "self",
+                "painter",
+                "rect"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint_content",
+              "line_number": 138,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Paint the node content.",
+              "parameters": [
+                "self",
+                "painter",
+                "rect"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint_ports",
+              "line_number": 158,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Paint connection ports.",
+              "parameters": [
+                "self",
+                "painter"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint_state_indicators",
+              "line_number": 181,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Paint visual indicators for special states.",
+              "parameters": [
+                "self",
+                "painter",
+                "rect"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "boundingRect",
+              "line_number": 202,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Return the bounding rectangle including border and effects.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_visual_style",
+              "line_number": 208,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RenderMixin",
+              "docstring": "Update visual style properties and refresh display.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "InteractionMixin",
+          "line_number": 216,
+          "base_classes": [],
+          "docstring": "Mixin that handles user interaction with nodes.\n    \n    Provides mouse event handling, context menus, and drag behavior.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 223,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 234,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Handle mouse press events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 258,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Handle mouse move events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseReleaseEvent",
+              "line_number": 274,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Handle mouse release events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "hoverEnterEvent",
+              "line_number": 281,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Handle hover enter events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "hoverLeaveEvent",
+              "line_number": 287,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Handle hover leave events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "hoverMoveEvent",
+              "line_number": 294,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Handle hover move events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_port_at_position",
+              "line_number": 304,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Get the port at the given position, if any.",
+              "parameters": [
+                "self",
+                "pos"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "handle_port_click",
+              "line_number": 327,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Handle clicking on a connection port.",
+              "parameters": [
+                "self",
+                "port",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "show_context_menu",
+              "line_number": 333,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Show context menu for the node.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "request_deletion",
+              "line_number": 355,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Request deletion of this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "request_duplication",
+              "line_number": 373,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Request duplication of this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "show_properties",
+              "line_number": 378,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "InteractionMixin",
+              "docstring": "Show properties dialog for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "EditableMixin",
+          "line_number": 393,
+          "base_classes": [],
+          "docstring": "Mixin that provides in-place editing functionality for nodes.\n    \n    Allows nodes to be edited directly in the graph view.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 400,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditableMixin",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "startEditing",
+              "line_number": 408,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditableMixin",
+              "docstring": "Start in-place editing of the node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "stopEditing",
+              "line_number": 438,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditableMixin",
+              "docstring": "Stop editing and save changes.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "cancelEdit",
+              "line_number": 445,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditableMixin",
+              "docstring": "Cancel editing and revert changes.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "commitEdit",
+              "line_number": 456,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditableMixin",
+              "docstring": "Commit the current edit and save changes.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_cleanup_editing",
+              "line_number": 476,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditableMixin",
+              "docstring": "Clean up editing state and UI elements.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "on_text_changed",
+              "line_number": 490,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditableMixin",
+              "docstring": "Handle text changes during editing.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "keyPressEvent",
+              "line_number": 508,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditableMixin",
+              "docstring": "Handle key press events during editing.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "focusOutEvent",
+              "line_number": 522,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditableMixin",
+              "docstring": "Handle focus out events.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "from typing import Optional",
+        "from typing import Dict",
+        "from typing import Any",
+        "from abc import ABC",
+        "from abc import abstractmethod",
+        "from PyQt5.QtWidgets import QGraphicsTextItem",
+        "from PyQt5.QtWidgets import QGraphicsRectItem",
+        "from PyQt5.QtWidgets import QMenu",
+        "from PyQt5.QtWidgets import QAction",
+        "from PyQt5.QtWidgets import QInputDialog",
+        "from PyQt5.QtWidgets import QMessageBox",
+        "from PyQt5.QtWidgets import QApplication",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtCore import QRectF",
+        "from PyQt5.QtCore import QPointF",
+        "from PyQt5.QtCore import pyqtSignal",
+        "from PyQt5.QtCore import QObject",
+        "from PyQt5.QtGui import QPainter",
+        "from PyQt5.QtGui import QColor",
+        "from PyQt5.QtGui import QPen",
+        "from PyQt5.QtGui import QBrush",
+        "from PyQt5.QtGui import QFont",
+        "from PyQt5.QtGui import QFontMetrics",
+        "from PyQt5.QtGui import QPainterPath",
+        "from PyQt5.QtGui import QLinearGradient",
+        "from vpy_node_base import NodeState",
+        "from vpy_node_base import NodeType"
+      ],
+      "docstring": "Mixin classes for VysualPy node system.\n\nThese mixins provide shared functionality that can be composed into different\nnode types, promoting code reuse and separation of concerns."
+    },
+    "vpy_node_types.py": {
+      "file_path": "vpy_node_types.py",
+      "line_count": 399,
+      "classes": [
+        {
+          "name": "BlueprintNode",
+          "line_number": 19,
+          "base_classes": [
+            "BaseNode",
+            "RenderMixin",
+            "InteractionMixin"
+          ],
+          "docstring": "Node type for blueprint/structural visualization.\n    \n    Shows code structure, classes, and functions with their relationships.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 26,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintNode",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "content"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "analyze_content",
+              "line_number": 41,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintNode",
+              "docstring": "Analyze the content to determine if it's a class or function.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_display_name",
+              "line_number": 71,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintNode",
+              "docstring": "Get the display name for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_tooltip_text",
+              "line_number": 80,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintNode",
+              "docstring": "Get tooltip text for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "can_accept_content",
+              "line_number": 85,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintNode",
+              "docstring": "Check if this node can accept the given content.",
+              "parameters": [
+                "self",
+                "content"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "process_content_change",
+              "line_number": 90,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintNode",
+              "docstring": "Process a change in node content.",
+              "parameters": [
+                "self",
+                "old_content",
+                "new_content"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "ExecutionNode",
+          "line_number": 100,
+          "base_classes": [
+            "BaseNode",
+            "RenderMixin",
+            "InteractionMixin"
+          ],
+          "docstring": "Node type for execution flow visualization.\n    \n    Shows runtime execution paths and call flows between functions.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 107,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionNode",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "original_name"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_conditional",
+              "line_number": 122,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionNode",
+              "docstring": "Mark this node as part of conditional execution.",
+              "parameters": [
+                "self",
+                "is_conditional"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_has_return",
+              "line_number": 131,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionNode",
+              "docstring": "Mark this node as having return values.",
+              "parameters": [
+                "self",
+                "has_return"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_display_name",
+              "line_number": 144,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionNode",
+              "docstring": "Get the display name for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_tooltip_text",
+              "line_number": 149,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionNode",
+              "docstring": "Get tooltip text for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "can_accept_content",
+              "line_number": 160,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionNode",
+              "docstring": "Execution nodes don't accept direct content editing.",
+              "parameters": [
+                "self",
+                "content"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "process_content_change",
+              "line_number": 164,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionNode",
+              "docstring": "Execution nodes don't support content changes.",
+              "parameters": [
+                "self",
+                "old_content",
+                "new_content"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "BuildableNode",
+          "line_number": 169,
+          "base_classes": [
+            "BaseNode",
+            "RenderMixin",
+            "InteractionMixin",
+            "EditableMixin"
+          ],
+          "docstring": "Node type for live code editing/building.\n    \n    Supports in-place editing and automatically creates connections to\n    undefined functions.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 177,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "content",
+                "parent_ide"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "analyze_and_update",
+              "line_number": 198,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Analyze content and update node properties.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "analyze_content",
+              "line_number": 203,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Analyze the content to determine its type and extract metadata.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "detect_function_calls",
+              "line_number": 243,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Detect function calls in the content.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_display_name",
+              "line_number": 254,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Get the display name for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_tooltip_text",
+              "line_number": 265,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Get tooltip text for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "can_accept_content",
+              "line_number": 277,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Check if this node can accept the given content.",
+              "parameters": [
+                "self",
+                "content"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "process_content_change",
+              "line_number": 287,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Process a change in node content.",
+              "parameters": [
+                "self",
+                "old_content",
+                "new_content"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "startEditing",
+              "line_number": 299,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Override to set up BuildableNode-specific editing.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "CommentNode",
+          "line_number": 311,
+          "base_classes": [
+            "BaseNode",
+            "RenderMixin",
+            "InteractionMixin",
+            "EditableMixin"
+          ],
+          "docstring": "Node type for comments and annotations.\n    \n    Provides documentation and grouping functionality in graphs.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 318,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentNode",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "content"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_display_name",
+              "line_number": 332,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentNode",
+              "docstring": "Get the display name for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_tooltip_text",
+              "line_number": 336,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentNode",
+              "docstring": "Get tooltip text for this node.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "can_accept_content",
+              "line_number": 341,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentNode",
+              "docstring": "Comments can accept any text content.",
+              "parameters": [
+                "self",
+                "content"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "process_content_change",
+              "line_number": 345,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentNode",
+              "docstring": "Process a change in comment content.",
+              "parameters": [
+                "self",
+                "old_content",
+                "new_content"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [
+        {
+          "name": "register_node_types",
+          "line_number": 367,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": "Register all node types with the global registry.",
+          "parameters": [],
+          "decorators": []
+        },
+        {
+          "name": "create_draggable_rect",
+          "line_number": 375,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": "Factory function for backward compatibility with DraggableRect.",
+          "parameters": [],
+          "decorators": []
+        },
+        {
+          "name": "create_execution_draggable_rect",
+          "line_number": 384,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": "Factory function for backward compatibility with ExecutionDraggableRect.",
+          "parameters": [],
+          "decorators": []
+        }
+      ],
+      "imports": [
+        "ast",
+        "re",
+        "from typing import Dict",
+        "from typing import List",
+        "from typing import Any",
+        "from typing import Optional",
+        "from PyQt5.QtCore import QPointF",
+        "from PyQt5.QtCore import QRectF",
+        "from PyQt5.QtGui import QColor",
+        "from vpy_node_base import BaseNode",
+        "from vpy_node_base import NodeType",
+        "from vpy_node_base import NodeState",
+        "from vpy_node_base import node_registry",
+        "from vpy_node_mixins import RenderMixin",
+        "from vpy_node_mixins import InteractionMixin",
+        "from vpy_node_mixins import EditableMixin",
+        "warnings",
+        "warnings"
+      ],
+      "docstring": "Concrete implementations of different node types for VysualPy.\n\nThese classes combine the BaseNode with appropriate mixins to create\nspecialized node types for different use cases."
     },
     "vpy_winmix.py": {
       "file_path": "vpy_winmix.py",

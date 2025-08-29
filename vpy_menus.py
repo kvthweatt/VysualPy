@@ -131,8 +131,8 @@ class PreferencesDialog(QDialog):
         blueprint_tab = self.create_blueprint_tab()
         tabs.addTab(blueprint_tab, "Blueprint Graphs")
         
-        # Only add Editor tab if we're in the main IDE window
-        if hasattr(self.parent, 'textEdit'):
+        # Only add Editor tab if we're in the main IDE window and have current editor
+        if hasattr(self.parent, 'current_editor') and self.parent.current_editor():
             editor_tab = self.create_editor_tab()
             tabs.addTab(editor_tab, "Editor")
         
@@ -255,7 +255,8 @@ class PreferencesDialog(QDialog):
         highlight_group = QGroupBox("Syntax Highlighting")
         highlight_layout = QGridLayout()
         
-        current_colors = self.parent.textEdit.highlighter.colors
+        current_editor = self.parent.current_editor()
+        current_colors = current_editor.highlighter.colors if current_editor else {}
         #self.color_buttons = {}
         row = 0
         for name, color in current_colors.items():
@@ -629,10 +630,8 @@ class RecentFilesMenu(QMenu):
         """Open a recent file."""
         if exists(filepath):
             try:
-                with open(filepath, 'r') as file:
-                    self.parent.textEdit.setText(file.read())
-                self.parent.currentFile = filepath
-                self.parent.setWindowTitle(f"Vysual Python IDE - {filepath}")
+                # Use the tab-based file opening method
+                self.parent.open_file_in_tab(filepath)
             except Exception as e:
                 self.parent.show_error_message(f"Error opening file: {e}")
                 self.recent_files.remove_file(filepath)
