@@ -160,8 +160,8 @@ class SimpleConnection(QGraphicsPathItem):
         self.initial_end_node_pos = QPointF()
         self.initial_drag_pos = QPointF()
         
-        # Tooltip (empty for now as requested)
-        self.setToolTip("")
+        # Enhanced tooltip with connection information
+        self.update_tooltip()
         
         # Add to scene
         scene.addItem(self)
@@ -280,6 +280,9 @@ class SimpleConnection(QGraphicsPathItem):
         
         # Update pen based on current hover state
         self.update_pen_style()
+        
+        # Update tooltip with completed connection information
+        self.update_tooltip()
         
         print(f"Connection completed from {self.start_port.node.name}:{self.start_port.id} to {end_port.node.name}:{end_port.id}")
         
@@ -482,6 +485,72 @@ class SimpleConnection(QGraphicsPathItem):
             self.scene.active_connection_point = None
             
         print("Cancelled connection creation")
+        
+    def update_tooltip(self):
+        """Update tooltip with enhanced connection information."""
+        if self.is_completed and self.end_port:
+            # Complete connection - show detailed info
+            start_node = self.start_port.node
+            end_node = self.end_port.node
+            
+            # Determine node types
+            start_type = "Unknown"
+            end_type = "Unknown"
+            if hasattr(start_node, 'node_type'):
+                start_type = start_node.node_type.value.capitalize()
+            if hasattr(end_node, 'node_type'):
+                end_type = end_node.node_type.value.capitalize()
+            
+            # Create detailed tooltip
+            tooltip_parts = [
+                f"🔗 {start_type} Connection",
+                f"Source: {start_node.name} [{self.start_port.id}]",
+                f"Target: {end_node.name} [{self.end_port.id}]",
+                "",
+                "Connection Details:"
+            ]
+            
+            # Add node type specific information
+            if start_type == "Blueprint" and end_type == "Blueprint":
+                tooltip_parts.append("📦 Structural relationship between code components")
+                tooltip_parts.append("• Shows function call or class dependency")
+                tooltip_parts.append("• Bidirectional logical connection")
+                
+            elif start_type == "Execution" and end_type == "Execution":
+                tooltip_parts.append("⚡ Runtime execution flow")
+                tooltip_parts.append("• Shows actual function call sequence")
+                tooltip_parts.append("• Directional execution path")
+                
+            elif start_type == "Buildable" and end_type == "Buildable":
+                tooltip_parts.append("🔧 Code reference dependency")
+                tooltip_parts.append("• Automatically detected from code analysis")
+                tooltip_parts.append("• Shows variable/function references")
+                
+            # Add interaction hints
+            tooltip_parts.extend([
+                "",
+                "Interaction:",
+                "• Drag to move both connected nodes",
+                "• Right-click to break connection",
+                "• Hover for highlight and thickness change"
+            ])
+            
+            tooltip_text = "\n".join(tooltip_parts)
+            
+        elif self.start_port:
+            # Incomplete connection - show creation info
+            start_node = self.start_port.node
+            start_type = "Unknown"
+            if hasattr(start_node, 'node_type'):
+                start_type = start_node.node_type.value.capitalize()
+                
+            tooltip_text = f"🚧 Creating {start_type} Connection\n\nSource: {start_node.name} [{self.start_port.id}]\n\nDrag to a compatible input port to complete the connection."
+            
+        else:
+            # Fallback for incomplete state
+            tooltip_text = "🔗 Connection Line\n\nHover for details when connection is complete."
+            
+        self.setToolTip(tooltip_text)
 
 class EnhancedBlueprintScene(BlueprintScene):
     """Enhanced scene with comprehensive node creation capabilities."""
@@ -972,6 +1041,202 @@ class EnhancedBlueprintScene(BlueprintScene):
         
         return False
         
+    def keyPressEvent(self, event):
+        """Handle keyboard shortcuts for node operations."""
+        from PyQt5.QtCore import Qt
+        from PyQt5.QtWidgets import QApplication
+        
+        # Get keyboard modifiers
+        modifiers = QApplication.keyboardModifiers()
+        
+        # CTRL+S - Child Vertical Align
+        if (event.key() == Qt.Key_S and 
+            modifiers == Qt.ControlModifier):
+            self.align_child_nodes_vertically()
+            event.accept()
+            return
+            
+        # CTRL+SHIFT+S - Full Tree Align
+        if (event.key() == Qt.Key_S and 
+            modifiers == (Qt.ControlModifier | Qt.ShiftModifier)):
+            self.align_full_tree()
+            event.accept()
+            return
+            
+        # Let parent handle other key events
+        super().keyPressEvent(event)
+        
+    def align_child_nodes_vertically(self):
+        """Align direct children of selected nodes vertically to the right."""
+        selected_items = [item for item in self.selectedItems() if hasattr(item, 'node_type')]
+        
+        if not selected_items:
+            print("❌ No nodes selected for child alignment")
+            return
+            
+        aligned_count = 0
+        
+        for parent_node in selected_items:
+            # Find direct children (nodes connected via output ports)
+            children = self.get_direct_children(parent_node)
+            
+            if not children:
+                print(f"ℹ️  Node '{parent_node.name}' has no direct children to align")
+                continue
+                
+            # Sort children by current Y position for consistent ordering
+            children.sort(key=lambda child: child.pos().y())
+            
+            # Calculate alignment position (to the right of parent)
+            parent_pos = parent_node.pos()
+            parent_width = parent_node.boundingRect().width()
+            align_x = parent_pos.x() + parent_width + 100  # 100px spacing
+            
+            # Calculate vertical spacing
+            if len(children) > 1:
+                total_height = sum(child.boundingRect().height() for child in children)
+                spacing = max(50, total_height / len(children) * 0.3)  # Minimum 50px spacing
+            else:
+                spacing = 0
+            
+            # Start Y position (center children around parent's center)
+            parent_center_y = parent_pos.y() + parent_node.boundingRect().height() / 2
+            total_children_height = (len(children) - 1) * spacing
+            start_y = parent_center_y - total_children_height / 2
+            
+            # Align children vertically
+            for i, child in enumerate(children):
+                new_y = start_y + (i * spacing)
+                child.setPos(align_x, new_y)
+                aligned_count += 1
+                
+            print(f"✅ Aligned {len(children)} children of '{parent_node.name}' vertically")
+        
+        # Update all connections after moving nodes
+        self.update_all_connections()
+        
+        if aligned_count > 0:
+            print(f"🎯 CTRL+S: Aligned {aligned_count} child nodes vertically")
+        else:
+            print("ℹ️  No child nodes found to align")
+            
+    def align_full_tree(self):
+        """Recursively align entire node tree with intelligent spacing."""
+        selected_items = [item for item in self.selectedItems() if hasattr(item, 'node_type')]
+        
+        if not selected_items:
+            print("❌ No nodes selected for tree alignment")
+            return
+            
+        aligned_count = 0
+        processed_nodes = set()
+        
+        for root_node in selected_items:
+            if root_node in processed_nodes:
+                continue
+                
+            # Perform recursive tree alignment
+            aligned_in_tree = self.align_node_tree_recursive(root_node, 0, processed_nodes)
+            aligned_count += aligned_in_tree
+            
+        # Update all connections after moving nodes
+        self.update_all_connections()
+        
+        if aligned_count > 0:
+            print(f"🌳 CTRL+SHIFT+S: Aligned {aligned_count} nodes in full tree structure")
+        else:
+            print("ℹ️  No tree structure found to align")
+            
+    def align_node_tree_recursive(self, node, depth, processed_nodes, start_y=None):
+        """Recursively align a node and all its descendants."""
+        if node in processed_nodes:
+            return 0
+            
+        processed_nodes.add(node)
+        aligned_count = 0
+        
+        # Get direct children
+        children = self.get_direct_children(node)
+        
+        if not children:
+            return aligned_count  # Leaf node
+            
+        # Sort children by current Y position for consistent ordering
+        children.sort(key=lambda child: child.pos().y())
+        
+        # Calculate horizontal position based on depth
+        node_pos = node.pos()
+        node_width = node.boundingRect().width()
+        child_x = node_pos.x() + node_width + (120 + depth * 20)  # Increasing spacing per depth
+        
+        # Calculate vertical positioning
+        if start_y is None:
+            # For root level, center around the parent
+            node_center_y = node_pos.y() + node.boundingRect().height() / 2
+        else:
+            node_center_y = start_y + node.boundingRect().height() / 2
+            
+        # Calculate total space needed for all children and their subtrees
+        child_heights = []
+        for child in children:
+            subtree_height = self.calculate_subtree_height(child, processed_nodes.copy())
+            child_heights.append(max(child.boundingRect().height(), subtree_height))
+            
+        total_height = sum(child_heights) + (len(children) - 1) * 60  # 60px between child groups
+        start_y = node_center_y - total_height / 2
+        
+        # Position and recursively align children
+        current_y = start_y
+        for i, child in enumerate(children):
+            child.setPos(child_x, current_y)
+            aligned_count += 1
+            
+            # Recursively align the child's subtree
+            subtree_aligned = self.align_node_tree_recursive(
+                child, depth + 1, processed_nodes, current_y
+            )
+            aligned_count += subtree_aligned
+            
+            # Move to next child position
+            current_y += child_heights[i] + 60
+            
+        print(f"🌿 Aligned node '{node.name}' with {len(children)} children at depth {depth}")
+        return aligned_count
+        
+    def calculate_subtree_height(self, node, processed_nodes):
+        """Calculate the total height needed for a node's subtree."""
+        if node in processed_nodes:
+            return node.boundingRect().height()
+            
+        processed_nodes.add(node)
+        children = self.get_direct_children(node)
+        
+        if not children:
+            return node.boundingRect().height()
+            
+        child_heights = [self.calculate_subtree_height(child, processed_nodes) for child in children]
+        total_children_height = sum(child_heights) + (len(children) - 1) * 60
+        
+        return max(node.boundingRect().height(), total_children_height)
+        
+    def get_direct_children(self, parent_node):
+        """Get all nodes directly connected as children from this node's output ports."""
+        children = []
+        
+        if not hasattr(self, 'connections'):
+            return children
+            
+        for connection in self.connections:
+            if (hasattr(connection, 'start_port') and hasattr(connection, 'end_port') and
+                connection.start_port and connection.end_port and
+                connection.start_port.node == parent_node):
+                # This connection starts from the parent node
+                child_node = connection.end_port.node
+                if child_node not in children:
+                    children.append(child_node)
+                    
+        return children
+
     def mouseMoveEvent(self, event):
         """Handle connection dragging."""
         if self.connection_in_progress:
