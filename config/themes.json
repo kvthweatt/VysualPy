@@ -1,20 +1,20 @@
 {
     "themes": {
         "dark": {
-            "name": "Dark Theme",
-            "description": "Professional dark theme for coding",
+            "name": "Midnight Coder",
+            "description": "Deep blue-black theme with cyan accents - perfect for late night coding",
             "colors": {
-                "background": "#2d3748",
-                "foreground": "#e2e8f0",
-                "accent": "#4a5568",
-                "highlight": "#718096",
-                "selection": "#4a5568",
-                "line_number_bg": "#1a202c",
-                "line_number_fg": "#718096"
+                "background": "#0d1117",
+                "foreground": "#c9d1d9",
+                "accent": "#21262d",
+                "highlight": "#58a6ff",
+                "selection": "#1c4966",
+                "line_number_bg": "#0d1117",
+                "line_number_fg": "#484f58"
             },
             "fonts": {
                 "editor": {
-                    "family": "Courier New",
+                    "family": "JetBrains Mono",
                     "size": 11,
                     "weight": "normal"
                 },
@@ -26,20 +26,20 @@
             }
         },
         "light": {
-            "name": "Light Theme",
-            "description": "Clean light theme for day work",
+            "name": "Sunrise Studio",
+            "description": "Warm cream and orange theme inspired by sunrise - energizing for day work",
             "colors": {
-                "background": "#ffffff",
-                "foreground": "#2d3748",
-                "accent": "#e2e8f0",
-                "highlight": "#bee3f8",
-                "selection": "#bee3f8",
-                "line_number_bg": "#f7fafc",
-                "line_number_fg": "#718096"
+                "background": "#fefbf3",
+                "foreground": "#5c4a37",
+                "accent": "#f4ede4",
+                "highlight": "#ff8c42",
+                "selection": "#ffe5cc",
+                "line_number_bg": "#f8f5f0",
+                "line_number_fg": "#b8a082"
             },
             "fonts": {
                 "editor": {
-                    "family": "Courier New",
+                    "family": "Fira Code",
                     "size": 11,
                     "weight": "normal"
                 },
@@ -51,20 +51,20 @@
             }
         },
         "high_contrast": {
-            "name": "High Contrast",
-            "description": "Accessibility-focused high contrast theme",
+            "name": "Neon Terminal",
+            "description": "High contrast neon green on black - retro hacker aesthetic with accessibility",
             "colors": {
                 "background": "#000000",
-                "foreground": "#ffffff",
-                "accent": "#ffffff",
-                "highlight": "#ffff00",
-                "selection": "#ffffff",
-                "line_number_bg": "#1a1a1a",
-                "line_number_fg": "#ffffff"
+                "foreground": "#00ff41",
+                "accent": "#003300",
+                "highlight": "#00ff41",
+                "selection": "#004400",
+                "line_number_bg": "#001100",
+                "line_number_fg": "#00aa2a"
             },
             "fonts": {
                 "editor": {
-                    "family": "Courier New",
+                    "family": "Consolas",
                     "size": 12,
                     "weight": "bold"
                 },

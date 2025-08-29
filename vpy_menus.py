@@ -180,6 +180,21 @@ class PreferencesDialog(QDialog):
                 }
             }
             
+            # Update language config files with current color settings
+            if colors:
+                # Group colors by language
+                language_colors = {}
+                for button_name, color in colors.items():
+                    if '_' in button_name:
+                        language_name, color_name = button_name.split('_', 1)
+                        if language_name not in language_colors:
+                            language_colors[language_name] = {}
+                        language_colors[language_name][color_name] = color.name()
+                
+                # Update each language config file
+                for language_name, lang_colors in language_colors.items():
+                    self.update_language_config_colors(language_name, lang_colors)
+            
             self.config.update_config(self.saved_values)
             super().accept()
         except Exception as e:
@@ -298,39 +313,101 @@ class PreferencesDialog(QDialog):
         self.populate_fields_from_config()
     
     def create_editor_tab(self):
-        # Original editor tab code here
         editor_tab = QWidget()
         editor_layout = QVBoxLayout()
         
-        highlight_group = QGroupBox("Syntax Highlighting")
-        highlight_layout = QGridLayout()
+        # Language selection group
+        language_group = QGroupBox("Language")
+        language_layout = QHBoxLayout()
         
-        current_editor = self.parent.current_editor()
-        current_colors = current_editor.highlighter.colors if current_editor else {}
-        #self.color_buttons = {}
-        row = 0
-        for name, color in current_colors.items():
-            label = QLabel(name.capitalize())
-            button = ColorButton(color)
-            self.color_buttons[name] = button
-            highlight_layout.addWidget(label, row, 0)
-            highlight_layout.addWidget(button, row, 1)
-            row += 1
+        language_label = QLabel("Select Language:")
+        self.language_combo = QComboBox()
+        
+        # Get available languages from config
+        from vpy_config import LanguageConfig
+        self.lang_config = LanguageConfig()
+        available_languages = list(self.lang_config.languages.keys())
+        
+        if available_languages:
+            self.language_combo.addItems(available_languages)
+        else:
+            self.language_combo.addItem("Python")  # Fallback
             
-        highlight_group.setLayout(highlight_layout)
-        editor_layout.addWidget(highlight_group)
+        self.language_combo.currentTextChanged.connect(self.on_language_changed)
         
-        theme_group = QGroupBox("Color Themes")
-        theme_layout = QVBoxLayout()
-        theme_combo = QComboBox()
-        theme_combo.addItems(["Default", "Dark", "Light", "Monokai"])
-        theme_combo.currentTextChanged.connect(self.apply_theme)
-        theme_layout.addWidget(theme_combo)
-        theme_group.setLayout(theme_layout)
-        editor_layout.addWidget(theme_group)
+        language_layout.addWidget(language_label)
+        language_layout.addWidget(self.language_combo)
+        language_layout.addStretch()
+        
+        language_group.setLayout(language_layout)
+        editor_layout.addWidget(language_group)
+        
+        # Syntax highlighting colors group
+        self.highlight_group = QGroupBox("Syntax Highlighting Colors")
+        self.highlight_layout = QGridLayout()
+        
+        # Load initial language colors
+        self.load_language_colors(self.language_combo.currentText())
+        
+        self.highlight_group.setLayout(self.highlight_layout)
+        editor_layout.addWidget(self.highlight_group)
         
         editor_tab.setLayout(editor_layout)
         return editor_tab
+    
+    def on_language_changed(self, language_name):
+        """Handle language selection change."""
+        self.load_language_colors(language_name)
+    
+    def load_language_colors(self, language_name):
+        """Load syntax highlighting colors for the specified language."""
+        # Clear existing color buttons
+        for i in reversed(range(self.highlight_layout.count())):
+            self.highlight_layout.itemAt(i).widget().setParent(None)
+        
+        # Clear color buttons dictionary but keep the old ones for saving
+        current_colors = {}
+        
+        # Get language config
+        language_config = self.lang_config.get_language_by_name(language_name)
+        
+        if language_config and "colors" in language_config:
+            language_colors = language_config["colors"]
+        else:
+            # Fallback colors
+            language_colors = {
+                "keyword": "#ff7b72",
+                "string": "#a5d6ff", 
+                "comment": "#8b949e",
+                "function": "#d2a8ff",
+                "class": "#ffa657",
+                "number": "#79c0ff",
+                "decorator": "#f85149"
+            }
+        
+        # Create new color buttons
+        row = 0
+        for name, color_str in language_colors.items():
+            label = QLabel(name.capitalize())
+            color = QColor(color_str)
+            button = ColorButton(color)
+            
+            # Store button with language prefix to avoid conflicts
+            button_key = f"{language_name}_{name}"
+            current_colors[button_key] = button
+            
+            self.highlight_layout.addWidget(label, row, 0)
+            self.highlight_layout.addWidget(button, row, 1)
+            row += 1
+        
+        # Update the main color_buttons dictionary
+        # Remove old entries for this language
+        keys_to_remove = [k for k in self.color_buttons.keys() if k.startswith(f"{language_name}_")]
+        for key in keys_to_remove:
+            del self.color_buttons[key]
+        
+        # Add new entries
+        self.color_buttons.update(current_colors)
     
     def create_blueprint_tab(self):
         blueprint_tab = QTabWidget()  # Change to QTabWidget for nested tabs
@@ -410,41 +487,30 @@ class PreferencesDialog(QDialog):
         if path:
             line_edit.setText(path)
     
-    def apply_theme(self, theme_name):
-        themes = {
-            "Dark": {
-                'keyword': QColor("#FF6B6B"),
-                'string': QColor("#98C379"),
-                'comment': QColor("#5C6370"),
-                'function': QColor("#61AFEF"),
-                'class': QColor("#E5C07B"),
-                'number': QColor("#D19A66"),
-                'decorator': QColor("#C678DD"),
-            },
-            "Light": {
-                'keyword': QColor("#D73A49"),
-                'string': QColor("#22863A"),
-                'comment': QColor("#6A737D"),
-                'function': QColor("#005CC5"),
-                'class': QColor("#6F42C1"),
-                'number': QColor("#E36209"),
-                'decorator': QColor("#6F42C1"),
-            },
-            "Monokai": {
-                'keyword': QColor("#F92672"),
-                'string': QColor("#E6DB74"),
-                'comment': QColor("#75715E"),
-                'function': QColor("#66D9EF"),
-                'class': QColor("#A6E22E"),
-                'number': QColor("#AE81FF"),
-                'decorator': QColor("#FD971F"),
-            }
-        }
-        
-        if theme_name in themes:
-            for name, color in themes[theme_name].items():
-                if name in self.color_buttons:
-                    self.color_buttons[name].setColor(color)
+    def update_language_config_colors(self, language_name, new_colors):
+        """Update the language configuration file with new syntax highlighting colors."""
+        try:
+            import os
+            config_path = os.path.join("config", f"{language_name.lower()}.json")
+            
+            # Load current config
+            if os.path.exists(config_path):
+                with open(config_path, 'r') as f:
+                    config = json.load(f)
+                
+                # Update colors section
+                config["colors"] = new_colors
+                
+                # Save updated config
+                with open(config_path, 'w') as f:
+                    json.dump(config, f, indent=4)
+                
+                print(f"Updated {language_name.lower()}.json with new colors")
+            else:
+                print(f"Warning: {config_path} not found")
+                
+        except Exception as e:
+            print(f"Error updating {language_name} config: {e}")
 
     def create_build_tab(self):
         build_tab = QWidget()

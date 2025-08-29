@@ -815,14 +815,14 @@ class CodeEditor(QTextEdit):
             self.setFont(font)
         
         # Apply stylesheet with theme colors
-        background = colors.get('background', '#1a1a1a')
-        foreground = colors.get('foreground', '#ecf0f1')
-        selection_bg = colors.get('selection', '#264f78')
-        selection_fg = colors.get('foreground', '#ffffff')
+        background = colors.get('background')
+        foreground = colors.get('foreground')
+        selection_bg = colors.get('selection')
+        selection_fg = colors.get('foreground')
         
         # Scrollbar colors (derive from background/accent if not specified)
-        scrollbar_bg = colors.get('accent', '#2c2c2c')
-        scrollbar_handle = colors.get('highlight', '#4a4a4a')
+        scrollbar_bg = colors.get('accent')
+        scrollbar_handle = colors.get('highlight')
         
         stylesheet = f"""
             QTextEdit {{
@@ -881,7 +881,15 @@ class CodeEditor(QTextEdit):
         """Paint the line number area."""
         try:
             painter = QPainter(self.line_number_area)
-            painter.fillRect(event.rect(), QColor("#2b2b2b"))  # Dark background for line numbers
+            
+            # Get line number colors from theme
+            theme_manager = get_theme_manager()
+            current_theme_data = theme_manager.get_theme_info(theme_manager.current_theme)
+            colors = current_theme_data.get('colors', {}) if current_theme_data else {}
+            
+            line_number_bg = colors.get('line_number_bg')
+            if line_number_bg:
+                painter.fillRect(event.rect(), QColor(line_number_bg))
 
             # Set smaller font for line numbers
             font = self.font()
@@ -910,7 +918,9 @@ class CodeEditor(QTextEdit):
 
                 if block.isVisible():
                     number = str(block_number + 1)
-                    painter.setPen(QColor("#6c757d"))  # Grey color for line numbers
+                    line_number_fg = colors.get('line_number_fg')
+                    if line_number_fg:
+                        painter.setPen(QColor(line_number_fg))
                     width = self.line_number_area_width()
                     
                     # Calculate vertical centering offset
@@ -1755,16 +1765,30 @@ class PythonIDE(QMainWindow):
             return
         
         try:
-            # Apply color changes to all open editors
-            if 'colors' in values:
-                colors = values['colors']
-                self.apply_color_changes_to_editors(colors)
+            # Reload syntax highlighting for all open editors
+            self.reload_syntax_highlighting()
                 
             # Apply other changes as needed
             # (grid sizes, etc. can be applied when graph windows are opened)
             
         except Exception as e:
             print(f"Error applying preference changes: {e}")
+    
+    def reload_syntax_highlighting(self):
+        """Reload syntax highlighting for all open editors from language config files."""
+        if not self.editor_tabs:
+            return
+            
+        # Update each editor's syntax highlighter
+        for i in range(self.editor_tabs.count()):
+            editor = self.editor_tabs.widget(i)
+            if hasattr(editor, 'highlighter') and editor.highlighter:
+                # Reload language configuration
+                editor.highlighter.lang_config = LanguageConfig()
+                editor.highlighter.load_language("Python")  # Default to Python
+                # Trigger re-highlighting
+                editor.highlighter.rehighlight()
+                print(f"Reloaded syntax highlighting for tab {i}")
     
     def apply_color_changes_to_editors(self, new_colors):
         """Apply new color settings to all open editors."""

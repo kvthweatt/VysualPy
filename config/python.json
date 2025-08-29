@@ -42,12 +42,12 @@
         "yield"
     ],
     "colors": {
-        "keyword": "#FF6B6B",
-        "string": "#98C379",
-        "comment": "#5C6370",
-        "function": "#61AFEF",
-        "class": "#E5C07B",
-        "number": "#D19A66",
-        "decorator": "#C678DD"
+        "keyword": "#ff0004",
+        "string": "#a5d6ff",
+        "comment": "#8b949e",
+        "function": "#d2a8ff",
+        "class": "#ffa657",
+        "number": "#79c0ff",
+        "decorator": "#f85149"
     }
 }
