@@ -69,8 +69,8 @@ class CommentBox(QGraphicsRectItem):
     def paint(self, painter, option, widget):
         super().paint(painter, option, widget)
         
-        if self.scene and self.scene.views():
-            view = self.scene.views()[0]
+        if self.scene() and self.scene().views():
+            view = self.scene().views()[0]
             scale = view.transform().m11()
             
             # Scale font with minimum size constraint

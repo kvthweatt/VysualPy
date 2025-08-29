@@ -247,114 +247,57 @@ class CodeEditor(QTextEdit):
 
     def lineNumberAreaPaintEvent(self, event):
         """Paint the line number area."""
-        painter = QPainter(self.line_number_area)
-        painter.fillRect(event.rect(), QColor("#2b2b2b"))  # Dark background for line numbers
+        try:
+            painter = QPainter(self.line_number_area)
+            painter.fillRect(event.rect(), QColor("#2b2b2b"))  # Dark background for line numbers
 
-        # Set smaller font for line numbers
-        font = self.font()
-        # Ensure font size is always positive and reasonable
-        current_size = font.pointSize()
-        new_size = max(8, current_size - 1) if current_size > 0 else 10
-        font.setPointSize(new_size)
-        painter.setFont(font)
+            # Set smaller font for line numbers
+            font = self.font()
+            # Ensure font size is always positive and reasonable
+            current_size = font.pointSize()
+            new_size = max(8, current_size - 1) if current_size > 0 else 10
+            font.setPointSize(new_size)
+            painter.setFont(font)
 
-        block = self.document().firstBlock()
-        block_number = block.blockNumber()
-        viewport_offset = self.verticalScrollBar().value()
-        page_bottom = viewport_offset + self.viewport().height()
-        font_metrics = QFontMetrics(font)  # Use metrics of smaller font
-        line_height = self.fontMetrics().height()  # Keep original line height for spacing
+            block = self.document().firstBlock()
+            block_number = block.blockNumber()
+            viewport_offset = self.verticalScrollBar().value()
+            page_bottom = viewport_offset + self.viewport().height()
+            font_metrics = QFontMetrics(font)  # Use metrics of smaller font
+            line_height = self.fontMetrics().height()  # Keep original line height for spacing
 
-        # Adjust starting position based on visible blocks
-        current_y = 0
-        while block.isValid():
-            # Skip blocks that are above the visible area
-            if current_y > page_bottom:
-                break
+            # Adjust starting position based on visible blocks
+            current_y = 0
+            max_blocks = 1000  # Prevent infinite loops
+            block_count = 0
+            
+            while block.isValid() and block_count < max_blocks:
+                # Skip blocks that are above the visible area
+                if current_y > page_bottom:
+                    break
 
-            if block.isVisible():
-                number = str(block_number + 1)
-                painter.setPen(QColor("#6c757d"))  # Grey color for line numbers
-                width = self.line_number_area_width()
-                
-                # Calculate vertical centering offset
-                font_height = font_metrics.height()
-                y_offset = (line_height - font_height) // 2  # Center the smaller font in the line
-                
-                # Only draw if the line is in the visible area
-                block_top = current_y - viewport_offset
-                if block_top >= -line_height and block_top <= self.viewport().height():
-                    painter.drawText(0, block_top + y_offset, width - 5, font_height, 
-                                  Qt.AlignRight | Qt.AlignVCenter, number)
+                if block.isVisible():
+                    number = str(block_number + 1)
+                    painter.setPen(QColor("#6c757d"))  # Grey color for line numbers
+                    width = self.line_number_area_width()
+                    
+                    # Calculate vertical centering offset
+                    font_height = font_metrics.height()
+                    y_offset = (line_height - font_height) // 2  # Center the smaller font in the line
+                    
+                    # Only draw if the line is in the visible area
+                    block_top = current_y - viewport_offset
+                    if block_top >= -line_height and block_top <= self.viewport().height():
+                        painter.drawText(0, block_top + y_offset, width - 5, font_height, 
+                                      Qt.AlignRight | Qt.AlignVCenter, number)
 
-            # Move to next block
-            block = block.next()
-            block_number += 1
-            current_y += line_height
-        
-        # Set font and basic properties
-        self.setFont(QFont("Courier New", 12))
-        self.setLineWrapMode(QTextEdit.NoWrap)
-        
-        # Enable scrollbars and configure them
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        
-        # Configure document size limits
-        self.document().setMaximumBlockCount(0)  # Disable block count limit
-        
-        # Set document margins and update line number area width
-        doc = self.document()
-        doc.setDocumentMargin(10)
-        self.update_line_number_area_width()
-        
-        # Configure text interaction flags
-        self.setTextInteractionFlags(
-            Qt.TextEditorInteraction | 
-            Qt.TextSelectableByKeyboard | 
-            Qt.TextSelectableByMouse
-        )
-        
-        # Style the scrollbars and editor
-        self.setStyleSheet("""
-            QTextEdit {
-                background-color: #1a1a1a;
-                color: #ecf0f1;
-                border: none;
-                font-family: 'Courier New';
-                font-size: 12px;
-                selection-background-color: #264f78;
-                selection-color: #ffffff;
-            }
-            QScrollBar:vertical {
-                border: none;
-                background: #2c2c2c;
-                width: 14px;
-                margin: 0px 0px 0px 0px;
-            }
-            QScrollBar::handle:vertical {
-                background: #4a4a4a;
-                min-height: 30px;
-                border-radius: 7px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                height: 0px;
-            }
-            QScrollBar:horizontal {
-                border: none;
-                background: #2c2c2c;
-                height: 14px;
-                margin: 0px 0px 0px 0px;
-            }
-            QScrollBar::handle:horizontal {
-                background: #4a4a4a;
-                min-width: 30px;
-                border-radius: 7px;
-            }
-            QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
-                width: 0px;
-            }
-        """)
+                # Move to next block
+                block = block.next()
+                block_number += 1
+                current_y += line_height
+                block_count += 1
+        except Exception as e:
+            print(f"Error in lineNumberAreaPaintEvent: {e}")
 
     def line_number_area_width(self):
         """Calculate the width needed for the line number area."""

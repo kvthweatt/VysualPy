@@ -11,9 +11,11 @@ from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
 from vpy_menus import PreferencesDialog
 from vpy_winmix import CustomWindowMixin
 from vpy_graph import (
-    CommentBox, DraggableRect, ExecutionDraggableRect, BuildableNode
+    CommentBox, DraggableRect, ExecutionDraggableRect
     )
-from vpy_connection import Connection, ConnectionPoint
+from vpy_node_types import BuildableNode
+from vpy_connection_core import Connection
+from vpy_node_base import ConnectionPort
 
 def detect_function_calls(source_code):
     """
@@ -129,8 +131,8 @@ class BlueprintScene(QGraphicsScene):
             valid_connection = False
             
             for item in items:
-                if isinstance(item, ConnectionPoint):
-                    if item.is_output != self.active_connection_point.is_output:
+                if isinstance(item, ConnectionPort):
+                    if item.type.value != self.active_connection_point.type.value:
                         # Connect the points
                         self.connection_in_progress.setEndPoint(item)
                         valid_connection = True
@@ -203,7 +205,7 @@ class BlueprintView(QGraphicsView):
     def mousePressEvent(self, event):
         items = self.scene().items(self.mapToScene(event.pos()))
         for item in items:
-            if isinstance(item, ConnectionPoint):
+            if isinstance(item, ConnectionPort):
                 self.setDragMode(QGraphicsView.NoDrag)
                 super().mousePressEvent(event)
                 return
@@ -442,12 +444,12 @@ class BlueprintGraphWindow(QMainWindow, CustomWindowMixin):
                         workspace_data['comments'].append(com_data)
 
                     elif isinstance(item, Connection):
-                        if isinstance(item.start_point, ConnectionPoint) and isinstance(item.end_point, ConnectionPoint):
+                        if hasattr(item, 'start_port') and hasattr(item, 'end_port'):
                             connection_data = {
-                                'start_box': str(id(item.start_point.parentItem())),
-                                'end_box': str(id(item.end_point.parentItem())),
-                                'start_is_output': item.start_point.is_output,
-                                'end_is_output': item.end_point.is_output
+                                'start_box': str(id(item.start_port.node)),
+                                'end_box': str(id(item.end_port.node)),
+                                'start_is_output': item.start_port.type.value == 'output',
+                                'end_is_output': item.end_port.type.value == 'output'
                             }
                             workspace_data['connections'].append(connection_data)
 
@@ -1028,7 +1030,7 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
                         }
                         graph_data['nodes'].append(node_data)
                     elif isinstance(item, Connection):
-                        if isinstance(item.start_point, ConnectionPoint) and isinstance(item.end_point, ConnectionPoint):
+                        if hasattr(item, 'start_port') and hasattr(item, 'end_port'):
                             color_name = item.pen().color().name().lower()
                             conn_type = 'normal'
                             if color_name == '#ff00ff':  # Magenta
@@ -1037,8 +1039,8 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
                                 conn_type = 'conditional'
                             
                             conn_data = {
-                                'start_node': item.start_point.parentItem().name,
-                                'end_node': item.end_point.parentItem().name,
+                                'start_node': item.start_port.node.name,
+                                'end_node': item.end_port.node.name,
                                 'type': conn_type
                             }
                             graph_data['connections'].append(conn_data)
@@ -1233,24 +1235,36 @@ class BuildGraphScene(BlueprintScene):
         """Create the default if __name__ == '__main__' structure with main() function"""
         # Create main entry point node
         entry_node = BuildableNode(
-            "Entry Point",
-            'if __name__ == "__main__":\n    main()',
-            100, 100, 400, 250, self, False, self.parent_ide
+            name="Entry Point",
+            content='if __name__ == "__main__":\n    main()',
+            parent_ide=self.parent_ide
         )
+        entry_node.setPos(100, 100)
+        entry_node.setRect(0, 0, 400, 250)
         self.addItem(entry_node)
         
         # Create main function node
         main_node = BuildableNode(
-            "main",
-            "def main():\n    return",
-            600, 100, 400, 250, self, False, self.parent_ide
+            name="main",
+            content="def main():\n    return",
+            parent_ide=self.parent_ide
         )
+        main_node.setPos(600, 100)
+        main_node.setRect(0, 0, 400, 250)
         self.addItem(main_node)
         
-        # Create connection between nodes
-        connection = Connection(entry_node.output_point, main_node.input_point, self)
-        connection.setEndPoint(main_node.input_point)
-        self.addItem(connection)
+        # Create connection between nodes using the new connection system
+        try:
+            # Get the output and input ports from the new architecture
+            output_port = entry_node.output_ports.get('output')
+            input_port = main_node.input_ports.get('input')
+            
+            if output_port and input_port:
+                connection = Connection(output_port, input_port)
+                self.addItem(connection)
+                print(f"Created connection between {entry_node.name} and {main_node.name}")
+        except Exception as e:
+            print(f"Error creating connection: {e}")
         
         # Update the source file
         if self.parent_ide:
@@ -1272,7 +1286,13 @@ class BuildGraphScene(BlueprintScene):
         ):
             # Only create new node if there's no editing node and no modifiers
             if self.typing_node is None and not event.modifiers():
-                self.typing_node = BuildableNode("New Node", "", 100, 100, 400, 250, self, False, self.parent_ide)
+                self.typing_node = BuildableNode(
+                    name="New Node",
+                    content="",
+                    parent_ide=self.parent_ide
+                )
+                self.typing_node.setPos(100, 100)
+                self.typing_node.setRect(0, 0, 400, 250)
                 self.addItem(self.typing_node)
                 self.typing_node.startEditing()
             super().keyPressEvent(event)
@@ -1295,14 +1315,26 @@ class BuildGraphScene(BlueprintScene):
     def create_function_node(self, func_name, x, y):
         """Create a new function node with a basic template."""
         template = f"def {func_name}():\n    return"
-        node = BuildableNode(func_name, template, x, y, 400, 250, self, False, self.parent_ide)
+        node = BuildableNode(
+            name=func_name,
+            content=template,
+            parent_ide=self.parent_ide
+        )
+        node.setPos(x, y)
+        node.setRect(0, 0, 400, 250)
         self.addItem(node)
         self.existing_functions.add(func_name)
         return node
 
     def check_and_create_called_functions(self, node):
         """Check for function calls in the node and create new nodes if needed."""
-        content = node.text_item.toPlainText()
+        # Get content from the new BuildableNode (which stores content in self.content)
+        if hasattr(node, 'text_item') and node.text_item:
+            content = node.text_item.toPlainText()
+        elif hasattr(node, 'content'):
+            content = node.content
+        else:
+            content = ""
         print(f"Checking content for function calls: {content}")
         
         # Update existing functions list
@@ -1329,10 +1361,18 @@ class BuildGraphScene(BlueprintScene):
                 new_nodes.append(new_node)
                 y_offset += 300
                 
-                # Create connection between nodes
-                connection = Connection(node.output_point, new_node.input_point, self.scene)
-                connection.setEndPoint(new_node.input_point)
-                self.addItem(connection)
+                # Create connection between nodes using the new system
+                try:
+                    # Get the output and input ports from the new architecture
+                    output_port = node.output_ports.get('output')
+                    input_port = new_node.input_ports.get('input')
+                    
+                    if output_port and input_port:
+                        connection = Connection(output_port, input_port)
+                        self.addItem(connection)
+                        print(f"Created connection between {node.name} and {new_node.name}")
+                except Exception as e:
+                    print(f"Error creating connection: {e}")
                 print(f"Created node and connection for: {func_name}")
         
         # Always update the source file when changes occur
@@ -1443,12 +1483,12 @@ class BuildGraphView(BlueprintView):
 
 class BuildGraphWindow(QMainWindow):
     def __init__(self, parent, code_text):
-        super().__init__()
+        super().__init__(parent)  # Call super only once
+        
         # Store parent reference for IDE access
         self.parent_ide = parent
         self.setWindowTitle("Build Graph")
-        # Set the window to stay on top of the IDE window
-        self.setWindowFlags(Qt.Window | Qt.WindowStaysOnTopHint)
+        self.cancelled = False
         
         # Check if there's existing code that would conflict
         if code_text.strip() and not self.confirm_code_replacement():
@@ -1456,8 +1496,7 @@ class BuildGraphWindow(QMainWindow):
             self.cancelled = True
             return
             
-        super().__init__(parent)
-        self.cancelled = False
+        # Set window styling
         self.setStyleSheet("QMainWindow { background: #2c3e50; color: white; }")
         self.setAttribute(Qt.WA_TranslucentBackground, False)
         
@@ -1483,6 +1522,15 @@ class BuildGraphWindow(QMainWindow):
         
         self.setCentralWidget(container)
         self.resize(800, 600)
+
+    def addCommentBoxToScene(self, scene):
+        """Add a comment box to the scene."""
+        name, ok = QInputDialog.getText(None, "New Comment Box", 
+                                      "Enter comment box name:")
+        if ok and name:
+            # Create the comment box at a reasonable default position
+            comment_box = CommentBox(name, 100, 100)
+            scene.addItem(comment_box)
 
     def confirm_code_replacement(self):
         """Confirm with user if they want to replace existing code"""
@@ -1533,4 +1581,4 @@ class BuildGraphWindow(QMainWindow):
         if self.parent_ide:
             saveAction.triggered.connect(lambda: self.parent_ide.saveBlueprintWorkspace(self.scene))
             loadAction.triggered.connect(lambda: self.parent_ide.loadBlueprintWorkspace(self.scene))
-            addCommentAction.triggered.connect(lambda: self.parent_ide.addCommentBoxToScene(self.scene))
+            addCommentAction.triggered.connect(lambda: self.addCommentBoxToScene(self.scene))

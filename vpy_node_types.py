@@ -195,6 +195,10 @@ class BuildableNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin):
         if content.strip():
             self.analyze_and_update()
             
+        # Analyze content on creation
+        if content.strip():
+            self.analyze_and_update()
+            
     def analyze_and_update(self):
         """Analyze content and update node properties."""
         self.analyze_content()
@@ -296,16 +300,54 @@ class BuildableNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin):
         if self.parent_ide and hasattr(self.scene(), 'check_and_create_called_functions'):
             self.scene().check_and_create_called_functions(self)
             
-    def startEditing(self):
-        """Override to set up BuildableNode-specific editing."""
-        super().startEditing()
+    def stopEditing(self):
+        """Override to ensure proper editing cleanup and callbacks."""
+        if self.editing:
+            # Commit the edit first
+            self.commitEdit()
+            
+            # Trigger the scene callback for auto-function creation
+            if hasattr(self.scene(), 'check_and_create_called_functions'):
+                self.scene().check_and_create_called_functions(self)
+
+
+class LegacyConnectionPoint:
+    """Legacy compatibility wrapper for connection points."""
+    
+    def __init__(self, parent_node, is_output):
+        self.parent_node = parent_node
+        self.is_output = is_output
+        self.connections = []  # Legacy connection list
+        self._pos = QPointF(0, 0)
         
-        # Additional setup for buildable nodes
-        if self.text_item:
-            # Set initial cursor position at end
-            cursor = self.text_item.textCursor()
-            cursor.movePosition(cursor.End)
-            self.text_item.setTextCursor(cursor)
+    def setPos(self, x, y):
+        """Set position of connection point."""
+        if isinstance(x, (int, float)) and isinstance(y, (int, float)):
+            self._pos = QPointF(x, y)
+        else:
+            self._pos = x  # Assume x is a QPointF
+            
+    def pos(self):
+        """Get position of connection point."""
+        return self._pos
+        
+    def scenePos(self):
+        """Get scene position of connection point."""
+        return self.parent_node.mapToScene(self._pos)
+        
+    def parentItem(self):
+        """Get parent item (for legacy compatibility)."""
+        return self.parent_node
+        
+    def addConnection(self, connection):
+        """Add a connection to this point."""
+        if connection not in self.connections:
+            self.connections.append(connection)
+            
+    def removeConnection(self, connection):
+        """Remove a connection from this point."""
+        if connection in self.connections:
+            self.connections.remove(connection)
 
 
 class CommentNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin):

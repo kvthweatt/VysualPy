@@ -5,7 +5,7 @@ This module provides the foundation for a unified node system that eliminates
 code duplication and provides clear interfaces for different node types.
 """
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from typing import Dict, List, Any, Optional, Set, Union, Callable
 from enum import Enum
 import uuid
@@ -14,6 +14,11 @@ import json
 from PyQt5.QtCore import QPointF, QRectF, QObject, pyqtSignal
 from PyQt5.QtWidgets import QGraphicsRectItem
 from PyQt5.QtGui import QPainter
+
+
+class QGraphicsABCMeta(type(QGraphicsRectItem), ABCMeta):
+    """Custom metaclass to resolve conflict between QGraphicsRectItem and ABC."""
+    pass
 
 
 class NodeType(Enum):
@@ -116,7 +121,7 @@ class NodeState(Enum):
     DISABLED = "disabled"
 
 
-class BaseNode(QGraphicsRectItem, ABC):
+class BaseNode(QGraphicsRectItem, metaclass=QGraphicsABCMeta):
     """
     Abstract base class for all node types in the VysualPy system.
     
@@ -413,10 +418,23 @@ class BaseNode(QGraphicsRectItem, ABC):
                                   self.border_width, self.border_width)
         
     def paint(self, painter: QPainter, option, widget=None):
-        """Basic paint implementation - to be enhanced by RenderMixin."""
-        # This is a minimal implementation
-        # The actual rendering will be handled by the RenderMixin
-        painter.drawRect(self.rect())
+        """Basic paint implementation - can be enhanced by mixins."""
+        # Check if a mixin has overridden the paint method
+        if hasattr(super(), 'paint') and hasattr(self, 'get_node_color'):
+            # Call the mixin's enhanced paint method
+            super().paint(painter, option, widget)
+        else:
+            # Fallback to basic rendering
+            from PyQt5.QtGui import QPen, QBrush, QColor
+            painter.setPen(QPen(QColor(100, 100, 100), 2))
+            painter.setBrush(QBrush(QColor(60, 60, 60)))
+            painter.drawRect(self.rect())
+            
+            # Draw basic title
+            if hasattr(self, 'name'):
+                painter.setPen(QPen(QColor(255, 255, 255)))
+                title_rect = self.rect().adjusted(5, 5, -5, -5)
+                painter.drawText(title_rect, 0, self.name)
 
 
 class NodeRegistry:

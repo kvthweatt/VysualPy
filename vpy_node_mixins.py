@@ -282,14 +282,16 @@ class InteractionMixin:
         """Handle hover enter events."""
         if hasattr(self, 'set_state') and self.state == NodeState.NORMAL:
             self.set_state(NodeState.HIGHLIGHTED)
-        super().hoverEnterEvent(event)
+        if hasattr(super(), 'hoverEnterEvent'):
+            super().hoverEnterEvent(event)
         
     def hoverLeaveEvent(self, event):
         """Handle hover leave events."""
         if hasattr(self, 'set_state') and self.state == NodeState.HIGHLIGHTED:
             self.set_state(NodeState.NORMAL)
         self.hover_port = None
-        super().hoverLeaveEvent(event)
+        if hasattr(super(), 'hoverLeaveEvent'):
+            super().hoverLeaveEvent(event)
         
     def hoverMoveEvent(self, event):
         """Handle hover move events."""
@@ -299,7 +301,8 @@ class InteractionMixin:
             self.hover_port = port
             self.update()  # Refresh to show hover effect on port
             
-        super().hoverMoveEvent(event)
+        if hasattr(super(), 'hoverMoveEvent'):
+            super().hoverMoveEvent(event)
         
     def get_port_at_position(self, pos: QPointF):
         """Get the port at the given position, if any."""
@@ -525,4 +528,5 @@ class EditableMixin:
             # Auto-commit when losing focus
             self.commitEdit()
             
-        super().focusOutEvent(event)
+        if hasattr(super(), 'focusOutEvent'):
+            super().focusOutEvent(event)
