@@ -1,13 +1,13 @@
 # VysualPy Project Structure Report
 
-Generated on: 2025-08-29 13:28:59
+Generated on: 2025-08-29 13:41:31
 Total files analyzed: 16
 
 ## Overview
 
 - Total Classes: 67
 - Total Functions: 10
-- Total Lines of Code: 7530
+- Total Lines of Code: 7604
 
 ## File Details
 
@@ -305,7 +305,7 @@ while maintaining backward compatibility with the existing system.
 
 ### vpy_editor.py
 
-**Lines:** 1305 | **Classes:** 6 | **Functions:** 0
+**Lines:** 1369 | **Classes:** 6 | **Functions:** 0
 
 **Key Imports:**
 
@@ -341,21 +341,21 @@ while maintaining backward compatibility with the existing system.
   - `handleTextChanged()` (method)
   - `lineNumberAreaPaintEvent()` (method)
   - `line_number_area_width()` (method)
-  - ... and 6 more methods
-- `EditorTabs(QTabWidget)` (line 494)
+  - ... and 7 more methods
+- `EditorTabs(QTabWidget)` (line 522)
   - `__init__()` (method)
   - `add_new_tab()` (method)
   - `_create_code_editor()` (method)
   - `_mark_dirty()` (method)
   - `_mark_clean()` (method)
   - ... and 6 more methods
-- `PythonIDE(QMainWindow)` (line 721)
+- `PythonIDE(QMainWindow)` (line 749)
   - `__init__()` (method)
   - `initUI()` (method)
   - `createMenuBar()` (method)
   - `createMenus()` (method)
   - `toggleMaximized()` (method)
-  - ... and 24 more methods
+  - ... and 26 more methods
 
 ---
 
@@ -514,7 +514,7 @@ that relies on the old node and connection classes.
 
 ### vpy_menus.py
 
-**Lines:** 672 | **Classes:** 4 | **Functions:** 0
+**Lines:** 682 | **Classes:** 4 | **Functions:** 0
 
 **Key Imports:**
 
@@ -542,14 +542,14 @@ that relies on the old node and connection classes.
   - `load_saved_preferences()` (method)
   - `populate_fields_from_config()` (method)
   - ... and 15 more methods
-- `RecentFiles` (line 548)
+- `RecentFiles` (line 558)
   - `__init__()` (method)
   - `add_file()` (method)
   - `remove_file()` (method)
   - `get_files()` (method)
   - `clear()` (method)
   - ... and 2 more methods
-- `RecentFilesMenu(QMenu)` (line 616)
+- `RecentFilesMenu(QMenu)` (line 626)
   - `__init__()` (method)
   - `update_menu()` (method)
   - `add_recent_file()` (method)

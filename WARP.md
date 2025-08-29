@@ -243,6 +243,21 @@ The Build Graph is the most sophisticated feature:
 - **Files Fixed**: `vpy_editor.py` (initUI method cleanup, proper menu creation after layout setup)
 - **Result**: Multi-tab functionality now works correctly - New File creates new tabs as expected
 
+### Syntax Highlighting Color Persistence ✅ FIXED (Aug 29, 2025)
+- **Problem**: Changes to editor colors in preferences dialog weren't persisting or applying correctly after dialog closure
+- **Root Cause**: Dual color management systems in SyntaxHighlighter - simple colors dict vs language config colors, with format objects not being updated
+- **Issues**: 
+  - Preferences dialog saved colors but they weren't loaded into UI on next open
+  - Color changes applied to simple colors dict but format objects still used old language config colors
+  - New editors loaded saved colors but existing editors kept old colors until restart
+- **Solution**: 
+  - Unified color system to use `self.colors` as single source of truth in `setup_formats()`
+  - Updated `apply_color_changes_to_editors()` to rebuild format objects after updating colors
+  - Enhanced `load_saved_colors()` to rebuild formats and trigger rehighlighting
+  - Fixed preferences dialog to properly load saved colors into color button UI
+- **Files Fixed**: `vpy_editor.py` (SyntaxHighlighter.setup_formats, CodeEditor.load_saved_colors, PythonIDE.apply_color_changes_to_editors), `vpy_menus.py` (PreferencesDialog.populate_fields_from_config)
+- **Result**: Color preferences now save, load, and apply correctly across all editor tabs immediately
+
 ## Ongoing Refactoring (August 2025)
 
 ### Code Architecture Improvements
@@ -288,6 +303,8 @@ The graph and node system is undergoing refactoring to improve maintainability a
 - **IDE Startup**: Application launches cleanly without font scaling errors
 - **Multi-Tab Editor**: Tab-based code editing system with proper New File tab creation
 - **Code Editor**: Basic text editing with syntax highlighting for Python in each tab
+- **Syntax Highlighting Colors**: Fully functional color customization with immediate preview and persistence
+- **Preferences System**: Complete settings management with proper saving/loading of editor colors and other preferences
 - **Line Numbers**: Proper line numbering with fixed font scaling
 - **File Operations**: Open, save, and manage Python files across multiple tabs
 - **Tab Management**: Create new tabs, close tabs with unsaved changes prompts, tab switching

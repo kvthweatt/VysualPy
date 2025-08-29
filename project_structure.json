@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-29 13:28:59",
+  "timestamp": "2025-08-29 13:41:31",
   "files": {
     "analyze_project.py": {
       "file_path": "analyze_project.py",
@@ -2412,7 +2412,7 @@
     },
     "vpy_editor.py": {
       "file_path": "vpy_editor.py",
-      "line_count": 1305,
+      "line_count": 1369,
       "classes": [
         {
           "name": "CodeViewerWindow",
@@ -2587,7 +2587,7 @@
             },
             {
               "name": "handleScrollRangeChange",
-              "line_number": 221,
+              "line_number": 224,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2601,7 +2601,7 @@
             },
             {
               "name": "handleTextChanged",
-              "line_number": 238,
+              "line_number": 241,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2613,7 +2613,7 @@
             },
             {
               "name": "lineNumberAreaPaintEvent",
-              "line_number": 245,
+              "line_number": 248,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2626,7 +2626,7 @@
             },
             {
               "name": "line_number_area_width",
-              "line_number": 356,
+              "line_number": 359,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2638,7 +2638,7 @@
             },
             {
               "name": "update_line_number_area_width",
-              "line_number": 362,
+              "line_number": 365,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2650,7 +2650,7 @@
             },
             {
               "name": "resizeEvent",
-              "line_number": 366,
+              "line_number": 369,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2663,7 +2663,7 @@
             },
             {
               "name": "go_to_line",
-              "line_number": 387,
+              "line_number": 390,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2675,7 +2675,7 @@
             },
             {
               "name": "handleCursorPosition",
-              "line_number": 418,
+              "line_number": 421,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2687,7 +2687,7 @@
             },
             {
               "name": "wheelEvent",
-              "line_number": 442,
+              "line_number": 445,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2700,7 +2700,7 @@
             },
             {
               "name": "load_file",
-              "line_number": 455,
+              "line_number": 458,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2710,13 +2710,25 @@
                 "filepath"
               ],
               "decorators": []
+            },
+            {
+              "name": "load_saved_colors",
+              "line_number": 497,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": "Load saved color preferences and apply to the highlighter.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
             }
           ],
           "decorators": []
         },
         {
           "name": "EditorTabs",
-          "line_number": 494,
+          "line_number": 522,
           "base_classes": [
             "QTabWidget"
           ],
@@ -2724,7 +2736,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 500,
+              "line_number": 528,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2737,7 +2749,7 @@
             },
             {
               "name": "add_new_tab",
-              "line_number": 555,
+              "line_number": 583,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2752,7 +2764,7 @@
             },
             {
               "name": "_create_code_editor",
-              "line_number": 596,
+              "line_number": 624,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2764,7 +2776,7 @@
             },
             {
               "name": "_mark_dirty",
-              "line_number": 606,
+              "line_number": 634,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2777,7 +2789,7 @@
             },
             {
               "name": "_mark_clean",
-              "line_number": 619,
+              "line_number": 647,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2790,7 +2802,7 @@
             },
             {
               "name": "close_tab",
-              "line_number": 631,
+              "line_number": 659,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2803,7 +2815,7 @@
             },
             {
               "name": "_on_current_changed",
-              "line_number": 667,
+              "line_number": 695,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2816,7 +2828,7 @@
             },
             {
               "name": "current_editor",
-              "line_number": 675,
+              "line_number": 703,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2828,7 +2840,7 @@
             },
             {
               "name": "find_tab_by_filepath",
-              "line_number": 680,
+              "line_number": 708,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2841,7 +2853,7 @@
             },
             {
               "name": "get_all_editors",
-              "line_number": 692,
+              "line_number": 720,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2853,7 +2865,7 @@
             },
             {
               "name": "set_tab_filepath",
-              "line_number": 705,
+              "line_number": 733,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2870,7 +2882,7 @@
         },
         {
           "name": "PythonIDE",
-          "line_number": 721,
+          "line_number": 749,
           "base_classes": [
             "QMainWindow"
           ],
@@ -2878,7 +2890,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 722,
+              "line_number": 750,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2890,7 +2902,7 @@
             },
             {
               "name": "initUI",
-              "line_number": 731,
+              "line_number": 759,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2902,7 +2914,7 @@
             },
             {
               "name": "createMenuBar",
-              "line_number": 786,
+              "line_number": 814,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2914,7 +2926,7 @@
             },
             {
               "name": "createMenus",
-              "line_number": 791,
+              "line_number": 819,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2926,7 +2938,7 @@
             },
             {
               "name": "toggleMaximized",
-              "line_number": 849,
+              "line_number": 877,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2938,7 +2950,7 @@
             },
             {
               "name": "titleBarMousePressEvent",
-              "line_number": 855,
+              "line_number": 883,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2951,7 +2963,7 @@
             },
             {
               "name": "titleBarMouseMoveEvent",
-              "line_number": 860,
+              "line_number": 888,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2964,7 +2976,7 @@
             },
             {
               "name": "newFile",
-              "line_number": 866,
+              "line_number": 894,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2976,7 +2988,7 @@
             },
             {
               "name": "openFile",
-              "line_number": 875,
+              "line_number": 903,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2988,7 +3000,7 @@
             },
             {
               "name": "show_error_message",
-              "line_number": 894,
+              "line_number": 922,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3001,7 +3013,7 @@
             },
             {
               "name": "saveFile",
-              "line_number": 897,
+              "line_number": 925,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3013,7 +3025,7 @@
             },
             {
               "name": "saveFileAs",
-              "line_number": 910,
+              "line_number": 938,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3025,7 +3037,7 @@
             },
             {
               "name": "saveBlueprintWorkspace",
-              "line_number": 923,
+              "line_number": 951,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3038,7 +3050,7 @@
             },
             {
               "name": "loadBlueprintWorkspace",
-              "line_number": 982,
+              "line_number": 1010,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3051,7 +3063,7 @@
             },
             {
               "name": "runProgram",
-              "line_number": 1070,
+              "line_number": 1098,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3063,7 +3075,7 @@
             },
             {
               "name": "showExGraph",
-              "line_number": 1096,
+              "line_number": 1124,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3075,7 +3087,7 @@
             },
             {
               "name": "showBdGraph",
-              "line_number": 1108,
+              "line_number": 1136,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3087,7 +3099,7 @@
             },
             {
               "name": "showGraph",
-              "line_number": 1124,
+              "line_number": 1152,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3099,7 +3111,7 @@
             },
             {
               "name": "showPreferences",
-              "line_number": 1137,
+              "line_number": 1165,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3110,8 +3122,34 @@
               "decorators": []
             },
             {
+              "name": "apply_preferences_changes",
+              "line_number": 1172,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Apply changes from preferences dialog to the IDE.",
+              "parameters": [
+                "self",
+                "preferences_dialog"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "apply_color_changes_to_editors",
+              "line_number": 1190,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Apply new color settings to all open editors.",
+              "parameters": [
+                "self",
+                "new_colors"
+              ],
+              "decorators": []
+            },
+            {
               "name": "showIDEHelp",
-              "line_number": 1142,
+              "line_number": 1206,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3123,7 +3161,7 @@
             },
             {
               "name": "showAbout",
-              "line_number": 1145,
+              "line_number": 1209,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3135,7 +3173,7 @@
             },
             {
               "name": "_on_current_editor_changed",
-              "line_number": 1151,
+              "line_number": 1215,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3148,7 +3186,7 @@
             },
             {
               "name": "current_editor",
-              "line_number": 1165,
+              "line_number": 1229,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3160,7 +3198,7 @@
             },
             {
               "name": "current_filepath",
-              "line_number": 1171,
+              "line_number": 1235,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3172,7 +3210,7 @@
             },
             {
               "name": "set_current_filepath",
-              "line_number": 1178,
+              "line_number": 1242,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3185,7 +3223,7 @@
             },
             {
               "name": "save_current_file",
-              "line_number": 1184,
+              "line_number": 1248,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3198,7 +3236,7 @@
             },
             {
               "name": "save_file_as",
-              "line_number": 1216,
+              "line_number": 1280,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3211,7 +3249,7 @@
             },
             {
               "name": "open_file_in_tab",
-              "line_number": 1254,
+              "line_number": 1318,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3224,7 +3262,7 @@
             },
             {
               "name": "closeEvent",
-              "line_number": 1280,
+              "line_number": 1344,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -4433,7 +4471,7 @@
     },
     "vpy_menus.py": {
       "file_path": "vpy_menus.py",
-      "line_count": 672,
+      "line_count": 682,
       "classes": [
         {
           "name": "PresetDialog",
@@ -4542,7 +4580,7 @@
             },
             {
               "name": "accept",
-              "line_number": 145,
+              "line_number": 155,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4554,7 +4592,7 @@
             },
             {
               "name": "getValues",
-              "line_number": 178,
+              "line_number": 188,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4566,7 +4604,7 @@
             },
             {
               "name": "initUI",
-              "line_number": 181,
+              "line_number": 191,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4578,7 +4616,7 @@
             },
             {
               "name": "create_editor_tab",
-              "line_number": 290,
+              "line_number": 300,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4590,7 +4628,7 @@
             },
             {
               "name": "create_blueprint_tab",
-              "line_number": 325,
+              "line_number": 335,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4602,7 +4640,7 @@
             },
             {
               "name": "browse_path",
-              "line_number": 398,
+              "line_number": 408,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4615,7 +4653,7 @@
             },
             {
               "name": "apply_theme",
-              "line_number": 403,
+              "line_number": 413,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4628,7 +4666,7 @@
             },
             {
               "name": "create_build_tab",
-              "line_number": 439,
+              "line_number": 449,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4640,7 +4678,7 @@
             },
             {
               "name": "save_preset",
-              "line_number": 490,
+              "line_number": 500,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4652,7 +4690,7 @@
             },
             {
               "name": "remove_preset",
-              "line_number": 504,
+              "line_number": 514,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4664,7 +4702,7 @@
             },
             {
               "name": "load_preset",
-              "line_number": 510,
+              "line_number": 520,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4677,7 +4715,7 @@
             },
             {
               "name": "save_preset_to_file",
-              "line_number": 519,
+              "line_number": 529,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4690,7 +4728,7 @@
             },
             {
               "name": "remove_preset_from_file",
-              "line_number": 527,
+              "line_number": 537,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4703,7 +4741,7 @@
             },
             {
               "name": "load_preset_from_file",
-              "line_number": 532,
+              "line_number": 542,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4716,7 +4754,7 @@
             },
             {
               "name": "update_preset_list",
-              "line_number": 540,
+              "line_number": 550,
               "is_async": false,
               "is_method": true,
               "parent_class": "PreferencesDialog",
@@ -4731,13 +4769,13 @@
         },
         {
           "name": "RecentFiles",
-          "line_number": 548,
+          "line_number": 558,
           "base_classes": [],
           "docstring": null,
           "methods": [
             {
               "name": "__init__",
-              "line_number": 549,
+              "line_number": 559,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFiles",
@@ -4750,7 +4788,7 @@
             },
             {
               "name": "add_file",
-              "line_number": 555,
+              "line_number": 565,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFiles",
@@ -4763,7 +4801,7 @@
             },
             {
               "name": "remove_file",
-              "line_number": 576,
+              "line_number": 586,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFiles",
@@ -4776,7 +4814,7 @@
             },
             {
               "name": "get_files",
-              "line_number": 582,
+              "line_number": 592,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFiles",
@@ -4788,7 +4826,7 @@
             },
             {
               "name": "clear",
-              "line_number": 593,
+              "line_number": 603,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFiles",
@@ -4800,7 +4838,7 @@
             },
             {
               "name": "load_recent_files",
-              "line_number": 598,
+              "line_number": 608,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFiles",
@@ -4812,7 +4850,7 @@
             },
             {
               "name": "save_recent_files",
-              "line_number": 608,
+              "line_number": 618,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFiles",
@@ -4827,7 +4865,7 @@
         },
         {
           "name": "RecentFilesMenu",
-          "line_number": 616,
+          "line_number": 626,
           "base_classes": [
             "QMenu"
           ],
@@ -4835,7 +4873,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 617,
+              "line_number": 627,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFilesMenu",
@@ -4848,7 +4886,7 @@
             },
             {
               "name": "update_menu",
-              "line_number": 623,
+              "line_number": 633,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFilesMenu",
@@ -4860,7 +4898,7 @@
             },
             {
               "name": "add_recent_file",
-              "line_number": 649,
+              "line_number": 659,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFilesMenu",
@@ -4873,7 +4911,7 @@
             },
             {
               "name": "open_recent_file",
-              "line_number": 654,
+              "line_number": 664,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFilesMenu",
@@ -4886,7 +4924,7 @@
             },
             {
               "name": "clear_recent_files",
-              "line_number": 669,
+              "line_number": 679,
               "is_async": false,
               "is_method": true,
               "parent_class": "RecentFilesMenu",
