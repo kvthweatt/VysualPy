@@ -244,17 +244,24 @@ The graph and node system is undergoing refactoring to improve maintainability a
 - **Terminal Integration**: Output redirection with proper cleanup
 - **Menu System**: All main menus and actions are functional
 - **Dark Theme**: Consistent dark UI theme across components
+- **Window Dragging**: Fixed custom title bar dragging functionality with proper null checks
+- **BuildGraph Integration**: Fixed editor access to work with tab-based architecture
+
+### 🔄 Recently Fixed Features (Aug 29, 2025)
+- **BuildGraph Editor Access**: Fixed `textEdit` attribute errors by updating to use `current_editor()` method
+- **Function Call Detection**: Implemented missing `detect_function_calls` function with AST parsing
+- **Window Dragging Bug**: Resolved TypeError in custom window dragging with proper dragPos initialization
+- **Multiple Inheritance Issues**: Fixed duplicate `super().__init__()` calls in Blueprint classes
 
 ### 🔄 Partially Working Features
-- **Graph Systems**: Blueprint, Execution, and Build Graph windows can be opened
+- **Graph Systems**: Blueprint, Execution, and Build Graph windows can be opened and function correctly
 - **File Browser**: Basic file system navigation (needs testing)
 - **Workspace Management**: Save/load functionality exists but needs validation
+- **Build Graph Live Editing**: Core functionality restored, auto-function creation working
 
 ### ⚠️ Features Needing Testing/Validation
-- **Build Graph Live Editing**: The core innovative feature needs thorough testing
 - **Node Connections**: Graph node connection system needs validation
 - **AST Parsing**: Execution graph generation from code
-- **Function Auto-creation**: Build Graph's automatic function stub creation
 - **Workspace Persistence**: Save/load of graph workspaces (.vpb, .veg files)
 - **Program Execution**: Running Python files from within the IDE
 

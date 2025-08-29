@@ -15,6 +15,102 @@ from vpy_graph import (
     )
 from vpy_connection import Connection, ConnectionPoint
 
+def detect_function_calls(source_code):
+    """
+    Parse Python source code and return a list of function calls found.
+    
+    Args:
+        source_code (str): The Python source code to analyze
+        
+    Returns:
+        list: List of function names that are called in the code
+    """
+    # Built-in functions and methods to exclude
+    excluded_calls = {
+        'int', 'str', 'len', 'print', 'list', 'dict', 'set', 'tuple', 'bool', 'float',
+        'append', 'extend', 'pop', 'remove', 'clear', 'sort', 'reverse',
+        'items', 'keys', 'values', 'split', 'join', 'strip', 'lower', 'upper',
+        'replace', 'format', 'startswith', 'endswith', 'find', 'count',
+        'encode', 'decode', 'isdigit', 'isalpha', 'isalnum',
+        'abs', 'max', 'min', 'sum', 'any', 'all', 'sorted', 'reversed',
+        'enumerate', 'zip', 'range', 'type', 'isinstance', 'hasattr', 'getattr',
+        'setattr', 'delattr', 'open', 'close', 'read', 'write', 'readline',
+        # Qt-specific exclusions
+        'QApplication', 'QMainWindow', 'QWidget', 'QTextEdit', 'QAction',
+        'QFileDialog', 'QMessageBox', 'QGraphicsView', 'QGraphicsScene',
+        'QGraphicsRectItem', 'QGraphicsTextItem', 'QGraphicsPathItem',
+        'QGraphicsEllipseItem', 'QMenu', 'QInputDialog', 'QDialog',
+        'QVBoxLayout', 'QHBoxLayout', 'QLabel', 'QSlider', 'QSpinBox',
+        'QPushButton', 'QGroupBox', 'QFrame', 'QMenuBar', 'QGraphicsItem',
+        'QGridLayout', 'QComboBox', 'QColorDialog', 'QTabWidget',
+        'QLineEdit', 'QListWidget', 'QIcon', 'QPen', 'QBrush', 'QColor',
+        'QFont', 'QTimer', 'QRectF', 'QPointF'
+    }
+    
+    try:
+        tree = ast.parse(source_code)
+        visitor = FunctionCallCollector(excluded_calls)
+        visitor.visit(tree)
+        return list(visitor.function_calls)
+    except SyntaxError:
+        # If there's a syntax error, return empty list
+        return []
+
+
+class FunctionCallCollector(ast.NodeVisitor):
+    """AST visitor that collects function call names."""
+    
+    def __init__(self, excluded_calls):
+        self.function_calls = set()
+        self.excluded_calls = excluded_calls
+        self.defined_functions = set()  # Track locally defined functions
+        
+    def visit_FunctionDef(self, node):
+        """Track function definitions so we don't include them as calls."""
+        self.defined_functions.add(node.name)
+        self.generic_visit(node)
+        
+    def visit_AsyncFunctionDef(self, node):
+        """Track async function definitions."""
+        self.defined_functions.add(node.name)
+        self.generic_visit(node)
+        
+    def visit_Call(self, node):
+        """Visit function calls and collect their names."""
+        func_name = self._get_callable_name(node.func)
+        
+        if func_name and self._should_include_call(func_name):
+            self.function_calls.add(func_name)
+            
+        self.generic_visit(node)
+        
+    def _get_callable_name(self, node):
+        """Extract the callable name from various AST node types."""
+        if isinstance(node, ast.Name):
+            return node.id
+        elif isinstance(node, ast.Attribute):
+            # For method calls like obj.method(), we want just 'method'
+            return node.attr
+        return None
+        
+    def _should_include_call(self, func_name):
+        """Determine if a function call should be included in results."""
+        # Skip built-ins and common library functions
+        if func_name in self.excluded_calls:
+            return False
+            
+        # Skip if it's a locally defined function (within the same code)
+        if func_name in self.defined_functions:
+            return False
+            
+        # Skip if it's a Python built-in
+        if func_name in dir(builtins):
+            return False
+            
+        # Include everything else
+        return True
+
+
 class BlueprintScene(QGraphicsScene):
     def __init__(self):
         super().__init__()
@@ -182,9 +278,8 @@ class BlueprintView(QGraphicsView):
 
 class BlueprintGraphWindow(QMainWindow, CustomWindowMixin):
     def __init__(self, parent=None, code_text=""):
-        super().__init__()  # Don't pass parent to keep window independent
-        self.setWindowFlags(Qt.Window)  # Make it an independent window
         super().__init__(parent)
+        self.setWindowFlags(Qt.Window)  # Make it an independent window
         self.setStyleSheet("QMainWindow { background: #2c3e50; color: white; }")
         self.setAttribute(Qt.WA_TranslucentBackground, False)
         self.grid_size = 50
@@ -1118,8 +1213,11 @@ class BuildGraphScene(BlueprintScene):
             return True
             
         # Check if we're working with a new, unedited file
-        text = self.parent_ide.textEdit.toPlainText()
-        return not text.strip() and not self.parent_ide.currentFile
+        current_editor = self.parent_ide.current_editor()
+        if not current_editor:
+            return True
+        text = current_editor.toPlainText()
+        return not text.strip() and not self.parent_ide.current_filepath()
     
     def initialize_default_structure(self):
         """Create the default if __name__ == '__main__' structure with main() function"""
@@ -1147,7 +1245,9 @@ class BuildGraphScene(BlueprintScene):
         # Update the source file
         if self.parent_ide:
             code = main_node.full_content + "\n\n" + entry_node.full_content
-            self.parent_ide.textEdit.setText(code)
+            current_editor = self.parent_ide.current_editor()
+            if current_editor:
+                current_editor.setText(code)
 
     def keyPressEvent(self, event):
         # Don't create new nodes if modifier keys are pressed
@@ -1233,7 +1333,9 @@ class BuildGraphScene(BlueprintScene):
             )
             print(f"Found {len(all_nodes)} nodes to update source with")
             combined_code = [node.full_content for node in all_nodes]
-            self.parent_ide.textEdit.setText("\n\n".join(combined_code))
+            current_editor = self.parent_ide.current_editor()
+            if current_editor:
+                current_editor.setText("\n\n".join(combined_code))
             print("Updated source file")
             
 class BuildGraphView(BlueprintView):
@@ -1316,7 +1418,9 @@ class BuildGraphView(BlueprintView):
             print(f"Remaining buildable nodes: {len(remaining_nodes)}")
             
             combined_code = [node.full_content for node in remaining_nodes]
-            self.scene().parent_ide.textEdit.setText("\n".join(combined_code))
+            current_editor = self.scene().parent_ide.current_editor()
+            if current_editor:
+                current_editor.setText("\n".join(combined_code))
             print("Updated IDE content")
         
         # Force scene to update

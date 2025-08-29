@@ -191,7 +191,7 @@ class CustomWindowMixin:
             event.accept()
 
     def titleBarMouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
+        if event.buttons() == Qt.LeftButton and hasattr(self, 'dragPos') and self.dragPos is not None:
             self.move(self.pos() + event.globalPos() - self.dragPos)
             self.dragPos = event.globalPos()
             event.accept()

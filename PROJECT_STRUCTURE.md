@@ -1,13 +1,13 @@
 # VysualPy Project Structure Report
 
-Generated on: 2025-08-29 12:46:09
+Generated on: 2025-08-29 12:58:44
 Total files analyzed: 11
 
 ## Overview
 
-- Total Classes: 41
-- Total Functions: 1
-- Total Lines of Code: 5164
+- Total Classes: 42
+- Total Functions: 2
+- Total Lines of Code: 5268
 
 ## File Details
 
@@ -79,7 +79,7 @@ Usage:
 
 ### vpy_blueprints.py
 
-**Lines:** 1422 | **Classes:** 10 | **Functions:** 0
+**Lines:** 1526 | **Classes:** 11 | **Functions:** 1
 
 **Key Imports:**
 
@@ -97,61 +97,72 @@ Usage:
 
 **Classes:**
 
-- `BlueprintScene(QGraphicsScene)` (line 18)
+- `FunctionCallCollector(NodeVisitor)` (line 60)
+  - `__init__()` (method)
+  - `visit_FunctionDef()` (method)
+  - `visit_AsyncFunctionDef()` (method)
+  - `visit_Call()` (method)
+  - `_get_callable_name()` (method)
+  - ... and 1 more methods
+- `BlueprintScene(QGraphicsScene)` (line 114)
   - `__init__()` (method)
   - `mouseMoveEvent()` (method)
   - `mouseReleaseEvent()` (method)
   - `mousePressEvent()` (method)
   - `showContextMenu()` (method)
-- `BlueprintView(QGraphicsView)` (line 82)
+- `BlueprintView(QGraphicsView)` (line 178)
   - `__init__()` (method)
   - `keyPressEvent()` (method)
   - `mousePressEvent()` (method)
   - `mouseMoveEvent()` (method)
   - `mouseReleaseEvent()` (method)
   - ... and 2 more methods
-- `BlueprintGraphWindow(QMainWindow, CustomWindowMixin)` (line 183)
+- `BlueprintGraphWindow(QMainWindow, CustomWindowMixin)` (line 279)
   - `__init__()` (method)
   - `showPreferences()` (method)
   - `updateGridSize()` (method)
   - `saveBlueprintWorkspace()` (method)
   - `loadBlueprintWorkspace()` (method)
   - ... and 6 more methods
-- `FunctionCallVisitor(NodeVisitor)` (line 540)
+- `FunctionCallVisitor(NodeVisitor)` (line 635)
   - `__init__()` (method)
   - `should_include_call()` (method)
   - `visit_Module()` (method)
   - `visit_If()` (method)
   - `visit_While()` (method)
   - ... and 9 more methods
-- `ExecutionScene(BlueprintScene)` (line 724)
+- `ExecutionScene(BlueprintScene)` (line 819)
   - `__init__()` (method)
-- `ExecutionView(BlueprintView)` (line 729)
+- `ExecutionView(BlueprintView)` (line 824)
   - `__init__()` (method)
-- `ExecutionGraphWindow(QMainWindow, CustomWindowMixin)` (line 734)
+- `ExecutionGraphWindow(QMainWindow, CustomWindowMixin)` (line 829)
   - `__init__()` (method)
   - `addCommentBoxToScene()` (method)
   - `create_menus()` (method)
   - `showPreferences()` (method)
   - `updateGridSize()` (method)
   - ... and 8 more methods
-- `BuildGraphScene(BlueprintScene)` (line 1102)
+- `BuildGraphScene(BlueprintScene)` (line 1197)
   - `__init__()` (method)
   - `should_initialize()` (method)
   - `initialize_default_structure()` (method)
   - `keyPressEvent()` (method)
   - `mousePressEvent()` (method)
   - ... and 3 more methods
-- `BuildGraphView(BlueprintView)` (line 1239)
+- `BuildGraphView(BlueprintView)` (line 1341)
   - `__init__()` (method)
   - `keyPressEvent()` (method)
   - `deleteSelectedNodes()` (method)
   - `mousePressEvent()` (method)
-- `BuildGraphWindow(QMainWindow)` (line 1330)
+- `BuildGraphWindow(QMainWindow)` (line 1434)
   - `__init__()` (method)
   - `confirm_code_replacement()` (method)
   - `create_initial_nodes()` (method)
   - `setup_menus()` (method)
+
+**Functions:**
+
+- `detect_function_calls(source_code)` (function, line 18)
 
 ---
 
