@@ -36,6 +36,27 @@ python main.py
 - **Save/Load Workspaces**: 
   - Blueprint workspaces: `*.vpb` files
   - Execution workspaces: `*.veg` files
+- **Analyze Project Structure**: `python analyze_project.py --output PROJECT_STRUCTURE.md --json project_structure.json`
+
+### Project Structure Analyzer
+A utility script to scan the repository and produce an up-to-date index of classes and functions per file.
+
+- Script: `analyze_project.py`
+- Purpose: Generate a concise reference of the codebase layout to aid refactors and reviews
+- Outputs:
+  - `PROJECT_STRUCTURE.md` — human-readable report (timestamped)
+  - `project_structure.json` — machine-readable data for tooling
+- Scope: Currently scans Python files in the repository root (non-recursive)
+- Suggested workflow: Run after notable refactors to refresh the index
+
+Examples:
+```bash
+# Markdown only
+python analyze_project.py --output PROJECT_STRUCTURE.md
+
+# Markdown + JSON
+python analyze_project.py --output PROJECT_STRUCTURE.md --json project_structure.json
+```
 
 ### Key Shortcuts
 - **Ctrl+G**: Go to line (in code editor)
@@ -178,6 +199,40 @@ The Build Graph is the most sophisticated feature:
 ### Missing Import Errors ✅ FIXED
 - **Problem**: Missing `QTimer` and `QTextFormat` imports causing runtime errors
 - **Solution**: Added missing imports to `vpy_editor.py`
+
+## Ongoing Refactoring (August 2025)
+
+### Code Architecture Improvements
+The graph and node system is undergoing refactoring to improve maintainability and extensibility:
+
+#### Issues Being Addressed
+- **Code Duplication**: Three similar node classes (`DraggableRect`, `ExecutionDraggableRect`, `BuildableNode`) share overlapping functionality
+- **Missing Dependencies**: `detect_function_calls` function referenced but not implemented, breaking BuildGraph auto-function creation
+- **Large Monolithic Files**: `vpy_blueprints.py` (1422 lines) handles multiple responsibilities
+- **Inconsistent Patterns**: Different approaches for similar functionality across node types
+- **Mixed Concerns**: Classes handling both rendering and business logic
+
+#### Refactoring Strategy
+1. **Create unified Node base class** with clear interface for ports, connections, and state
+2. **Extract mixins** for rendering, interaction, and business logic to promote code reuse
+3. **Implement missing utilities** like `detect_function_calls` in new `utils/` module
+4. **Split large files** into focused modules with clear responsibilities
+5. **Maintain backward compatibility** with existing APIs during transition
+
+#### Progress Tracking
+- ✅ **Project Structure Analysis**: Created `analyze_project.py` tool for tracking changes
+- ✅ **Baseline Documentation**: Generated `PROJECT_STRUCTURE.md` with current architecture
+- 🔄 **Utility Functions**: Working on `utils/ast_tools.py` for AST parsing functions
+- ⏳ **Node Hierarchy**: Planning unified base classes and mixins
+- ⏳ **Connection System**: Redesigning for extensibility and validation
+
+### New Development Tools
+
+#### Project Structure Analyzer (`analyze_project.py`)
+- **Purpose**: Track codebase structure changes during refactoring
+- **Output**: Timestamped reports showing classes, functions, and relationships
+- **Usage**: Run after major changes to update documentation
+- **Integration**: Generates both human-readable Markdown and machine-readable JSON
 
 ## Current Status (Updated 2025-08-29)
 

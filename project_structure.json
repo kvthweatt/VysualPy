@@ -1,0 +1,4183 @@
+{
+  "timestamp": "2025-08-29 12:46:09",
+  "files": {
+    "analyze_project.py": {
+      "file_path": "analyze_project.py",
+      "line_count": 380,
+      "classes": [
+        {
+          "name": "FunctionInfo",
+          "line_number": 23,
+          "base_classes": [],
+          "docstring": "Information about a function definition.",
+          "methods": [],
+          "decorators": [
+            "dataclass"
+          ]
+        },
+        {
+          "name": "ClassInfo",
+          "line_number": 36,
+          "base_classes": [],
+          "docstring": "Information about a class definition.",
+          "methods": [],
+          "decorators": [
+            "dataclass"
+          ]
+        },
+        {
+          "name": "FileInfo",
+          "line_number": 47,
+          "base_classes": [],
+          "docstring": "Information about a Python source file.",
+          "methods": [],
+          "decorators": [
+            "dataclass"
+          ]
+        },
+        {
+          "name": "ProjectAnalyzer",
+          "line_number": 57,
+          "base_classes": [],
+          "docstring": "Analyzes Python source files and extracts structural information.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 60,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectAnalyzer",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "source_dir"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "analyze_file",
+              "line_number": 64,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectAnalyzer",
+              "docstring": "Analyze a single Python file.",
+              "parameters": [
+                "self",
+                "file_path"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "analyze_project",
+              "line_number": 87,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectAnalyzer",
+              "docstring": "Analyze all Python files in the project.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "generate_markdown_report",
+              "line_number": 101,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectAnalyzer",
+              "docstring": "Generate a markdown report of the project structure.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_format_file_info",
+              "line_number": 134,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectAnalyzer",
+              "docstring": "Format file information as markdown.",
+              "parameters": [
+                "self",
+                "file_info"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_get_timestamp",
+              "line_number": 197,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectAnalyzer",
+              "docstring": "Get current timestamp string.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_json",
+              "line_number": 202,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectAnalyzer",
+              "docstring": "Save analysis results as JSON.",
+              "parameters": [
+                "self",
+                "output_path"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "FileVisitor",
+          "line_number": 212,
+          "base_classes": [
+            "NodeVisitor"
+          ],
+          "docstring": "AST visitor that extracts structural information from a Python file.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 215,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "filename"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_Module",
+              "line_number": 223,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileVisitor",
+              "docstring": "Visit module and extract docstring.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_Import",
+              "line_number": 231,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileVisitor",
+              "docstring": "Visit import statements.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_ImportFrom",
+              "line_number": 236,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileVisitor",
+              "docstring": "Visit from-import statements.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_ClassDef",
+              "line_number": 245,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileVisitor",
+              "docstring": "Visit class definitions.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_FunctionDef",
+              "line_number": 282,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileVisitor",
+              "docstring": "Visit function definitions.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_AsyncFunctionDef",
+              "line_number": 290,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileVisitor",
+              "docstring": "Visit async function definitions.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_create_function_info",
+              "line_number": 298,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileVisitor",
+              "docstring": "Create FunctionInfo from an AST node.",
+              "parameters": [
+                "self",
+                "node",
+                "is_method",
+                "parent_class",
+                "is_async"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_extract_docstring",
+              "line_number": 321,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileVisitor",
+              "docstring": "Extract docstring from a function or class node.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_decorator_name",
+              "line_number": 329,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileVisitor",
+              "docstring": "Get decorator name as string.",
+              "parameters": [
+                "self",
+                "decorator"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [
+        {
+          "name": "main",
+          "line_number": 343,
+          "is_async": false,
+          "is_method": false,
+          "parent_class": null,
+          "docstring": "Main entry point for the project analyzer.",
+          "parameters": [],
+          "decorators": []
+        }
+      ],
+      "imports": [
+        "ast",
+        "os",
+        "json",
+        "argparse",
+        "from pathlib import Path",
+        "from typing import Dict",
+        "from typing import List",
+        "from typing import Tuple",
+        "from typing import Any",
+        "from typing import Optional",
+        "from dataclasses import dataclass",
+        "from dataclasses import asdict"
+      ],
+      "docstring": "VysualPy Project Analyzer\n\nThis tool scans the VysualPy source files and generates a structural overview\nof classes, functions, and their relationships. It helps track the codebase\nduring refactoring and provides quick reference information.\n\nUsage:\n    python analyze_project.py [--output PROJECT_STRUCTURE.md] [--json project_structure.json]"
+    },
+    "main.py": {
+      "file_path": "main.py",
+      "line_count": 10,
+      "classes": [],
+      "functions": [],
+      "imports": [
+        "sys",
+        "from PyQt5.QtWidgets import QApplication",
+        "from vpy_editor import PythonIDE"
+      ],
+      "docstring": null
+    },
+    "vpy_blueprints.py": {
+      "file_path": "vpy_blueprints.py",
+      "line_count": 1422,
+      "classes": [
+        {
+          "name": "BlueprintScene",
+          "line_number": 18,
+          "base_classes": [
+            "QGraphicsScene"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 19,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintScene",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 24,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintScene",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseReleaseEvent",
+              "line_number": 30,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintScene",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 54,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintScene",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showContextMenu",
+              "line_number": 62,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintScene",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "BlueprintView",
+          "line_number": 82,
+          "base_classes": [
+            "QGraphicsView"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 83,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "keyPressEvent",
+              "line_number": 99,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 107,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 124,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseReleaseEvent",
+              "line_number": 134,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "drawBackground",
+              "line_number": 144,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "painter",
+                "rect"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "wheelEvent",
+              "line_number": 173,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "BlueprintGraphWindow",
+          "line_number": 183,
+          "base_classes": [
+            "QMainWindow",
+            "CustomWindowMixin"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 184,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent",
+                "code_text"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showPreferences",
+              "line_number": 281,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updateGridSize",
+              "line_number": 288,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "saveBlueprintWorkspace",
+              "line_number": 302,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "loadBlueprintWorkspace",
+              "line_number": 361,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "addCommentBoxToScene",
+              "line_number": 449,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "optimize_layout",
+              "line_number": 457,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "reset_view",
+              "line_number": 461,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_nodes_from_code",
+              "line_number": 465,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "code"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "add_code_block",
+              "line_number": 495,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "block_lines",
+                "block_type",
+                "y_offset"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_graph_nodes",
+              "line_number": 510,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BlueprintGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "code",
+                "scene"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "FunctionCallVisitor",
+          "line_number": 540,
+          "base_classes": [
+            "NodeVisitor"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 541,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "should_include_call",
+              "line_number": 572,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": "Determine if a function call should be included in the graph.",
+              "parameters": [
+                "self",
+                "func_name"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_Module",
+              "line_number": 578,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_If",
+              "line_number": 583,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_While",
+              "line_number": 593,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_For",
+              "line_number": 599,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_Call",
+              "line_number": 605,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_unique_name",
+              "line_number": 652,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "base_name",
+                "lineno"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_callable_name",
+              "line_number": 661,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "handle_function",
+              "line_number": 675,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node",
+                "is_async"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_FunctionDef",
+              "line_number": 691,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_AsyncFunctionDef",
+              "line_number": 694,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_Assign",
+              "line_number": 697,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "visit_Return",
+              "line_number": 709,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FunctionCallVisitor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "ExecutionScene",
+          "line_number": 724,
+          "base_classes": [
+            "BlueprintScene"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 725,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionScene",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "ExecutionView",
+          "line_number": 729,
+          "base_classes": [
+            "BlueprintView"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 730,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene",
+                "parent"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "ExecutionGraphWindow",
+          "line_number": 734,
+          "base_classes": [
+            "QMainWindow",
+            "CustomWindowMixin"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 735,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent",
+                "code_text",
+                "current_file"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "addCommentBoxToScene",
+              "line_number": 824,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_menus",
+              "line_number": 832,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": "Create the menu bar for the execution graph window.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showPreferences",
+              "line_number": 859,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updateGridSize",
+              "line_number": 866,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "optimize_layout",
+              "line_number": 881,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": "Re-run the layout optimization.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "reset_view",
+              "line_number": 887,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": "Reset the view to show all items.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_execution_graph",
+              "line_number": 893,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "code_text"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_graph",
+              "line_number": 903,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_graph",
+              "line_number": 944,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "reset_view",
+              "line_number": 993,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": "Reset the view to show all items.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "optimize_layout",
+              "line_number": 998,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": "Re-run the layout optimization.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_execution_nodes",
+              "line_number": 1003,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "code_text"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "BuildGraphScene",
+          "line_number": 1102,
+          "base_classes": [
+            "BlueprintScene"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 1103,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphScene",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent_ide"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "should_initialize",
+              "line_number": 1115,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphScene",
+              "docstring": "Check if we should initialize with default structure",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "initialize_default_structure",
+              "line_number": 1124,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphScene",
+              "docstring": "Create the default if __name__ == '__main__' structure with main() function",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "keyPressEvent",
+              "line_number": 1152,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphScene",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 1172,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphScene",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_existing_functions",
+              "line_number": 1178,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphScene",
+              "docstring": "Update the set of existing function names in the scene.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_function_node",
+              "line_number": 1185,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphScene",
+              "docstring": "Create a new function node with a basic template.",
+              "parameters": [
+                "self",
+                "func_name",
+                "x",
+                "y"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "check_and_create_called_functions",
+              "line_number": 1193,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphScene",
+              "docstring": "Check for function calls in the node and create new nodes if needed.",
+              "parameters": [
+                "self",
+                "node"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "BuildGraphView",
+          "line_number": 1239,
+          "base_classes": [
+            "BlueprintView"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 1240,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "keyPressEvent",
+              "line_number": 1246,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "deleteSelectedNodes",
+              "line_number": 1265,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphView",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 1326,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphView",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "BuildGraphWindow",
+          "line_number": 1330,
+          "base_classes": [
+            "QMainWindow"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 1331,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent",
+                "code_text"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "confirm_code_replacement",
+              "line_number": 1373,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphWindow",
+              "docstring": "Confirm with user if they want to replace existing code",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_initial_nodes",
+              "line_number": 1385,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "code_text"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setup_menus",
+              "line_number": 1404,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphWindow",
+              "docstring": "Setup the window's menu bars",
+              "parameters": [
+                "self",
+                "menubar"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "ast",
+        "builtins",
+        "json",
+        "from PyQt5.QtWidgets import QGraphicsScene",
+        "from PyQt5.QtWidgets import QGraphicsView",
+        "from PyQt5.QtWidgets import QMainWindow",
+        "from PyQt5.QtWidgets import QWidget",
+        "from PyQt5.QtWidgets import QVBoxLayout",
+        "from PyQt5.QtWidgets import QMenuBar",
+        "from PyQt5.QtWidgets import QAction",
+        "from PyQt5.QtWidgets import QApplication",
+        "from PyQt5.QtWidgets import QInputDialog",
+        "from PyQt5.QtWidgets import QDialog",
+        "from PyQt5.QtWidgets import QFileDialog",
+        "from PyQt5.QtWidgets import QMessageBox",
+        "from PyQt5.QtWidgets import QMenu",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtGui import QBrush",
+        "from PyQt5.QtGui import QColor",
+        "from PyQt5.QtGui import QPainter",
+        "from PyQt5.QtGui import QPen",
+        "from vpy_menus import PreferencesDialog",
+        "from vpy_winmix import CustomWindowMixin",
+        "from vpy_graph import CommentBox",
+        "from vpy_graph import DraggableRect",
+        "from vpy_graph import ExecutionDraggableRect",
+        "from vpy_graph import BuildableNode",
+        "from vpy_connection import Connection",
+        "from vpy_connection import ConnectionPoint"
+      ],
+      "docstring": null
+    },
+    "vpy_config.py": {
+      "file_path": "vpy_config.py",
+      "line_count": 139,
+      "classes": [
+        {
+          "name": "LanguageConfig",
+          "line_number": 5,
+          "base_classes": [],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 6,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LanguageConfig",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_configs",
+              "line_number": 11,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LanguageConfig",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_default_config",
+              "line_number": 23,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LanguageConfig",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_language_config",
+              "line_number": 50,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LanguageConfig",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "file_extension"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_language_by_name",
+              "line_number": 56,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LanguageConfig",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "ConfigManager",
+          "line_number": 59,
+          "base_classes": [],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 60,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConfigManager",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "ensure_config_exists",
+              "line_number": 65,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConfigManager",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_default_config",
+              "line_number": 70,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConfigManager",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_config",
+              "line_number": 102,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConfigManager",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_config",
+              "line_number": 110,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConfigManager",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "config"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_config",
+              "line_number": 117,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConfigManager",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "values"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "from os import path",
+        "from os import makedirs",
+        "from os import listdir",
+        "json"
+      ],
+      "docstring": null
+    },
+    "vpy_connection.py": {
+      "file_path": "vpy_connection.py",
+      "line_count": 153,
+      "classes": [
+        {
+          "name": "ConnectionPoint",
+          "line_number": 13,
+          "base_classes": [
+            "QGraphicsEllipseItem"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 14,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPoint",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene",
+                "parent",
+                "is_output"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 24,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPoint",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "addConnection",
+              "line_number": 35,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPoint",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "connection"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "removeConnection",
+              "line_number": 39,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPoint",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "connection"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showContextMenu",
+              "line_number": 43,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPoint",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "breakAllConnections",
+              "line_number": 55,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPoint",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "breakConnection",
+              "line_number": 63,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ConnectionPoint",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "Connection",
+          "line_number": 70,
+          "base_classes": [
+            "QGraphicsPathItem"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 71,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "start_point",
+                "end_pos",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updatePath",
+              "line_number": 101,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setEndPoint",
+              "line_number": 138,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "end_point"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "cleanup",
+              "line_number": 148,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Connection",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "from PyQt5.QtWidgets import QGraphicsEllipseItem",
+        "from PyQt5.QtWidgets import QGraphicsPathItem",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtCore import QPointF",
+        "from PyQt5.QtGui import QPen",
+        "from PyQt5.QtGui import QColor",
+        "from PyQt5.QtGui import QPainterPath",
+        "re"
+      ],
+      "docstring": null
+    },
+    "vpy_defs.py": {
+      "file_path": "vpy_defs.py",
+      "line_count": 76,
+      "classes": [
+        {
+          "name": "ColorButton",
+          "line_number": 6,
+          "base_classes": [
+            "QPushButton"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 7,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ColorButton",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "color",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setColor",
+              "line_number": 12,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ColorButton",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "color"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "choose_color",
+              "line_number": 16,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ColorButton",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "getColor",
+              "line_number": 21,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ColorButton",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "PathListWidget",
+          "line_number": 24,
+          "base_classes": [
+            "QWidget"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 25,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PathListWidget",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "initUI",
+              "line_number": 29,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PathListWidget",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "add_path",
+              "line_number": 53,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PathListWidget",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "remove_path",
+              "line_number": 58,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PathListWidget",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "edit_path",
+              "line_number": 63,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PathListWidget",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_paths",
+              "line_number": 70,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PathListWidget",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_paths",
+              "line_number": 73,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PathListWidget",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "paths"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "from PyQt5.QtWidgets import QPushButton",
+        "from PyQt5.QtWidgets import QWidget",
+        "from PyQt5.QtWidgets import QHBoxLayout",
+        "from PyQt5.QtWidgets import QVBoxLayout",
+        "from PyQt5.QtWidgets import QListWidget",
+        "from PyQt5.QtWidgets import QColorDialog",
+        "from PyQt5.QtWidgets import QFileDialog"
+      ],
+      "docstring": null
+    },
+    "vpy_editor.py": {
+      "file_path": "vpy_editor.py",
+      "line_count": 1305,
+      "classes": [
+        {
+          "name": "CodeViewerWindow",
+          "line_number": 30,
+          "base_classes": [
+            "QMainWindow",
+            "CustomWindowMixin"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 31,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeViewerWindow",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "title",
+                "content"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "SyntaxHighlighter",
+          "line_number": 66,
+          "base_classes": [
+            "QSyntaxHighlighter"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 67,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SyntaxHighlighter",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent",
+                "language_config"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setup_default_format",
+              "line_number": 83,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SyntaxHighlighter",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_language",
+              "line_number": 86,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SyntaxHighlighter",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "language_name"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setup_formats",
+              "line_number": 94,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SyntaxHighlighter",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "highlightBlock",
+              "line_number": 132,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "SyntaxHighlighter",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "text"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "LineNumberArea",
+          "line_number": 139,
+          "base_classes": [
+            "QWidget"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 140,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LineNumberArea",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "editor"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "sizeHint",
+              "line_number": 144,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LineNumberArea",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paintEvent",
+              "line_number": 147,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LineNumberArea",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "CodeEditor",
+          "line_number": 150,
+          "base_classes": [
+            "QTextEdit"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 151,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "handleScrollRangeChange",
+              "line_number": 221,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": "Handle scroll range changes to ensure proper document display",
+              "parameters": [
+                "self",
+                "min_val",
+                "max_val"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "handleTextChanged",
+              "line_number": 238,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": "Handle text changes to ensure proper document layout",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "lineNumberAreaPaintEvent",
+              "line_number": 245,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": "Paint the line number area.",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "line_number_area_width",
+              "line_number": 356,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": "Calculate the width needed for the line number area.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_line_number_area_width",
+              "line_number": 362,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": "Update the margins to accommodate the line number area.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "resizeEvent",
+              "line_number": 366,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "go_to_line",
+              "line_number": 387,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": "Open dialog to go to specific line number.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "handleCursorPosition",
+              "line_number": 418,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": "Ensure cursor stays visible without aggressive snapping",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "wheelEvent",
+              "line_number": 442,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_file",
+              "line_number": 455,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CodeEditor",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "filepath"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "EditorTabs",
+          "line_number": 494,
+          "base_classes": [
+            "QTabWidget"
+          ],
+          "docstring": "Tabbed editor container that manages multiple CodeEditor instances.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 500,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "add_new_tab",
+              "line_number": 555,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": "Add a new tab with a CodeEditor.\n        \n        Args:\n            content (str): Initial content for the editor\n            filepath (str): File path if opening an existing file\n            title (str): Custom tab title (will be derived from filepath if not provided)\n        \n        Returns:\n            CodeEditor: The newly created editor instance",
+              "parameters": [
+                "self",
+                "content",
+                "filepath",
+                "title"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_create_code_editor",
+              "line_number": 596,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": "Create a new CodeEditor with proper configuration.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_mark_dirty",
+              "line_number": 606,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": "Mark an editor as dirty (unsaved changes).",
+              "parameters": [
+                "self",
+                "editor"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_mark_clean",
+              "line_number": 619,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": "Mark an editor as clean (saved).",
+              "parameters": [
+                "self",
+                "editor"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "close_tab",
+              "line_number": 631,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": "Close a tab at the given index.",
+              "parameters": [
+                "self",
+                "index"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_on_current_changed",
+              "line_number": 667,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": "Handle tab change to emit currentEditorChanged signal.",
+              "parameters": [
+                "self",
+                "index"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "current_editor",
+              "line_number": 675,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": "Get the currently active CodeEditor.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "find_tab_by_filepath",
+              "line_number": 680,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": "Find a tab index by its filepath.\n        \n        Returns:\n            int: Tab index if found, -1 if not found",
+              "parameters": [
+                "self",
+                "filepath"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_all_editors",
+              "line_number": 692,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": "Get all CodeEditor instances in tabs.\n        \n        Returns:\n            list: List of (editor, filepath) tuples",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_tab_filepath",
+              "line_number": 705,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "EditorTabs",
+              "docstring": "Update the filepath for a tab and refresh the title.",
+              "parameters": [
+                "self",
+                "editor",
+                "filepath"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "PythonIDE",
+          "line_number": 721,
+          "base_classes": [
+            "QMainWindow"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 722,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "initUI",
+              "line_number": 731,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "createMenuBar",
+              "line_number": 786,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "createMenus",
+              "line_number": 791,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Create all menus after layout is set up.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "toggleMaximized",
+              "line_number": 849,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "titleBarMousePressEvent",
+              "line_number": 855,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "titleBarMouseMoveEvent",
+              "line_number": 860,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "newFile",
+              "line_number": 866,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Create a new empty tab.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "openFile",
+              "line_number": 875,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Open a file dialog and load the selected file in a tab.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "show_error_message",
+              "line_number": 894,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "message"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "saveFile",
+              "line_number": 897,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Save the current file using tab-aware methods.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "saveFileAs",
+              "line_number": 910,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Save As dialog using tab-aware methods.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "saveBlueprintWorkspace",
+              "line_number": 923,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "loadBlueprintWorkspace",
+              "line_number": 982,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "runProgram",
+              "line_number": 1070,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Run the current file from the active tab.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showExGraph",
+              "line_number": 1096,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Show the Execution Graph for the current tab.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showBdGraph",
+              "line_number": 1108,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Show the Build Graph for the current tab.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showGraph",
+              "line_number": 1124,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Show the Blueprint Graph for the current tab.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showPreferences",
+              "line_number": 1137,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showIDEHelp",
+              "line_number": 1142,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "showAbout",
+              "line_number": 1145,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_on_current_editor_changed",
+              "line_number": 1151,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Handle when the current editor tab changes.",
+              "parameters": [
+                "self",
+                "editor"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "current_editor",
+              "line_number": 1165,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Get the currently active CodeEditor.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "current_filepath",
+              "line_number": 1171,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Get the filepath of the currently active editor.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_current_filepath",
+              "line_number": 1178,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Update the filepath for the current tab.",
+              "parameters": [
+                "self",
+                "filepath"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_current_file",
+              "line_number": 1184,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Save the specified editor (or current editor if None).\n        \n        Returns:\n            bool: True if save succeeded, False otherwise",
+              "parameters": [
+                "self",
+                "editor"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_file_as",
+              "line_number": 1216,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Save As dialog for the specified editor (or current editor if None).\n        \n        Returns:\n            bool: True if save succeeded, False otherwise",
+              "parameters": [
+                "self",
+                "editor"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "open_file_in_tab",
+              "line_number": 1254,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Open a file in a new tab or switch to existing tab if already open.",
+              "parameters": [
+                "self",
+                "filepath"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "closeEvent",
+              "line_number": 1280,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PythonIDE",
+              "docstring": "Handle application close event to restore stdout",
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "re",
+        "os",
+        "subprocess",
+        "from PyQt5.QtWidgets import QMainWindow",
+        "from PyQt5.QtWidgets import QMenuBar",
+        "from PyQt5.QtWidgets import QAction",
+        "from PyQt5.QtWidgets import QTextEdit",
+        "from PyQt5.QtWidgets import QMessageBox",
+        "from PyQt5.QtWidgets import QGraphicsView",
+        "from PyQt5.QtWidgets import QFileDialog",
+        "from PyQt5.QtWidgets import QInputDialog",
+        "from PyQt5.QtWidgets import QWidget",
+        "from PyQt5.QtWidgets import QVBoxLayout",
+        "from PyQt5.QtWidgets import QSizePolicy",
+        "from PyQt5.QtWidgets import QSplitter",
+        "from PyQt5.QtWidgets import QShortcut",
+        "from PyQt5.QtWidgets import QTabWidget",
+        "from PyQt5.QtGui import QIcon",
+        "from PyQt5.QtGui import QSyntaxHighlighter",
+        "from PyQt5.QtGui import QColor",
+        "from PyQt5.QtGui import QTextCharFormat",
+        "from PyQt5.QtGui import QFont",
+        "from PyQt5.QtGui import QBrush",
+        "from PyQt5.QtGui import QPainter",
+        "from PyQt5.QtGui import QFontMetrics",
+        "from PyQt5.QtGui import QKeySequence",
+        "from PyQt5.QtGui import QTextFormat",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtCore import QSize",
+        "from PyQt5.QtCore import QRect",
+        "from PyQt5.QtCore import QTimer",
+        "from PyQt5.QtCore import pyqtSignal",
+        "from vpy_config import ConfigManager",
+        "from vpy_config import LanguageConfig",
+        "from vpy_menus import RecentFilesMenu",
+        "from vpy_menus import PreferencesDialog",
+        "from vpy_winmix import CustomWindowMixin",
+        "from vpy_blueprints import BlueprintScene",
+        "from vpy_blueprints import BlueprintView",
+        "from vpy_blueprints import BlueprintGraphWindow",
+        "from vpy_blueprints import ExecutionScene",
+        "from vpy_blueprints import ExecutionView",
+        "from vpy_blueprints import ExecutionGraphWindow",
+        "from vpy_blueprints import BuildGraphScene",
+        "from vpy_blueprints import BuildGraphView",
+        "from vpy_blueprints import BuildGraphWindow",
+        "from vpy_layout import IDELayout"
+      ],
+      "docstring": null
+    },
+    "vpy_graph.py": {
+      "file_path": "vpy_graph.py",
+      "line_count": 531,
+      "classes": [
+        {
+          "name": "CommentBox",
+          "line_number": 17,
+          "base_classes": [
+            "QGraphicsRectItem"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 18,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentBox",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "x",
+                "y",
+                "width",
+                "height"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 50,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentBox",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 56,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentBox",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseReleaseEvent",
+              "line_number": 65,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentBox",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "paint",
+              "line_number": 69,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentBox",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "painter",
+                "option",
+                "widget"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseDoubleClickEvent",
+              "line_number": 95,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CommentBox",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "DraggableRect",
+          "line_number": 103,
+          "base_classes": [
+            "QGraphicsRectItem"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 104,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "content",
+                "x",
+                "y",
+                "width",
+                "height",
+                "scene",
+                "is_class"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "snapToGrid",
+              "line_number": 141,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "value"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updateConnectionPoints",
+              "line_number": 144,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updateConnectedLines",
+              "line_number": 148,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "selected"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 181,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 189,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseDoubleClickEvent",
+              "line_number": 203,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setContent",
+              "line_number": 208,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "DraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "content"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "ExecutionDraggableRect",
+          "line_number": 228,
+          "base_classes": [
+            "DraggableRect"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 229,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionDraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "content",
+                "x",
+                "y",
+                "width",
+                "height",
+                "scene",
+                "is_class"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "itemChange",
+              "line_number": 247,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionDraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "change",
+                "value"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updateConnectedLines",
+              "line_number": 279,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionDraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "selected"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 312,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionDraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 320,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ExecutionDraggableRect",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "BuildableNode",
+          "line_number": 332,
+          "base_classes": [
+            "QGraphicsRectItem"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 333,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name",
+                "content",
+                "x",
+                "y",
+                "width",
+                "height",
+                "scene",
+                "is_class",
+                "parent_ide"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updateConnectionPoints",
+              "line_number": 380,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updateTitle",
+              "line_number": 387,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "startEditing",
+              "line_number": 393,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "stopEditing",
+              "line_number": 398,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "keyPressEvent",
+              "line_number": 430,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "adjustHeight",
+              "line_number": 448,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Adjust only the height of the node based on content",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "detectNodeType",
+              "line_number": 464,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Detect if the node contains a function or class definition and extract its name.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "detectScope",
+              "line_number": 498,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": "Detect the scope of the node based on indentation.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "updateContent",
+              "line_number": 511,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "new_content"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 522,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildableNode",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "re",
+        "from PyQt5.QtWidgets import QGraphicsRectItem",
+        "from PyQt5.QtWidgets import QGraphicsTextItem",
+        "from PyQt5.QtWidgets import QInputDialog",
+        "from PyQt5.QtWidgets import QGraphicsItem",
+        "from PyQt5.QtCore import QRectF",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtGui import QColor",
+        "from PyQt5.QtGui import QBrush",
+        "from PyQt5.QtGui import QPen",
+        "from PyQt5.QtGui import QFont",
+        "from vpy_connection import Connection",
+        "from vpy_connection import ConnectionPoint"
+      ],
+      "docstring": null
+    },
+    "vpy_layout.py": {
+      "file_path": "vpy_layout.py",
+      "line_count": 297,
+      "classes": [
+        {
+          "name": "ProjectBrowser",
+          "line_number": 10,
+          "base_classes": [
+            "QWidget"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 11,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectBrowser",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_project",
+              "line_number": 72,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectBrowser",
+              "docstring": "Load a project from the given path.",
+              "parameters": [
+                "self",
+                "project_path"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "close_project",
+              "line_number": 81,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectBrowser",
+              "docstring": "Close the current project.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "on_file_clicked",
+              "line_number": 87,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "ProjectBrowser",
+              "docstring": "Handle file click in project tree.",
+              "parameters": [
+                "self",
+                "index"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "FileBrowser",
+          "line_number": 99,
+          "base_classes": [
+            "QWidget"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 100,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileBrowser",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "set_current_directory",
+              "line_number": 142,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileBrowser",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "path"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "on_file_clicked",
+              "line_number": 146,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "FileBrowser",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "index"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "BrowserTabs",
+          "line_number": 154,
+          "base_classes": [
+            "QDockWidget"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 155,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BrowserTabs",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "Terminal",
+          "line_number": 191,
+          "base_classes": [
+            "QDockWidget"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 192,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Terminal",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "write",
+              "line_number": 235,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Terminal",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "text"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "flush",
+              "line_number": 246,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Terminal",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "clear_output",
+              "line_number": 250,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Terminal",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "restore_stdout",
+              "line_number": 254,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "Terminal",
+              "docstring": "Restore original stdout before widget deletion",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "IDELayout",
+          "line_number": 259,
+          "base_classes": [],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "setup",
+              "line_number": 261,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "IDELayout",
+              "docstring": null,
+              "parameters": [
+                "ide_window"
+              ],
+              "decorators": [
+                "staticmethod"
+              ]
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "from PyQt5.QtWidgets import QTreeView",
+        "from PyQt5.QtWidgets import QFileSystemModel",
+        "from PyQt5.QtWidgets import QDockWidget",
+        "from PyQt5.QtWidgets import QPlainTextEdit",
+        "from PyQt5.QtWidgets import QSplitter",
+        "from PyQt5.QtWidgets import QVBoxLayout",
+        "from PyQt5.QtWidgets import QHBoxLayout",
+        "from PyQt5.QtWidgets import QWidget",
+        "from PyQt5.QtWidgets import QPushButton",
+        "from PyQt5.QtWidgets import QStyle",
+        "from PyQt5.QtWidgets import QSizePolicy",
+        "from PyQt5.QtWidgets import QTabWidget",
+        "from PyQt5.QtWidgets import QLabel",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtCore import QDir",
+        "sys",
+        "os"
+      ],
+      "docstring": null
+    },
+    "vpy_menus.py": {
+      "file_path": "vpy_menus.py",
+      "line_count": 648,
+      "classes": [
+        {
+          "name": "PresetDialog",
+          "line_number": 19,
+          "base_classes": [
+            "QDialog"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 20,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PresetDialog",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_name",
+              "line_number": 45,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PresetDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "PreferencesDialog",
+          "line_number": 48,
+          "base_classes": [
+            "QDialog"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 49,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_and_close",
+              "line_number": 57,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_saved_preferences",
+              "line_number": 82,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "accept",
+              "line_number": 86,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "getValues",
+              "line_number": 119,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "initUI",
+              "line_number": 122,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_editor_tab",
+              "line_number": 250,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_blueprint_tab",
+              "line_number": 284,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "getValues",
+              "line_number": 356,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "browse_path",
+              "line_number": 372,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "line_edit"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "apply_theme",
+              "line_number": 377,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "theme_name"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "create_build_tab",
+              "line_number": 413,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_preset",
+              "line_number": 464,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "remove_preset",
+              "line_number": 478,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_preset",
+              "line_number": 484,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_preset_to_file",
+              "line_number": 493,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "preset"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "remove_preset_from_file",
+              "line_number": 501,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_preset_from_file",
+              "line_number": 506,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "name"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_preset_list",
+              "line_number": 514,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "PreferencesDialog",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "RecentFiles",
+          "line_number": 522,
+          "base_classes": [],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 523,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFiles",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "max_files"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "add_file",
+              "line_number": 529,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFiles",
+              "docstring": "Add a file to recent files list.",
+              "parameters": [
+                "self",
+                "filepath"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "remove_file",
+              "line_number": 550,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFiles",
+              "docstring": "Remove a file from recent files list.",
+              "parameters": [
+                "self",
+                "filepath"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "get_files",
+              "line_number": 556,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFiles",
+              "docstring": "Get list of recent files, removing any that no longer exist.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "clear",
+              "line_number": 567,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFiles",
+              "docstring": "Clear the recent files list.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "load_recent_files",
+              "line_number": 572,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFiles",
+              "docstring": "Load recent files list from config file.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "save_recent_files",
+              "line_number": 582,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFiles",
+              "docstring": "Save recent files list to config file.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
+          "name": "RecentFilesMenu",
+          "line_number": 590,
+          "base_classes": [
+            "QMenu"
+          ],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 591,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFilesMenu",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "update_menu",
+              "line_number": 597,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFilesMenu",
+              "docstring": "Update the menu with current recent files.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "add_recent_file",
+              "line_number": 623,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFilesMenu",
+              "docstring": "Add a file to recent files and update menu.",
+              "parameters": [
+                "self",
+                "filepath"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "open_recent_file",
+              "line_number": 628,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFilesMenu",
+              "docstring": "Open a recent file.",
+              "parameters": [
+                "self",
+                "filepath"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "clear_recent_files",
+              "line_number": 645,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "RecentFilesMenu",
+              "docstring": "Clear all recent files.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "json",
+        "from os import path",
+        "from os import makedirs",
+        "from os.path import expanduser",
+        "from os.path import exists",
+        "from os.path import basename",
+        "from pathlib import Path",
+        "from PyQt5.QtWidgets import QAction",
+        "from PyQt5.QtWidgets import QMenu",
+        "from PyQt5.QtWidgets import QDialog",
+        "from PyQt5.QtWidgets import QVBoxLayout",
+        "from PyQt5.QtWidgets import QWidget",
+        "from PyQt5.QtWidgets import QTabWidget",
+        "from PyQt5.QtWidgets import QGroupBox",
+        "from PyQt5.QtWidgets import QHBoxLayout",
+        "from PyQt5.QtWidgets import QLabel",
+        "from PyQt5.QtWidgets import QSlider",
+        "from PyQt5.QtWidgets import QSpinBox",
+        "from PyQt5.QtWidgets import QGridLayout",
+        "from PyQt5.QtWidgets import QColorDialog",
+        "from PyQt5.QtWidgets import QComboBox",
+        "from PyQt5.QtWidgets import QLineEdit",
+        "from PyQt5.QtWidgets import QPushButton",
+        "from PyQt5.QtWidgets import QMessageBox",
+        "from PyQt5.QtWidgets import QFileDialog",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtGui import QColor",
+        "from vpy_config import ConfigManager",
+        "from vpy_defs import PathListWidget",
+        "from vpy_defs import ColorButton"
+      ],
+      "docstring": null
+    },
+    "vpy_winmix.py": {
+      "file_path": "vpy_winmix.py",
+      "line_count": 203,
+      "classes": [
+        {
+          "name": "CustomWindowMixin",
+          "line_number": 11,
+          "base_classes": [],
+          "docstring": null,
+          "methods": [
+            {
+              "name": "setupCustomTitleBar",
+              "line_number": 14,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "title"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mousePressEvent",
+              "line_number": 100,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseMoveEvent",
+              "line_number": 127,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "mouseReleaseEvent",
+              "line_number": 147,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "changeCursor",
+              "line_number": 150,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_titleBarMousePressEvent",
+              "line_number": 164,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_titleBarMouseMoveEvent",
+              "line_number": 169,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_containerMousePressEvent",
+              "line_number": 175,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_containerMouseMoveEvent",
+              "line_number": 179,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "_containerMouseReleaseEvent",
+              "line_number": 185,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "titleBarMousePressEvent",
+              "line_number": 188,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "titleBarMouseMoveEvent",
+              "line_number": 193,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "event"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "toggleMaximized",
+              "line_number": 199,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "CustomWindowMixin",
+              "docstring": null,
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        }
+      ],
+      "functions": [],
+      "imports": [
+        "from PyQt5.QtWidgets import QWidget",
+        "from PyQt5.QtWidgets import QVBoxLayout",
+        "from PyQt5.QtWidgets import QHBoxLayout",
+        "from PyQt5.QtWidgets import QFrame",
+        "from PyQt5.QtWidgets import QLabel",
+        "from PyQt5.QtWidgets import QPushButton",
+        "from PyQt5.QtCore import Qt",
+        "from PyQt5.QtGui import QIcon"
+      ],
+      "docstring": null
+    }
+  }
+}
