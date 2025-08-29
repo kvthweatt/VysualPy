@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
 
 from PyQt5.QtGui import (
     QIcon, QSyntaxHighlighter, QColor, QTextCharFormat, QFont, QBrush, QPainter,
-    QFontMetrics, QKeySequence
+    QFontMetrics, QKeySequence, QTextFormat
     )
 
 from PyQt5.QtCore import (
