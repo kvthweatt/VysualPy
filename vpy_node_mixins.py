@@ -150,10 +150,18 @@ class RenderMixin:
             rect.height() - 36
         )
         
-        # Truncate content if too long
+        # For Blueprint nodes with auto-resize, show full content
+        # For other nodes, truncate if too long
         content = self.content
-        if len(content) > 100:
-            content = content[:97] + "..."
+        if (hasattr(self, 'node_type') and 
+            hasattr(self, 'auto_resize_to_content') and
+            self.node_type.value == 'blueprint'):
+            # Blueprint nodes are auto-sized, show full content
+            pass  # Use full content without truncation
+        else:
+            # Other node types may need truncation
+            if len(content) > 100:
+                content = content[:97] + "..."
             
         painter.drawText(content_rect, Qt.AlignLeft | Qt.AlignTop | Qt.TextWordWrap, content)
         
@@ -245,11 +253,34 @@ class InteractionMixin:
                 self.handle_port_click(port, event)
                 return
                 
-            # Regular selection handling
-            if not self.isSelected():
-                self.setSelected(True)
+            # Handle selection based on modifiers
+            modifiers = QApplication.keyboardModifiers()
+            
+            if modifiers & Qt.ControlModifier:
+                # Ctrl+Click: Toggle selection of this node
+                self.setSelected(not self.isSelected())
                 if hasattr(self, 'set_state'):
-                    self.set_state(NodeState.SELECTED)
+                    if self.isSelected():
+                        self.set_state(NodeState.SELECTED)
+                    else:
+                        self.set_state(NodeState.NORMAL)
+            else:
+                # Regular click: Clear other selections unless this node is already selected
+                if not self.isSelected():
+                    # Clear all other selections first
+                    scene = self.scene()
+                    if scene:
+                        for item in scene.selectedItems():
+                            if item != self:
+                                item.setSelected(False)
+                                if hasattr(item, 'set_state'):
+                                    item.set_state(NodeState.NORMAL)
+                    
+                    # Select this node
+                    self.setSelected(True)
+                    if hasattr(self, 'set_state'):
+                        self.set_state(NodeState.SELECTED)
+                # If already selected, keep it selected for dragging
                     
         elif event.button() == Qt.RightButton:
             # Show context menu

@@ -273,6 +273,16 @@ class BaseNode(QGraphicsRectItem, metaclass=QGraphicsABCMeta):
                 self.snapToGrid(y)
             )
             
+    def setSelected(self, selected: bool):
+        """Override setSelected to sync with our state system."""
+        super().setSelected(selected)
+        
+        # Update our custom state to match Qt's selection state
+        if selected and self.state != NodeState.SELECTED:
+            self.set_state(NodeState.SELECTED)
+        elif not selected and self.state == NodeState.SELECTED:
+            self.set_state(NodeState.NORMAL)
+            
     def serialize(self) -> Dict[str, Any]:
         """Serialize node to dictionary for saving."""
         pos = self.pos()

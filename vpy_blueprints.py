@@ -158,11 +158,26 @@ class BlueprintScene(QGraphicsScene):
         super().mouseReleaseEvent(event)
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.RightButton:
+        if event.button() == Qt.LeftButton:
+            # Clear all selections if clicking on empty space (unless holding Ctrl)
+            items = self.items(event.scenePos())
+            from PyQt5.QtWidgets import QApplication
+            modifiers = QApplication.keyboardModifiers()
+            
+            if not items and not (modifiers & Qt.ControlModifier):
+                # Clicking on empty space without Ctrl - clear all selections
+                for item in self.selectedItems():
+                    item.setSelected(False)
+                    if hasattr(item, 'set_state'):
+                        from vpy_node_base import NodeState
+                        item.set_state(NodeState.NORMAL)
+                        
+        elif event.button() == Qt.RightButton:
             # Only show context menu if clicking on empty space
             items = self.items(event.scenePos())
             if not items:  # If no items under cursor
                 self.showContextMenu(event)
+        
         super().mousePressEvent(event)
 
     def showContextMenu(self, event):

@@ -10,7 +10,7 @@ import re
 from typing import Dict, List, Any, Optional
 
 from PyQt5.QtCore import QPointF, QRectF
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QFontMetrics, QFont
 
 from vpy_node_base import BaseNode, NodeType, NodeState, node_registry
 from vpy_node_mixins import RenderMixin, InteractionMixin, EditableMixin
@@ -30,13 +30,21 @@ class BlueprintNode(BaseNode, RenderMixin, InteractionMixin):
         self.is_class = False
         self.full_content = content
         
+        # Dynamic sizing properties
+        self.min_width = 120  # Minimum width for ports and title
+        self.min_height = 60  # Minimum height
+        self.padding_x = 16   # Horizontal padding (8px on each side)
+        self.padding_y = 40   # Vertical padding (for title + margins)
+        self.line_height = 12 # Height per line of code
+        
         # Add default ports
         self.add_input_port("input", "code", "Input")
         self.add_output_port("output", "code", "Output")
         
-        # Analyze content on creation
+        # Analyze content and resize on creation
         if content.strip():
             self.analyze_content()
+        self.auto_resize_to_content()
             
     def analyze_content(self):
         """Analyze the content to determine if it's a class or function."""
@@ -82,6 +90,72 @@ class BlueprintNode(BaseNode, RenderMixin, InteractionMixin):
         content_preview = self.content[:100] + "..." if len(self.content) > 100 else self.content
         return f"{self.name}\n\n{content_preview}"
         
+    def auto_resize_to_content(self):
+        """Automatically resize the node to fit its content."""
+        # Get fonts (matching RenderMixin fonts)
+        title_font = QFont("Courier New", 10, QFont.Bold)
+        content_font = QFont("Courier New", 8)
+        
+        # Calculate dimensions needed for content
+        required_width, required_height = self.calculate_content_dimensions(
+            title_font, content_font
+        )
+        
+        # Ensure minimum dimensions
+        final_width = max(required_width, self.min_width)
+        final_height = max(required_height, self.min_height)
+        
+        # Create new rect and update
+        current_rect = self.rect()
+        new_rect = QRectF(
+            current_rect.x(),
+            current_rect.y(), 
+            final_width,
+            final_height
+        )
+        
+        # Update size and rect
+        self.size = new_rect
+        self.setRect(new_rect)
+        
+        # Update port positions to match new size
+        self._update_port_positions()
+        
+        # Update scene connections if we have them
+        if hasattr(self, 'scene') and self.scene():
+            scene = self.scene()
+            if hasattr(scene, 'update_all_connections'):
+                scene.update_all_connections()
+                
+    def calculate_content_dimensions(self, title_font: QFont, content_font: QFont) -> tuple:
+        """Calculate required width and height for the node content."""
+        title_metrics = QFontMetrics(title_font)
+        content_metrics = QFontMetrics(content_font)
+        
+        # Calculate title dimensions
+        title_text = self.get_display_name() if hasattr(self, 'get_display_name') else self.name
+        title_width = title_metrics.horizontalAdvance(title_text)
+        title_height = title_metrics.height()
+        
+        # Calculate content dimensions
+        content_width = 0
+        content_height = 0
+        
+        if self.content.strip():
+            lines = self.content.split('\n')
+            content_height = len(lines) * content_metrics.height()
+            
+            # Find the widest line
+            for line in lines:
+                line_width = content_metrics.horizontalAdvance(line)
+                content_width = max(content_width, line_width)
+        
+        # Calculate total required dimensions
+        required_width = max(title_width, content_width) + self.padding_x
+        required_height = title_height + content_height + self.padding_y
+        
+        return required_width, required_height
+        
     def can_accept_content(self, content: str) -> bool:
         """Check if this node can accept the given content."""
         # Blueprint nodes can accept any Python code
@@ -92,6 +166,9 @@ class BlueprintNode(BaseNode, RenderMixin, InteractionMixin):
         self.content = new_content
         self.full_content = new_content
         self.analyze_content()
+        
+        # Auto-resize to fit new content
+        self.auto_resize_to_content()
         
         # Update visual representation
         self.update()
