@@ -194,52 +194,54 @@ vpy_connection.py        # Current connection system (will be enhanced)
   - Connection creation updated for new port system
 - ✅ **BuildableNode**: Already using new architecture
 
-### 🚧 Phase 3: Scene Integration - PARTIALLY COMPLETE
+### ✅ Phase 3: Scene Integration - COMPLETED
 - ✅ **BlueprintScene**: Updated for new node types
 - ✅ **ExecutionScene**: Updated for new node types  
 - ✅ **BuildGraphScene**: Already using new architecture
-- ⚠️ **Visual Integration**: Nodes not rendering (comment boxes work)
-- 🔄 **Connection Management**: May need unified approach across scenes
+- ✅ **Visual Integration**: Node rendering working properly
+- ✅ **Connection Management**: Enhanced connection system integrated
 
 ### 📋 Next Steps
 
-#### Immediate Priority (Phase 3 Completion)
-1. **Debug Node Visibility**: Investigate why BlueprintNode/ExecutionNode aren't rendering
-   - Check if RenderMixin.paint() is being called
-   - Verify boundingRect() returns valid dimensions
-   - Ensure nodes are properly added to scene
+#### Phase 4: Integration and Polish
+1. **Main IDE Integration**: 
+   - Integrate debug environment features into main blueprint windows
+   - Ensure debug_node_system.py enhancements work in production scenes
+   - Test save/load functionality with new node types
 
-2. **Port System Integration**: 
-   - Verify ConnectionPort compatibility with new nodes
-   - Test connection creation between new node types
-   - Fix any port positioning issues
+2. **Configuration System Implementation**:
+   - Move editor styling into `config/editor_style.css`
+   - Support for user-customizable Qt CSS themes
+   - Runtime theme switching capability
+   - Theme presets (dark, light, high contrast)
 
-3. **Event Handling Verification**:
-   - Test mouse interactions with new nodes
-   - Verify selection and drag functionality
-   - Check context menu integration
+3. **Editor Enhancements**:
+   - Text resizing with CTRL+Scroll in CodeEditor
+   - Font size adjustment with mouse wheel + Ctrl
+   - Maintain zoom level per document/session
 
-#### Medium Priority
-4. **Connection System Unification**: 
-   - Migrate all scenes to use ConnectionManager consistently
-   - Remove bespoke connection handling from individual scenes
-   - Standardize connection visual styles
+#### Phase 5: Advanced Features
+4. **Connection Line Improvements**: 
+   - Hover effects: 1px → 4px thickness on hover (from debug environment)
+   - Color highlighting on hover for better visibility
+   - Smooth thickness transitions with animations
 
-5. **Legacy Compatibility Layer**:
-   - Create adapter classes for external plugins
-   - Add deprecation warnings for old APIs
-   - Provide migration guide for users
+5. **Node Control Features**:
+   - Child Vertical Align (CTRL+S) integration in main IDE
+   - Full Tree Align (CTRL+SHIFT+S) integration
+   - Multi-selection enhancements from debug environment
 
 ### ⚠️ Known Issues
-1. **Node Rendering**: Primary blocker - new nodes not visible
-2. **GraphLayoutOptimizer**: Currently using stub implementation
-3. **Save/Load**: May need testing with complex node graphs
-4. **Performance**: Large graphs not yet optimized
+1. **GraphLayoutOptimizer**: Currently using stub implementation
+2. **Save/Load**: May need testing with complex node graphs in production IDE
+3. **Performance**: Large graphs not yet optimized
+4. **Debug Environment Integration**: Need to port advanced features to main IDE
 
 ### 🧪 Testing Status
 - ✅ **Compilation**: All files compile without syntax errors
-- ⚠️ **Visual Testing**: Nodes not visible, comment boxes working
-- 📋 **Integration Testing**: Needed for save/load workflows
+- ✅ **Visual Testing**: Node rendering working properly, debug environment fully functional
+- ✅ **Debug Environment**: Comprehensive testing system in place
+- 📋 **Integration Testing**: Needed for save/load workflows with main IDE
 - 📋 **Performance Testing**: Needed for large graphs
 
 ## Migration Strategy

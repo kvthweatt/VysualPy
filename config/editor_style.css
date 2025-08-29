@@ -1,0 +1,289 @@
+/* VysualPy Editor Styles Configuration */
+/* This file contains Qt CSS styling for the code editor and interface elements */
+
+/* ===== DEFAULT THEME (Dark) ===== */
+
+/* Main Editor Styling */
+QTextEdit {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    font-family: "Courier New", "Consolas", "Monaco", monospace;
+    font-size: 11pt;
+    line-height: 1.4;
+    border: 1px solid #4a5568;
+    selection-background-color: #4a5568;
+    selection-color: #ffffff;
+}
+
+/* Line Number Area */
+QWidget#LineNumberArea {
+    background-color: #1a202c;
+    color: #718096;
+    border-right: 1px solid #4a5568;
+}
+
+/* Tab Widget */
+QTabWidget::pane {
+    border: 1px solid #4a5568;
+    background-color: #2d3748;
+}
+
+QTabWidget::tab-bar {
+    alignment: left;
+}
+
+QTabBar::tab {
+    background-color: #4a5568;
+    color: #a0aec0;
+    padding: 8px 16px;
+    margin-right: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+QTabBar::tab:selected {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    border: 1px solid #4a5568;
+    border-bottom: none;
+}
+
+QTabBar::tab:hover {
+    background-color: #718096;
+    color: #ffffff;
+}
+
+/* Scrollbars */
+QScrollBar:vertical {
+    background-color: #1a202c;
+    width: 12px;
+    border: none;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #4a5568;
+    border-radius: 6px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #718096;
+}
+
+QScrollBar:horizontal {
+    background-color: #1a202c;
+    height: 12px;
+    border: none;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #4a5568;
+    border-radius: 6px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #718096;
+}
+
+/* Menu Bar */
+QMenuBar {
+    background-color: #1a202c;
+    color: #e2e8f0;
+    border-bottom: 1px solid #4a5568;
+}
+
+QMenuBar::item {
+    padding: 6px 12px;
+    background: transparent;
+}
+
+QMenuBar::item:selected {
+    background-color: #4a5568;
+    border-radius: 2px;
+}
+
+QMenu {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    border: 1px solid #4a5568;
+}
+
+QMenu::item {
+    padding: 6px 24px 6px 8px;
+    background: transparent;
+}
+
+QMenu::item:selected {
+    background-color: #4a5568;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: #4a5568;
+    margin: 4px 0px;
+}
+
+/* File Browser and Dock Widgets */
+QDockWidget {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    titlebar-close-icon: none;
+    titlebar-normal-icon: none;
+}
+
+QDockWidget::title {
+    background-color: #4a5568;
+    color: #e2e8f0;
+    padding: 6px;
+    text-align: left;
+}
+
+QTreeView {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    border: 1px solid #4a5568;
+    selection-background-color: #4a5568;
+    alternate-background-color: #1a202c;
+}
+
+QTreeView::item {
+    padding: 2px;
+}
+
+QTreeView::item:selected {
+    background-color: #4a5568;
+    color: #ffffff;
+}
+
+QTreeView::item:hover {
+    background-color: #718096;
+    color: #ffffff;
+}
+
+/* Terminal */
+QPlainTextEdit#Terminal {
+    background-color: #1a202c;
+    color: #e2e8f0;
+    font-family: "Courier New", "Consolas", "Monaco", monospace;
+    font-size: 10pt;
+    border: 1px solid #4a5568;
+}
+
+/* Splitter */
+QSplitter::handle {
+    background-color: #4a5568;
+}
+
+QSplitter::handle:horizontal {
+    width: 3px;
+}
+
+QSplitter::handle:vertical {
+    height: 3px;
+}
+
+/* Status Bar */
+QStatusBar {
+    background-color: #1a202c;
+    color: #a0aec0;
+    border-top: 1px solid #4a5568;
+}
+
+/* ===== LIGHT THEME ===== */
+/* Uncomment and modify these styles to create a light theme */
+
+/*
+QTextEdit {
+    background-color: #ffffff;
+    color: #2d3748;
+    border: 1px solid #e2e8f0;
+    selection-background-color: #bee3f8;
+    selection-color: #2b6cb0;
+}
+
+QWidget#LineNumberArea {
+    background-color: #f7fafc;
+    color: #718096;
+    border-right: 1px solid #e2e8f0;
+}
+
+QTabWidget::pane {
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+}
+
+QTabBar::tab {
+    background-color: #f7fafc;
+    color: #4a5568;
+    border: 1px solid #e2e8f0;
+}
+
+QTabBar::tab:selected {
+    background-color: #ffffff;
+    color: #2d3748;
+}
+
+QMenuBar {
+    background-color: #f7fafc;
+    color: #2d3748;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+QMenu {
+    background-color: #ffffff;
+    color: #2d3748;
+    border: 1px solid #e2e8f0;
+}
+
+QTreeView {
+    background-color: #ffffff;
+    color: #2d3748;
+    border: 1px solid #e2e8f0;
+    selection-background-color: #bee3f8;
+    alternate-background-color: #f7fafc;
+}
+*/
+
+/* ===== HIGH CONTRAST THEME ===== */
+/* Uncomment and modify these styles for accessibility */
+
+/*
+QTextEdit {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    selection-background-color: #ffffff;
+    selection-color: #000000;
+}
+
+QWidget#LineNumberArea {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-right: 2px solid #ffffff;
+}
+
+QTabBar::tab {
+    background-color: #333333;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+
+QTabBar::tab:selected {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #ffff00;
+}
+
+QMenuBar {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+
+QMenu {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+*/

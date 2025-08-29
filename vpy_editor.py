@@ -18,6 +18,7 @@ from PyQt5.QtCore import (
 from vpy_config import ConfigManager, LanguageConfig
 from vpy_menus import RecentFilesMenu, PreferencesDialog
 from vpy_winmix import CustomWindowMixin
+from vpy_theme_manager import get_theme_manager
 
 from vpy_blueprints import (
     BlueprintScene, BlueprintView, BlueprintGraphWindow,
@@ -652,18 +653,10 @@ class CodeViewerWindow(QMainWindow, CustomWindowMixin):
 class SyntaxHighlighter(QSyntaxHighlighter):
     def __init__(self, parent=None, language_config=None):
         super().__init__(parent)
-        self.colors = {
-            'keyword': QColor("#FF6B6B"),
-            'string': QColor("#98C379"), 
-            'comment': QColor("#5C6370"),
-            'function': QColor("#61AFEF"),
-            'class': QColor("#E5C07B"),
-            'number': QColor("#D19A66"),
-            'decorator': QColor("#C678DD"),
-        }
         self.lang_config = language_config or LanguageConfig()
         self.current_language = None
         self.styles = {}
+        self.colors = {}
         self.setup_default_format()
     
     def setup_default_format(self):
@@ -682,38 +675,52 @@ class SyntaxHighlighter(QSyntaxHighlighter):
             return
             
         self.styles = {}
-        # Use self.colors as the source of truth for colors
+        
+        # Load colors from language configuration
+        language_colors = self.current_language.get('colors', {})
+        
+        # Convert string colors to QColor objects
+        self.colors = {}
+        for color_name, color_str in language_colors.items():
+            self.colors[color_name] = QColor(color_str)
         
         # Keywords
-        keyword_format = QTextCharFormat()
-        keyword_format.setForeground(self.colors['keyword'])
-        keywords = self.current_language['keywords']
-        self.styles['keyword'] = (keyword_format, '\\b(' + '|'.join(keywords) + ')\\b')
+        if 'keyword' in self.colors:
+            keyword_format = QTextCharFormat()
+            keyword_format.setForeground(self.colors['keyword'])
+            keywords = self.current_language['keywords']
+            self.styles['keyword'] = (keyword_format, '\\b(' + '|'.join(keywords) + ')\\b')
         
-        # Other styles use colors from self.colors dictionary
-        string_format = QTextCharFormat()
-        string_format.setForeground(self.colors['string'])
-        self.styles['string'] = (string_format, r'"[^"\\]*(\\.[^"\\]*)*"|\'[^\'\\]*(\\.[^\'\\]*)*\'')
+        # Other syntax elements
+        if 'string' in self.colors:
+            string_format = QTextCharFormat()
+            string_format.setForeground(self.colors['string'])
+            self.styles['string'] = (string_format, r'"[^"\\]*(\\.[^"\\]*)*"|\'[^\'\\]*(\\.[^\'\\]*)*\'')
         
-        comment_format = QTextCharFormat()
-        comment_format.setForeground(self.colors['comment'])
-        self.styles['comment'] = (comment_format, '#[^\n]*')
+        if 'comment' in self.colors:
+            comment_format = QTextCharFormat()
+            comment_format.setForeground(self.colors['comment'])
+            self.styles['comment'] = (comment_format, '#[^\n]*')
         
-        function_format = QTextCharFormat()
-        function_format.setForeground(self.colors['function'])
-        self.styles['function'] = (function_format, '\\bdef\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b')
+        if 'function' in self.colors:
+            function_format = QTextCharFormat()
+            function_format.setForeground(self.colors['function'])
+            self.styles['function'] = (function_format, '\\bdef\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b')
         
-        class_format = QTextCharFormat()
-        class_format.setForeground(self.colors['class'])
-        self.styles['class'] = (class_format, '\\bclass\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b')
+        if 'class' in self.colors:
+            class_format = QTextCharFormat()
+            class_format.setForeground(self.colors['class'])
+            self.styles['class'] = (class_format, '\\bclass\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b')
         
-        number_format = QTextCharFormat()
-        number_format.setForeground(self.colors['number'])
-        self.styles['number'] = (number_format, '\\b[0-9]+\\b')
+        if 'number' in self.colors:
+            number_format = QTextCharFormat()
+            number_format.setForeground(self.colors['number'])
+            self.styles['number'] = (number_format, '\\b[0-9]+\\b')
         
-        decorator_format = QTextCharFormat()
-        decorator_format.setForeground(self.colors['decorator'])
-        self.styles['decorator'] = (decorator_format, '@[a-zA-Z_][a-zA-Z0-9_]*')
+        if 'decorator' in self.colors:
+            decorator_format = QTextCharFormat()
+            decorator_format.setForeground(self.colors['decorator'])
+            self.styles['decorator'] = (decorator_format, '@[a-zA-Z_][a-zA-Z0-9_]*')
     
     def highlightBlock(self, text):
         for style_name, (format, pattern) in self.styles.items():
@@ -738,6 +745,10 @@ class CodeEditor(QTextEdit):
         super().__init__(parent)
         self.lang_config = LanguageConfig()
         self.highlighter = SyntaxHighlighter(self.document(), self.lang_config)
+        
+        # Connect to theme changes
+        theme_manager = get_theme_manager()
+        theme_manager.themeChanged.connect(self.apply_theme)
         
         # Load saved colors from config
         self.load_saved_colors()
@@ -779,33 +790,68 @@ class CodeEditor(QTextEdit):
         self.verticalScrollBar().valueChanged.connect(self.line_number_area.update)
         self.textChanged.connect(self.handleTextChanged)
         
-        # Apply styling
-        self.setStyleSheet("""
-            QTextEdit {
-                background-color: #1a1a1a;
-                color: #ecf0f1;
+        # Apply initial theme
+        self.apply_theme()
+    
+    def apply_theme(self):
+        """Apply the current theme colors and fonts to the editor."""
+        theme_manager = get_theme_manager()
+        current_theme_data = theme_manager.get_theme_info(theme_manager.current_theme)
+        
+        if not current_theme_data:
+            return
+        
+        # Get colors from theme
+        colors = current_theme_data.get('colors', {})
+        fonts = current_theme_data.get('fonts', {})
+        
+        # Set font if specified in theme
+        editor_font = fonts.get('editor')
+        if editor_font:
+            font_family = editor_font.get('family', 'Courier New')
+            font_size = editor_font.get('size', 12)
+            font = QFont(font_family, font_size)
+            font.setStyleHint(QFont.Monospace)
+            self.setFont(font)
+        
+        # Apply stylesheet with theme colors
+        background = colors.get('background', '#1a1a1a')
+        foreground = colors.get('foreground', '#ecf0f1')
+        selection_bg = colors.get('selection', '#264f78')
+        selection_fg = colors.get('foreground', '#ffffff')
+        
+        # Scrollbar colors (derive from background/accent if not specified)
+        scrollbar_bg = colors.get('accent', '#2c2c2c')
+        scrollbar_handle = colors.get('highlight', '#4a4a4a')
+        
+        stylesheet = f"""
+            QTextEdit {{
+                background-color: {background};
+                color: {foreground};
                 border: none;
-                selection-background-color: #264f78;
-                selection-color: #ffffff;
-            }
-            QScrollBar:vertical {
+                selection-background-color: {selection_bg};
+                selection-color: {selection_fg};
+            }}
+            QScrollBar:vertical {{
                 border: none;
-                background: #2c2c2c;
+                background: {scrollbar_bg};
                 width: 14px;
                 margin: 0px 0px 0px 0px;
-            }
-            QScrollBar::handle:vertical {
-                background: #4a4a4a;
+            }}
+            QScrollBar::handle:vertical {{
+                background: {scrollbar_handle};
                 min-height: 30px;
                 border-radius: 7px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+            }}
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
                 height: 0px;
-            }
-            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-                background: #2c2c2c;
-            }
-        """)
+            }}
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
+                background: {scrollbar_bg};
+            }}
+        """
+        
+        self.setStyleSheet(stylesheet)
 
     def handleScrollRangeChange(self, min_val, max_val):
         """Handle scroll range changes to ensure proper document display"""
@@ -1375,6 +1421,10 @@ class PythonIDE(QMainWindow):
         preferencesAction = QAction("Preferences", self)
         preferencesAction.triggered.connect(self.showPreferences)
         editMenu.addAction(preferencesAction)
+        
+        # Style submenu
+        styleMenu = editMenu.addMenu("Style")
+        self.create_style_menu(styleMenu)
 
         # View menu
         viewMenu = menubar.addMenu("View")
@@ -1739,6 +1789,87 @@ class PythonIDE(QMainWindow):
         contributors = ["None yet."]
         contributors = '\n\t'.join(contributors)
         QMessageBox.about(self, "About", f"Python IDE\nVersion 1.0\nBuilt with Qt5\n\nWritten by Karac V. Thweatt - Open Source\n\nContributors:{contributors}")
+        
+    def create_style_menu(self, style_menu):
+        """Create the Style submenu with available themes."""
+        theme_manager = get_theme_manager()
+        
+        # Get available themes
+        available_themes = theme_manager.get_available_themes()
+        current_theme = theme_manager.current_theme
+        
+        # Create actions for each theme
+        for theme_name in available_themes:
+            theme_info = theme_manager.get_theme_info(theme_name)
+            
+            # Create action with theme name and description
+            action_text = theme_info.get('name', theme_name.capitalize())
+            if theme_name == current_theme:
+                action_text += " ✓"  # Mark current theme
+                
+            action = QAction(action_text, self)
+            
+            # Set tooltip with description if available
+            description = theme_info.get('description', f'{theme_name.capitalize()} theme')
+            action.setToolTip(description)
+            
+            # Connect to theme switching method
+            action.triggered.connect(lambda checked, theme=theme_name: self.switch_theme(theme))
+            
+            # Disable current theme action
+            if theme_name == current_theme:
+                action.setEnabled(False)
+                
+            style_menu.addAction(action)
+            
+    def switch_theme(self, theme_name):
+        """Switch to the specified theme."""
+        theme_manager = get_theme_manager()
+        
+        if theme_manager.set_theme(theme_name):
+            # Show success message
+            QMessageBox.information(
+                self, "Theme Changed", 
+                f"Successfully switched to {theme_name.capitalize()} theme.\n\nSome changes may require restarting the application."
+            )
+            
+            # Refresh the style menu to update checkmarks
+            self.refresh_style_menu()
+        else:
+            # Show error message
+            QMessageBox.warning(
+                self, "Theme Error",
+                f"Failed to switch to {theme_name} theme."
+            )
+            
+    def refresh_style_menu(self):
+        """Refresh the Style menu to update theme checkmarks."""
+        # Find the Style menu
+        menubar = self.menuBar()
+        edit_menu = None
+        style_menu = None
+        
+        # Find Edit menu
+        for action in menubar.actions():
+            if action.text() == "Edit":
+                edit_menu = action.menu()
+                break
+                
+        if not edit_menu:
+            return
+            
+        # Find Style submenu
+        for action in edit_menu.actions():
+            if action.text() == "Style":
+                style_menu = action.menu()
+                break
+                
+        if not style_menu:
+            return
+            
+        # Clear and recreate the style menu
+        style_menu.clear()
+        self.create_style_menu(style_menu)
         
     # Signal handler for editor tab changes
     def _on_current_editor_changed(self, editor):
