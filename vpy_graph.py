@@ -73,13 +73,15 @@ class CommentBox(QGraphicsRectItem):
             view = self.scene.views()[0]
             scale = view.transform().m11()
             
-            # Scale font
+            # Scale font with minimum size constraint
             font = self.title_item.font()
-            font.setPointSizeF(14 / scale)
+            # Ensure font size is always positive and reasonable
+            scaled_size = max(8.0, min(24.0, 14 / max(scale, 0.5)))
+            font.setPointSizeF(scaled_size)
             self.title_item.setFont(font)
             
-            # Scale resize handle
-            handle_size = 10 / scale
+            # Scale resize handle with minimum size constraint
+            handle_size = max(5.0, min(20.0, 10 / max(scale, 0.5)))
             rect = self.rect()
             self.resizeHandle = QRectF(
                 rect.width() - handle_size,

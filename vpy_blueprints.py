@@ -2,7 +2,7 @@ import ast, builtins, json
 
 from PyQt5.QtWidgets import (
     QGraphicsScene, QGraphicsView, QMainWindow, QWidget, QVBoxLayout, QMenuBar,
-    QAction, QApplication, QInputDialog, QDialog, QFileDialog, QMessageBox
+    QAction, QApplication, QInputDialog, QDialog, QFileDialog, QMessageBox, QMenu
     )
 
 from PyQt5.QtCore import Qt

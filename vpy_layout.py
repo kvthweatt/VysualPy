@@ -193,6 +193,9 @@ class Terminal(QDockWidget):
         super().__init__("Output", parent)
         self.setAllowedAreas(Qt.BottomDockWidgetArea)
         
+        # Store original stdout for cleanup
+        self._original_stdout = None
+        
         # Create container widget
         container = QWidget()
         layout = QVBoxLayout(container)
@@ -230,12 +233,28 @@ class Terminal(QDockWidget):
         self.setWidget(container)
     
     def write(self, text):
-        self.output.appendPlainText(text.rstrip())
-        self.output.moveCursor(self.output.textCursor().End)
-        self.output.ensureCursorVisible()
+        try:
+            if hasattr(self, 'output') and self.output:
+                self.output.appendPlainText(text.rstrip())
+                self.output.moveCursor(self.output.textCursor().End)
+                self.output.ensureCursorVisible()
+        except RuntimeError:
+            # Widget was deleted, restore original stdout
+            if self._original_stdout:
+                sys.stdout = self._original_stdout
+    
+    def flush(self):
+        # Required for stdout compatibility
+        pass
     
     def clear_output(self):
-        self.output.clear()
+        if hasattr(self, 'output') and self.output:
+            self.output.clear()
+            
+    def restore_stdout(self):
+        """Restore original stdout before widget deletion"""
+        if self._original_stdout:
+            sys.stdout = self._original_stdout
 
 class IDELayout:
     @staticmethod
@@ -263,6 +282,7 @@ class IDELayout:
         ide_window.addDockWidget(Qt.BottomDockWidgetArea, ide_window.terminal)
         
         # Redirect stdout to terminal
+        ide_window.terminal._original_stdout = sys.stdout
         sys.stdout = ide_window.terminal
         
         # Set the main splitter as the central widget

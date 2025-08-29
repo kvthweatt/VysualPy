@@ -896,3 +896,9 @@ class PythonIDE(QMainWindow):
         contributors = ["None yet."]
         contributors = '\n\t'.join(contributors)
         QMessageBox.about(self, "About", f"Python IDE\nVersion 1.0\nBuilt with Qt5\n\nWritten by Karac V. Thweatt - Open Source\n\nContributors:{contributors}")
+        
+    def closeEvent(self, event):
+        """Handle application close event to restore stdout"""
+        if hasattr(self, 'terminal') and self.terminal:
+            self.terminal.restore_stdout()
+        super().closeEvent(event)
