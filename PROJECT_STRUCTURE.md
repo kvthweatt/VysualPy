@@ -1,13 +1,13 @@
 # VysualPy Project Structure Report
 
-Generated on: 2025-08-29 13:12:43
+Generated on: 2025-08-29 13:28:59
 Total files analyzed: 16
 
 ## Overview
 
 - Total Classes: 67
 - Total Functions: 10
-- Total Lines of Code: 7496
+- Total Lines of Code: 7530
 
 ## File Details
 
@@ -79,7 +79,7 @@ Usage:
 
 ### vpy_blueprints.py
 
-**Lines:** 1526 | **Classes:** 11 | **Functions:** 1
+**Lines:** 1536 | **Classes:** 11 | **Functions:** 1
 
 **Key Imports:**
 
@@ -124,37 +124,37 @@ Usage:
   - `saveBlueprintWorkspace()` (method)
   - `loadBlueprintWorkspace()` (method)
   - ... and 6 more methods
-- `FunctionCallVisitor(NodeVisitor)` (line 635)
+- `FunctionCallVisitor(NodeVisitor)` (line 640)
   - `__init__()` (method)
   - `should_include_call()` (method)
   - `visit_Module()` (method)
   - `visit_If()` (method)
   - `visit_While()` (method)
   - ... and 9 more methods
-- `ExecutionScene(BlueprintScene)` (line 819)
+- `ExecutionScene(BlueprintScene)` (line 824)
   - `__init__()` (method)
-- `ExecutionView(BlueprintView)` (line 824)
+- `ExecutionView(BlueprintView)` (line 829)
   - `__init__()` (method)
-- `ExecutionGraphWindow(QMainWindow, CustomWindowMixin)` (line 829)
+- `ExecutionGraphWindow(QMainWindow, CustomWindowMixin)` (line 834)
   - `__init__()` (method)
   - `addCommentBoxToScene()` (method)
   - `create_menus()` (method)
   - `showPreferences()` (method)
   - `updateGridSize()` (method)
   - ... and 8 more methods
-- `BuildGraphScene(BlueprintScene)` (line 1197)
+- `BuildGraphScene(BlueprintScene)` (line 1207)
   - `__init__()` (method)
   - `should_initialize()` (method)
   - `initialize_default_structure()` (method)
   - `keyPressEvent()` (method)
   - `mousePressEvent()` (method)
   - ... and 3 more methods
-- `BuildGraphView(BlueprintView)` (line 1341)
+- `BuildGraphView(BlueprintView)` (line 1351)
   - `__init__()` (method)
   - `keyPressEvent()` (method)
   - `deleteSelectedNodes()` (method)
   - `mousePressEvent()` (method)
-- `BuildGraphWindow(QMainWindow)` (line 1434)
+- `BuildGraphWindow(QMainWindow)` (line 1444)
   - `__init__()` (method)
   - `confirm_code_replacement()` (method)
   - `create_initial_nodes()` (method)
@@ -514,7 +514,7 @@ that relies on the old node and connection classes.
 
 ### vpy_menus.py
 
-**Lines:** 648 | **Classes:** 4 | **Functions:** 0
+**Lines:** 672 | **Classes:** 4 | **Functions:** 0
 
 **Key Imports:**
 
@@ -537,19 +537,19 @@ that relies on the old node and connection classes.
   - `get_name()` (method)
 - `PreferencesDialog(QDialog)` (line 48)
   - `__init__()` (method)
+  - `_collect_values()` (method)
   - `save_and_close()` (method)
   - `load_saved_preferences()` (method)
-  - `accept()` (method)
-  - `getValues()` (method)
-  - ... and 14 more methods
-- `RecentFiles` (line 522)
+  - `populate_fields_from_config()` (method)
+  - ... and 15 more methods
+- `RecentFiles` (line 548)
   - `__init__()` (method)
   - `add_file()` (method)
   - `remove_file()` (method)
   - `get_files()` (method)
   - `clear()` (method)
   - ... and 2 more methods
-- `RecentFilesMenu(QMenu)` (line 590)
+- `RecentFilesMenu(QMenu)` (line 616)
   - `__init__()` (method)
   - `update_menu()` (method)
   - `add_recent_file()` (method)

@@ -96,37 +96,37 @@ class SyntaxHighlighter(QSyntaxHighlighter):
             return
             
         self.styles = {}
-        colors = self.current_language['colors']
+        # Use self.colors as the source of truth for colors
         
         # Keywords
         keyword_format = QTextCharFormat()
-        keyword_format.setForeground(QColor(colors['keyword']))
+        keyword_format.setForeground(self.colors['keyword'])
         keywords = self.current_language['keywords']
         self.styles['keyword'] = (keyword_format, '\\b(' + '|'.join(keywords) + ')\\b')
         
-        # Other styles remain the same but use colors from config
+        # Other styles use colors from self.colors dictionary
         string_format = QTextCharFormat()
-        string_format.setForeground(QColor(colors['string']))
+        string_format.setForeground(self.colors['string'])
         self.styles['string'] = (string_format, r'"[^"\\]*(\\.[^"\\]*)*"|\'[^\'\\]*(\\.[^\'\\]*)*\'')
         
         comment_format = QTextCharFormat()
-        comment_format.setForeground(QColor(colors['comment']))
+        comment_format.setForeground(self.colors['comment'])
         self.styles['comment'] = (comment_format, '#[^\n]*')
         
         function_format = QTextCharFormat()
-        function_format.setForeground(QColor(colors['function']))
+        function_format.setForeground(self.colors['function'])
         self.styles['function'] = (function_format, '\\bdef\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b')
         
         class_format = QTextCharFormat()
-        class_format.setForeground(QColor(colors['class']))
+        class_format.setForeground(self.colors['class'])
         self.styles['class'] = (class_format, '\\bclass\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b')
         
         number_format = QTextCharFormat()
-        number_format.setForeground(QColor(colors['number']))
+        number_format.setForeground(self.colors['number'])
         self.styles['number'] = (number_format, '\\b[0-9]+\\b')
         
         decorator_format = QTextCharFormat()
-        decorator_format.setForeground(QColor(colors['decorator']))
+        decorator_format.setForeground(self.colors['decorator'])
         self.styles['decorator'] = (decorator_format, '@[a-zA-Z_][a-zA-Z0-9_]*')
     
     def highlightBlock(self, text):
@@ -152,6 +152,9 @@ class CodeEditor(QTextEdit):
         super().__init__(parent)
         self.lang_config = LanguageConfig()
         self.highlighter = SyntaxHighlighter(self.document(), self.lang_config)
+        
+        # Load saved colors from config
+        self.load_saved_colors()
         
         # Debug flag
         self.debug = True
@@ -490,6 +493,31 @@ class CodeEditor(QTextEdit):
         except Exception as e:
             print(f"Error loading file: {e}")
             raise
+    
+    def load_saved_colors(self):
+        """Load saved color preferences and apply to the highlighter."""
+        try:
+            config = ConfigManager()
+            saved_config = config.load_config()
+            saved_colors = saved_config.get('editor', {}).get('colors', {})
+            
+            if saved_colors:
+                # Convert string colors to QColor objects and update highlighter
+                for name, color_str in saved_colors.items():
+                    if name in self.highlighter.colors:
+                        color = QColor(color_str)
+                        if color.isValid():
+                            self.highlighter.colors[name] = color
+                
+                # Rebuild format objects with the new colors
+                self.highlighter.setup_formats()
+                
+                # Trigger re-highlighting if there's content
+                if self.toPlainText():
+                    self.highlighter.rehighlight()
+                    
+        except Exception as e:
+            print(f"Error loading saved colors: {e}")
 
 class EditorTabs(QTabWidget):
     """Tabbed editor container that manages multiple CodeEditor instances."""
@@ -1137,7 +1165,43 @@ class PythonIDE(QMainWindow):
     def showPreferences(self):
         print("Opening preferences dialog")  # Debug print
         dialog = PreferencesDialog(self)
-        dialog.exec_()
+        if dialog.exec_() == dialog.Accepted:
+            # Apply saved preferences to the IDE
+            self.apply_preferences_changes(dialog)
+    
+    def apply_preferences_changes(self, preferences_dialog):
+        """Apply changes from preferences dialog to the IDE."""
+        values = preferences_dialog.getValues()
+        if not values:
+            return
+        
+        try:
+            # Apply color changes to all open editors
+            if 'colors' in values:
+                colors = values['colors']
+                self.apply_color_changes_to_editors(colors)
+                
+            # Apply other changes as needed
+            # (grid sizes, etc. can be applied when graph windows are opened)
+            
+        except Exception as e:
+            print(f"Error applying preference changes: {e}")
+    
+    def apply_color_changes_to_editors(self, new_colors):
+        """Apply new color settings to all open editors."""
+        if not self.editor_tabs:
+            return
+            
+        # Update each editor's syntax highlighter
+        for i in range(self.editor_tabs.count()):
+            editor = self.editor_tabs.widget(i)
+            if hasattr(editor, 'highlighter') and editor.highlighter:
+                # Update the colors dictionary
+                editor.highlighter.colors.update(new_colors)
+                # Rebuild the format objects with the new colors
+                editor.highlighter.setup_formats()
+                # Trigger re-highlighting
+                editor.highlighter.rehighlight()
 
     def showIDEHelp(self):
         QMessageBox.information(self, "VysualPy IDE Help", "This is a blueprint-based IDE built with PyQt5 currently only supporting Python.\n\nMore detailed help will be available soon.\n\nPlease see https://github.com/kvthweatt/VysualPy for more help.")

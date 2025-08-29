@@ -138,6 +138,16 @@ class PreferencesDialog(QDialog):
                 ex_grid = self.saved_config.get('execution', {}).get('grid_size', 50)
                 self.ex_spinbox.setValue(ex_grid)
                 self.ex_slider.setValue(ex_grid)
+            
+            # Load editor colors
+            saved_colors = self.saved_config.get('editor', {}).get('colors', {})
+            if saved_colors and self.color_buttons:
+                from PyQt5.QtGui import QColor
+                for name, color_str in saved_colors.items():
+                    if name in self.color_buttons:
+                        color = QColor(color_str)
+                        if color.isValid():
+                            self.color_buttons[name].setColor(color)
                 
         except Exception as e:
             print(f"Error loading preferences into fields: {e}")

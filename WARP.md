@@ -236,6 +236,13 @@ The Build Graph is the most sophisticated feature:
 - **Solution**: Cleaned up constructor calls to use single proper inheritance chain
 - **Files Fixed**: `vpy_blueprints.py` (BlueprintGraphWindow constructor)
 
+### Tab-Based Editor Implementation ✅ FIXED (Aug 29, 2025)
+- **Problem**: New File menu action not creating multiple tabs; IDE still using single-editor approach
+- **Root Cause**: PythonIDE.initUI() was setting up both single editor AND tab-based editor, but overriding the tab system with single editor central widget
+- **Solution**: Removed redundant single-editor setup, ensured IDELayout.setup() runs first to create tab system properly
+- **Files Fixed**: `vpy_editor.py` (initUI method cleanup, proper menu creation after layout setup)
+- **Result**: Multi-tab functionality now works correctly - New File creates new tabs as expected
+
 ## Ongoing Refactoring (August 2025)
 
 ### Code Architecture Improvements
@@ -279,16 +286,20 @@ The graph and node system is undergoing refactoring to improve maintainability a
 
 ### ✅ Working Features
 - **IDE Startup**: Application launches cleanly without font scaling errors
-- **Code Editor**: Basic text editing with syntax highlighting for Python
+- **Multi-Tab Editor**: Tab-based code editing system with proper New File tab creation
+- **Code Editor**: Basic text editing with syntax highlighting for Python in each tab
 - **Line Numbers**: Proper line numbering with fixed font scaling
-- **File Operations**: Open, save, and manage Python files
+- **File Operations**: Open, save, and manage Python files across multiple tabs
+- **Tab Management**: Create new tabs, close tabs with unsaved changes prompts, tab switching
 - **Terminal Integration**: Output redirection with proper cleanup
-- **Menu System**: All main menus and actions are functional
-- **Dark Theme**: Consistent dark UI theme across components
+- **Menu System**: All main menus and actions are functional and tab-aware
+- **Dark Theme**: Consistent dark UI theme across components including tab styling
 - **Window Dragging**: Fixed custom title bar dragging functionality with proper null checks
 - **BuildGraph Integration**: Fixed editor access to work with tab-based architecture
 
 ### 🔄 Recently Fixed Features (Aug 29, 2025)
+- **Tab-Based Architecture**: Fully implemented multi-tab editor system - New File now creates new tabs as expected
+- **Run & Graph Integration**: Updated Run Program and all Graph features (Blueprint, Execution, Build) to operate on active tab
 - **BuildGraph Editor Access**: Fixed `textEdit` attribute errors by updating to use `current_editor()` method
 - **Function Call Detection**: Implemented missing `detect_function_calls` function with AST parsing
 - **Window Dragging Bug**: Resolved TypeError in custom window dragging with proper dragPos initialization
