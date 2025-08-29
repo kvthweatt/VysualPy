@@ -249,7 +249,10 @@ class CodeEditor(QTextEdit):
 
         # Set smaller font for line numbers
         font = self.font()
-        font.setPointSize(font.pointSize() - 1)  # Make line numbers 1 point smaller
+        # Ensure font size is always positive and reasonable
+        current_size = font.pointSize()
+        new_size = max(8, current_size - 1) if current_size > 0 else 10
+        font.setPointSize(new_size)
         painter.setFont(font)
 
         block = self.document().firstBlock()
