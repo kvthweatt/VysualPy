@@ -12,7 +12,7 @@ from PyQt5.QtGui import (
     )
 
 from PyQt5.QtCore import (
-    Qt, QSize, QRect
+    Qt, QSize, QRect, QTimer
     )
 
 from vpy_config import ConfigManager, LanguageConfig
