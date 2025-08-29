@@ -200,6 +200,28 @@ The Build Graph is the most sophisticated feature:
 - **Problem**: Missing `QTimer` and `QTextFormat` imports causing runtime errors
 - **Solution**: Added missing imports to `vpy_editor.py`
 
+### BuildGraph Editor Integration ✅ FIXED (Aug 29, 2025)
+- **Problem**: BuildGraph system failing with "IDE object has no attribute 'textEdit'" errors
+- **Root Cause**: BuildGraph classes accessing non-existent `textEdit` attribute instead of tab-based editor system
+- **Solution**: Updated all BuildGraph editor access to use `current_editor()` method and check for valid editor instance
+- **Files Fixed**: `vpy_blueprints.py` (BuildGraphScene, BuildGraphView classes)
+
+### Missing Function Implementation ✅ FIXED (Aug 29, 2025)
+- **Problem**: `detect_function_calls` function referenced but not implemented, breaking BuildGraph auto-function creation
+- **Solution**: Implemented complete AST-based function call detection with built-in exclusions and local function filtering
+- **Files Fixed**: `vpy_blueprints.py` (added FunctionCallCollector class and detect_function_calls function)
+
+### Custom Window Dragging ✅ FIXED (Aug 29, 2025)
+- **Problem**: TypeError "unsupported operand type(s) for -: 'QPoint' and 'NoneType'" when dragging custom windows
+- **Root Cause**: `dragPos` variable not properly initialized or checked for None before arithmetic operations
+- **Solution**: Added proper null checks and initialization in CustomWindowMixin mouse event handlers
+- **Files Fixed**: `vpy_winmix.py` (titleBarMouseMoveEvent method)
+
+### Multiple Inheritance Issues ✅ FIXED (Aug 29, 2025)
+- **Problem**: Duplicate `super().__init__()` calls causing initialization conflicts in Blueprint windows
+- **Solution**: Cleaned up constructor calls to use single proper inheritance chain
+- **Files Fixed**: `vpy_blueprints.py` (BlueprintGraphWindow constructor)
+
 ## Ongoing Refactoring (August 2025)
 
 ### Code Architecture Improvements
