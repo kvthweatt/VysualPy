@@ -161,14 +161,71 @@ The Build Graph is the most sophisticated feature:
 - Rubber band selection enabled in all graph views
 - Connection dimming system for visual clarity when nodes are selected
 
+## Recent Bug Fixes (2025)
+
+### Font Scaling Issues ✅ FIXED
+- **Problem**: `QFont::setPointSize: Point size <= 0 (-2)` errors causing application spam
+- **Root Cause**: Font scaling calculations in `CommentBox.paint()` and `CodeEditor.lineNumberAreaPaintEvent()` could result in negative font sizes
+- **Solution**: Added bounds checking to ensure font sizes are always >= 8pt with fallback values
+- **Files Fixed**: `vpy_graph.py` (lines 73-82), `vpy_editor.py` (lines 254-257)
+
+### Terminal Cleanup Issues ✅ FIXED
+- **Problem**: "wrapped C/C++ object of type Terminal has been deleted" error on application exit
+- **Root Cause**: `sys.stdout` redirection to Terminal widget without proper cleanup
+- **Solution**: Added proper stdout restoration in Terminal class and IDE closeEvent handler
+- **Files Fixed**: `vpy_layout.py` (Terminal class), `vpy_editor.py` (closeEvent method)
+
+### Missing Import Errors ✅ FIXED
+- **Problem**: Missing `QTimer` and `QTextFormat` imports causing runtime errors
+- **Solution**: Added missing imports to `vpy_editor.py`
+
+## Current Status (Updated 2025-08-29)
+
+### ✅ Working Features
+- **IDE Startup**: Application launches cleanly without font scaling errors
+- **Code Editor**: Basic text editing with syntax highlighting for Python
+- **Line Numbers**: Proper line numbering with fixed font scaling
+- **File Operations**: Open, save, and manage Python files
+- **Terminal Integration**: Output redirection with proper cleanup
+- **Menu System**: All main menus and actions are functional
+- **Dark Theme**: Consistent dark UI theme across components
+
+### 🔄 Partially Working Features
+- **Graph Systems**: Blueprint, Execution, and Build Graph windows can be opened
+- **File Browser**: Basic file system navigation (needs testing)
+- **Workspace Management**: Save/load functionality exists but needs validation
+
+### ⚠️ Features Needing Testing/Validation
+- **Build Graph Live Editing**: The core innovative feature needs thorough testing
+- **Node Connections**: Graph node connection system needs validation
+- **AST Parsing**: Execution graph generation from code
+- **Function Auto-creation**: Build Graph's automatic function stub creation
+- **Workspace Persistence**: Save/load of graph workspaces (.vpb, .veg files)
+- **Program Execution**: Running Python files from within the IDE
+
+### 🚧 Known Areas for Improvement
+- **Error Handling**: More robust error handling throughout the application
+- **Performance**: Graph rendering optimization for large codebases
+- **Testing**: No unit tests currently exist
+- **Documentation**: User documentation and help system
+
 ## Troubleshooting
 
 ### Common Issues
 - **File display problems**: The code editor has specific scroll handling for large files
 - **Graph connection issues**: Ensure connection points are properly initialized in node constructors
 - **Build Graph sync problems**: Check that `parent_ide` reference is maintained in `BuildableNode` instances
+- **Font scaling errors**: If you see font size warnings, check that all font.setPointSize() calls use max() to ensure positive values
+- **Terminal output issues**: Ensure Terminal class properly stores and restores original stdout
 
 ### Performance Notes
 - Large files may require viewport optimization in the code editor
 - Graph rendering uses full viewport updates for smooth connection drawing
 - AST parsing performance scales with code complexity in execution graphs
+- Font scaling calculations are now bounded to prevent negative sizes
+
+### Debugging Tips
+- Use `python main.py` to run the IDE directly and see any console output
+- Check for Qt font warnings - these indicate scaling calculation issues
+- Terminal output redirection can mask print statements - use original stdout if needed
+- Graph view scaling issues often manifest as font size problems

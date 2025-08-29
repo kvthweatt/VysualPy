@@ -259,17 +259,25 @@ class Terminal(QDockWidget):
 class IDELayout:
     @staticmethod
     def setup(ide_window):
+        # Import EditorTabs here to avoid circular imports
+        from vpy_editor import EditorTabs
+        
         # Create the main splitter
         ide_window.main_splitter = QSplitter(Qt.Vertical)
         
-        # Create the editor widget
-        editor_widget = QWidget()
-        editor_layout = QVBoxLayout(editor_widget)
-        editor_layout.setContentsMargins(0, 0, 0, 0)
-        editor_layout.addWidget(ide_window.textEdit)
+        # Create the EditorTabs widget
+        ide_window.editor_tabs = EditorTabs(ide_window)
         
-        # Add the editor to the splitter
-        ide_window.main_splitter.addWidget(editor_widget)
+        # Connect the current editor changed signal
+        ide_window.editor_tabs.currentEditorChanged.connect(
+            lambda editor: ide_window._on_current_editor_changed(editor)
+        )
+        
+        # Create an initial empty tab
+        ide_window.editor_tabs.add_new_tab()
+        
+        # Add the editor tabs to the splitter
+        ide_window.main_splitter.addWidget(ide_window.editor_tabs)
         
         # Create and set up the browser tabs
         ide_window.browser_tabs = BrowserTabs(ide_window)

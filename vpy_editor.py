@@ -3,7 +3,7 @@ import re, os, subprocess
 from PyQt5.QtWidgets import (
     QMainWindow, QMenuBar, QAction, QTextEdit, QMessageBox, QGraphicsView,
     QFileDialog, QInputDialog, QWidget, QVBoxLayout, QSizePolicy,
-    QSplitter, QShortcut
+    QSplitter, QShortcut, QTabWidget
     )
 
 from PyQt5.QtGui import (
@@ -12,7 +12,7 @@ from PyQt5.QtGui import (
     )
 
 from PyQt5.QtCore import (
-    Qt, QSize, QRect, QTimer
+    Qt, QSize, QRect, QTimer, pyqtSignal
     )
 
 from vpy_config import ConfigManager, LanguageConfig
@@ -491,12 +491,241 @@ class CodeEditor(QTextEdit):
             print(f"Error loading file: {e}")
             raise
 
+class EditorTabs(QTabWidget):
+    """Tabbed editor container that manages multiple CodeEditor instances."""
+    
+    # Signal emitted when the current editor changes
+    currentEditorChanged = pyqtSignal(object)  # Emits CodeEditor instance or None
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        
+        # Configure tab widget
+        self.setTabsClosable(True)
+        self.setMovable(True)
+        self.setUsesScrollButtons(True)
+        self.setElideMode(Qt.ElideRight)
+        
+        # Connect signals
+        self.tabCloseRequested.connect(self.close_tab)
+        self.currentChanged.connect(self._on_current_changed)
+        
+        # Apply dark theme styling consistent with existing UI
+        self.setStyleSheet("""
+            QTabWidget::pane {
+                border: none;
+                background: #1a1a1a;
+            }
+            QTabBar::tab {
+                background: #2b2b2b;
+                color: #a9b7c6;
+                padding: 8px 16px;
+                margin-right: 2px;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+                min-width: 120px;
+            }
+            QTabBar::tab:selected {
+                background: #1a1a1a;
+                border-bottom: 2px solid #2d5177;
+                color: #ffffff;
+            }
+            QTabBar::tab:hover {
+                background: #323232;
+            }
+            QTabBar::close-button {
+                image: none;
+                background: rgba(169, 183, 198, 0.3);
+                border-radius: 6px;
+                width: 12px;
+                height: 12px;
+                margin: 2px;
+            }
+            QTabBar::close-button:hover {
+                background: rgba(255, 107, 107, 0.8);
+            }
+            QTabBar::close-button:pressed {
+                background: rgba(255, 107, 107, 1.0);
+            }
+        """)
+        
+        # Track untitled file counter
+        self.untitled_counter = 0
+    
+    def add_new_tab(self, content="", filepath=None, title=None):
+        """Add a new tab with a CodeEditor.
+        
+        Args:
+            content (str): Initial content for the editor
+            filepath (str): File path if opening an existing file
+            title (str): Custom tab title (will be derived from filepath if not provided)
+        
+        Returns:
+            CodeEditor: The newly created editor instance
+        """
+        editor = self._create_code_editor()
+        
+        # Set initial content
+        if content:
+            editor.setPlainText(content)
+        
+        # Determine tab title
+        if title:
+            tab_title = title
+        elif filepath:
+            tab_title = os.path.basename(filepath)
+        else:
+            self.untitled_counter += 1
+            tab_title = f"Untitled {self.untitled_counter}"
+        
+        # Add tab
+        tab_index = self.addTab(editor, tab_title)
+        
+        # Store filepath in tab data
+        editor.setProperty('filepath', filepath)
+        editor.setProperty('is_dirty', False)
+        
+        # Connect text changed signal for dirty state tracking
+        editor.textChanged.connect(lambda: self._mark_dirty(editor))
+        
+        # Set as current tab
+        self.setCurrentIndex(tab_index)
+        
+        return editor
+    
+    def _create_code_editor(self):
+        """Create a new CodeEditor with proper configuration."""
+        editor = CodeEditor()
+        
+        # Set up Go to Line shortcut for this editor
+        go_to_line_shortcut = QShortcut(QKeySequence("Ctrl+G"), editor)
+        go_to_line_shortcut.activated.connect(editor.go_to_line)
+        
+        return editor
+    
+    def _mark_dirty(self, editor):
+        """Mark an editor as dirty (unsaved changes)."""
+        if not editor.property('is_dirty'):
+            editor.setProperty('is_dirty', True)
+            
+            # Find the tab index for this editor
+            for i in range(self.count()):
+                if self.widget(i) == editor:
+                    current_text = self.tabText(i)
+                    if not current_text.endswith('*'):
+                        self.setTabText(i, current_text + '*')
+                    break
+    
+    def _mark_clean(self, editor):
+        """Mark an editor as clean (saved)."""
+        editor.setProperty('is_dirty', False)
+        
+        # Find the tab index for this editor and remove asterisk
+        for i in range(self.count()):
+            if self.widget(i) == editor:
+                current_text = self.tabText(i)
+                if current_text.endswith('*'):
+                    self.setTabText(i, current_text[:-1])
+                break
+    
+    def close_tab(self, index):
+        """Close a tab at the given index."""
+        if index < 0 or index >= self.count():
+            return
+        
+        editor = self.widget(index)
+        
+        # Check if the editor has unsaved changes
+        if editor.property('is_dirty'):
+            filepath = editor.property('filepath') or f"Untitled {index + 1}"
+            filename = os.path.basename(filepath) if filepath else filepath
+            
+            reply = QMessageBox.question(
+                self, 'Unsaved Changes',
+                f'The file "{filename}" has unsaved changes.\n\nDo you want to save before closing?',
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                QMessageBox.Save
+            )
+            
+            if reply == QMessageBox.Save:
+                # Try to save the file
+                if hasattr(self.parent(), 'save_current_file'):
+                    if not self.parent().save_current_file(editor):
+                        return  # Save failed, don't close
+                else:
+                    return  # No save method available
+            elif reply == QMessageBox.Cancel:
+                return  # User cancelled, don't close
+            # If Discard, continue with closing
+        
+        # Remove the tab
+        self.removeTab(index)
+        
+        # Clean up the editor
+        editor.deleteLater()
+    
+    def _on_current_changed(self, index):
+        """Handle tab change to emit currentEditorChanged signal."""
+        if index >= 0:
+            editor = self.widget(index)
+            self.currentEditorChanged.emit(editor)
+        else:
+            self.currentEditorChanged.emit(None)
+    
+    def current_editor(self):
+        """Get the currently active CodeEditor."""
+        current_widget = self.currentWidget()
+        return current_widget if isinstance(current_widget, CodeEditor) else None
+    
+    def find_tab_by_filepath(self, filepath):
+        """Find a tab index by its filepath.
+        
+        Returns:
+            int: Tab index if found, -1 if not found
+        """
+        for i in range(self.count()):
+            editor = self.widget(i)
+            if editor.property('filepath') == filepath:
+                return i
+        return -1
+    
+    def get_all_editors(self):
+        """Get all CodeEditor instances in tabs.
+        
+        Returns:
+            list: List of (editor, filepath) tuples
+        """
+        editors = []
+        for i in range(self.count()):
+            editor = self.widget(i)
+            filepath = editor.property('filepath')
+            editors.append((editor, filepath))
+        return editors
+    
+    def set_tab_filepath(self, editor, filepath):
+        """Update the filepath for a tab and refresh the title."""
+        editor.setProperty('filepath', filepath)
+        
+        # Update tab title
+        for i in range(self.count()):
+            if self.widget(i) == editor:
+                filename = os.path.basename(filepath) if filepath else f"Untitled {i + 1}"
+                is_dirty = editor.property('is_dirty')
+                tab_title = filename + ('*' if is_dirty else '')
+                self.setTabText(i, tab_title)
+                break
+        
+        # Mark as clean since we're setting a new filepath (likely after save)
+        self._mark_clean(editor)
+
 class PythonIDE(QMainWindow):
     def __init__(self):
         super().__init__()
         self.config = ConfigManager()
         self.grid_size = 50
         self.recent_files_menu = RecentFilesMenu(self)
+        # Will be set up by IDELayout.setup()
+        self.editor_tabs = None
         self.initUI()
 
     def initUI(self):
@@ -507,18 +736,19 @@ class PythonIDE(QMainWindow):
         menubar = self.createMenuBar()
         self.setMenuBar(menubar)
         
-        # Create text editor
-        self.textEdit = CodeEditor()
-        
         # Set up the IDE layout with file browser and terminal
+        # This creates self.editor_tabs and sets up the layout
         IDELayout.setup(self)
         
         # Configure window
         self.resize(1200, 800)
         self.setMinimumSize(800, 600)
         
-        # Initialize current file reference
+        # Initialize current file reference for backward compatibility
         self.currentFile = None
+        
+        # Create menus
+        self.createMenus()
         
         # Apply dark theme
         self.setStyleSheet("""
@@ -552,6 +782,15 @@ class PythonIDE(QMainWindow):
                 padding-bottom: 2px;
             }
         """)
+        
+    def createMenuBar(self):
+        menubar = QMenuBar()
+        # [Rest of menu creation code remains the same]
+        return menubar
+    
+    def createMenus(self):
+        """Create all menus after layout is set up."""
+        menubar = self.menuBar()
         
         # File menu
         fileMenu = menubar.addMenu("File")
@@ -607,37 +846,6 @@ class PythonIDE(QMainWindow):
         helpMenu.addAction(ideHelpAction)
         helpMenu.addAction(aboutAction)
 
-        self.setMenuBar(menubar)
-        
-        # Text editor
-        central_widget = QWidget()
-        layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        self.textEdit = CodeEditor()
-        
-        # Ensure the text editor can expand
-        self.textEdit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        
-        # Add editor to layout
-        layout.addWidget(self.textEdit)
-        
-        # Set central widget
-        self.setCentralWidget(central_widget)
-        
-        # Configure window
-        self.resize(1024, 768)
-        self.setMinimumSize(400, 300)
-        
-        # Store current file reference
-        self.currentFile = None
-        
-    def createMenuBar(self):
-        menubar = QMenuBar()
-        # [Rest of menu creation code remains the same]
-        return menubar
-
     def toggleMaximized(self):
         if self.isMaximized():
             self.showNormal()
@@ -656,47 +864,61 @@ class PythonIDE(QMainWindow):
             event.accept()
 
     def newFile(self):
-        self.textEdit.clear()
-        self.currentFile = None
+        """Create a new empty tab."""
+        if self.editor_tabs:
+            self.editor_tabs.add_new_tab()
+        else:
+            # Fallback for single editor mode
+            self.textEdit.clear()
+            self.currentFile = None
 
     def openFile(self):
-        options = QFileDialog.Options()
+        """Open a file dialog and load the selected file in a tab."""
+        # Get supported extensions from language config
         supported_extensions = []
-        for lang_config in self.textEdit.lang_config.languages.values():
-            exts = lang_config['lang']['extensions']
+        lang_config = LanguageConfig()
+        for lang_data in lang_config.languages.values():
+            exts = lang_data['lang']['extensions']
             supported_extensions.extend(f"*.{ext}" for ext in exts)
         
         filter_str = "All Supported Files ({});;All Files (*)".format(" ".join(supported_extensions))
         
+        options = QFileDialog.Options()
         filePath, _ = QFileDialog.getOpenFileName(
             self, "Open File", "", filter_str, options=options
         )
         
         if filePath:
-            try:
-                self.textEdit.load_file(filePath)
-                self.currentFile = filePath
-                self.recent_files_menu.add_recent_file(filePath)
-                self.setWindowTitle(f"Vysual IDE - {filePath}")
-            except Exception as e:
-                self.show_error_message(f"Error opening file: {e}")
+            self.open_file_in_tab(filePath)
 
     def show_error_message(self, message):
         QMessageBox.critical(self, "Error", message)
 
     def saveFile(self):
-        if self.currentFile:
-            with open(self.currentFile, 'w') as file:
-                file.write(self.textEdit.toPlainText())
+        """Save the current file using tab-aware methods."""
+        if self.editor_tabs:
+            # Use tab-aware save
+            self.save_current_file()
         else:
-            self.saveFileAs()
+            # Fallback for single editor mode
+            if self.currentFile:
+                with open(self.currentFile, 'w') as file:
+                    file.write(self.textEdit.toPlainText())
+            else:
+                self.saveFileAs()
 
     def saveFileAs(self):
-        options = QFileDialog.Options()
-        filePath, _ = QFileDialog.getSaveFileName(self, "Save File As", "", "Python Files (*.py);;All Files (*)", options=options)
-        if filePath:
-            self.currentFile = filePath
-            self.saveFile()
+        """Save As dialog using tab-aware methods."""
+        if self.editor_tabs:
+            # Use tab-aware save as
+            self.save_file_as()
+        else:
+            # Fallback for single editor mode
+            options = QFileDialog.Options()
+            filePath, _ = QFileDialog.getSaveFileName(self, "Save File As", "", "Python Files (*.py);;All Files (*)", options=options)
+            if filePath:
+                self.currentFile = filePath
+                self.saveFile()
     
     def saveBlueprintWorkspace(self, scene):
         options = QFileDialog.Options()
@@ -846,13 +1068,18 @@ class PythonIDE(QMainWindow):
                 QMessageBox.critical(self, "Error", f"Failed to load workspace:\n{str(e)}")
 
     def runProgram(self):
-        if self.currentFile:
-            self.saveFile()  # Save before running
+        """Run the current file from the active tab."""
+        # Get current editor and filepath
+        current_filepath = self.current_filepath()
+        
+        if current_filepath:
+            # Save current file before running
+            self.saveFile()
             try:
                 self.terminal.clear_output()  # Clear previous output
-                print(f"Running: {self.currentFile}")
+                print(f"Running: {current_filepath}")
                 result = subprocess.run(
-                    ["python3", self.currentFile], 
+                    ["python3", current_filepath], 
                     capture_output=True, 
                     text=True
                 )
@@ -867,25 +1094,45 @@ class PythonIDE(QMainWindow):
             self.show_error_message("Please save the file before running.")
     
     def showExGraph(self):
-        code = self.textEdit.toPlainText()
-        graph_window = ExecutionGraphWindow(None, code, self.currentFile)
-        graph_window.show()
+        """Show the Execution Graph for the current tab."""
+        current_editor = self.current_editor()
+        current_filepath = self.current_filepath()
+        
+        if current_editor:
+            code = current_editor.toPlainText()
+            graph_window = ExecutionGraphWindow(None, code, current_filepath)
+            graph_window.show()
+        else:
+            self.show_error_message("No file is currently open.")
 
     def showBdGraph(self):
-        # Store reference to prevent garbage collection
-        self.build_graph_window = BuildGraphWindow(self, self.textEdit.toPlainText())
-        if not hasattr(self.build_graph_window, 'cancelled') or not self.build_graph_window.cancelled:
-            # Position the window relative to the main IDE window
-            ide_geometry = self.geometry()
-            self.build_graph_window.move(ide_geometry.x() + 50, ide_geometry.y() + 50)
-            self.build_graph_window.show()
+        """Show the Build Graph for the current tab."""
+        current_editor = self.current_editor()
+        
+        if current_editor:
+            code = current_editor.toPlainText()
+            # Store reference to prevent garbage collection
+            self.build_graph_window = BuildGraphWindow(self, code)
+            if not hasattr(self.build_graph_window, 'cancelled') or not self.build_graph_window.cancelled:
+                # Position the window relative to the main IDE window
+                ide_geometry = self.geometry()
+                self.build_graph_window.move(ide_geometry.x() + 50, ide_geometry.y() + 50)
+                self.build_graph_window.show()
+        else:
+            self.show_error_message("No file is currently open.")
 
     def showGraph(self):
-        """Show the Blueprint Graph window"""
-        graph_window = BlueprintGraphWindow(None, self.textEdit.toPlainText())
-        graph_window.show()
-        # Store reference to prevent garbage collection
-        self.blueprint_window = graph_window
+        """Show the Blueprint Graph for the current tab."""
+        current_editor = self.current_editor()
+        
+        if current_editor:
+            code = current_editor.toPlainText()
+            graph_window = BlueprintGraphWindow(None, code)
+            graph_window.show()
+            # Store reference to prevent garbage collection
+            self.blueprint_window = graph_window
+        else:
+            self.show_error_message("No file is currently open.")
 
     def showPreferences(self):
         print("Opening preferences dialog")  # Debug print
@@ -900,8 +1147,159 @@ class PythonIDE(QMainWindow):
         contributors = '\n\t'.join(contributors)
         QMessageBox.about(self, "About", f"Python IDE\nVersion 1.0\nBuilt with Qt5\n\nWritten by Karac V. Thweatt - Open Source\n\nContributors:{contributors}")
         
+    # Signal handler for editor tab changes
+    def _on_current_editor_changed(self, editor):
+        """Handle when the current editor tab changes."""
+        # Update window title to reflect current file
+        if editor:
+            filepath = editor.property('filepath')
+            if filepath:
+                filename = os.path.basename(filepath)
+                self.setWindowTitle(f"Vysual Python IDE - {filename}")
+            else:
+                self.setWindowTitle("Vysual Python IDE - Untitled")
+        else:
+            self.setWindowTitle("Vysual Python IDE")
+    
+    # Tab-aware helper methods
+    def current_editor(self):
+        """Get the currently active CodeEditor."""
+        if self.editor_tabs:
+            return self.editor_tabs.current_editor()
+        return None
+    
+    def current_filepath(self):
+        """Get the filepath of the currently active editor."""
+        editor = self.current_editor()
+        if editor:
+            return editor.property('filepath')
+        return None
+    
+    def set_current_filepath(self, filepath):
+        """Update the filepath for the current tab."""
+        editor = self.current_editor()
+        if editor and self.editor_tabs:
+            self.editor_tabs.set_tab_filepath(editor, filepath)
+    
+    def save_current_file(self, editor=None):
+        """Save the specified editor (or current editor if None).
+        
+        Returns:
+            bool: True if save succeeded, False otherwise
+        """
+        if not editor:
+            editor = self.current_editor()
+        
+        if not editor:
+            return False
+        
+        filepath = editor.property('filepath')
+        
+        if filepath:
+            # File has a path, save it
+            try:
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    f.write(editor.toPlainText())
+                
+                # Mark as clean
+                if self.editor_tabs:
+                    self.editor_tabs._mark_clean(editor)
+                
+                return True
+            except Exception as e:
+                self.show_error_message(f"Error saving file: {e}")
+                return False
+        else:
+            # No filepath, need to use Save As
+            return self.save_file_as(editor)
+    
+    def save_file_as(self, editor=None):
+        """Save As dialog for the specified editor (or current editor if None).
+        
+        Returns:
+            bool: True if save succeeded, False otherwise
+        """
+        if not editor:
+            editor = self.current_editor()
+        
+        if not editor:
+            return False
+        
+        options = QFileDialog.Options()
+        filepath, _ = QFileDialog.getSaveFileName(
+            self, "Save File As", "", 
+            "Python Files (*.py);;All Files (*)", 
+            options=options
+        )
+        
+        if filepath:
+            try:
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    f.write(editor.toPlainText())
+                
+                # Update tab filepath and mark clean
+                if self.editor_tabs:
+                    self.editor_tabs.set_tab_filepath(editor, filepath)
+                
+                # Add to recent files
+                self.recent_files_menu.add_recent_file(filepath)
+                
+                return True
+            except Exception as e:
+                self.show_error_message(f"Error saving file: {e}")
+                return False
+        
+        return False
+    
+    def open_file_in_tab(self, filepath):
+        """Open a file in a new tab or switch to existing tab if already open."""
+        if not self.editor_tabs:
+            return
+        
+        # Check if file is already open
+        existing_tab_index = self.editor_tabs.find_tab_by_filepath(filepath)
+        if existing_tab_index >= 0:
+            # Switch to existing tab
+            self.editor_tabs.setCurrentIndex(existing_tab_index)
+            return
+        
+        # File not open, load it in a new tab
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Add new tab
+            editor = self.editor_tabs.add_new_tab(content=content, filepath=filepath)
+            
+            # Add to recent files
+            self.recent_files_menu.add_recent_file(filepath)
+            
+        except Exception as e:
+            self.show_error_message(f"Error opening file: {e}")
+    
     def closeEvent(self, event):
         """Handle application close event to restore stdout"""
+        # Check for unsaved changes in all tabs
+        if self.editor_tabs:
+            unsaved_files = []
+            for editor, filepath in self.editor_tabs.get_all_editors():
+                if editor.property('is_dirty'):
+                    filename = os.path.basename(filepath) if filepath else "Untitled"
+                    unsaved_files.append(filename)
+            
+            if unsaved_files:
+                file_list = "\n  • ".join(unsaved_files)
+                reply = QMessageBox.question(
+                    self, 'Unsaved Changes',
+                    f'The following files have unsaved changes:\n  • {file_list}\n\nDo you want to exit without saving?',
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.No
+                )
+                
+                if reply == QMessageBox.No:
+                    event.ignore()
+                    return
+        
         if hasattr(self, 'terminal') and self.terminal:
             self.terminal.restore_stdout()
         super().closeEvent(event)
