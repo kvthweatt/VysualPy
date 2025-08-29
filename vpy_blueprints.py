@@ -377,7 +377,12 @@ class BlueprintGraphWindow(QMainWindow, CustomWindowMixin):
         dialog = PreferencesDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             values = dialog.getValues()
-            self.grid_size = values['grid_size']
+            if values and 'grid_size' in values:
+                # Handle both formats: old (single value) and new (dict with blueprint/execution)
+                if isinstance(values['grid_size'], dict):
+                    self.grid_size = values['grid_size'].get('blueprint', 50)
+                else:
+                    self.grid_size = values['grid_size']
             self.updateGridSize()
 
     def updateGridSize(self):
@@ -955,8 +960,13 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
         dialog = PreferencesDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             values = dialog.getValues()
-            self.grid_size = values['grid_size']
-            self.updateGridSize()
+            if values and 'grid_size' in values:
+                # Handle both formats: old (single value) and new (dict with blueprint/execution)
+                if isinstance(values['grid_size'], dict):
+                    self.grid_size = values['grid_size'].get('execution', 50)
+                else:
+                    self.grid_size = values['grid_size']
+                self.updateGridSize()
 
     def updateGridSize(self):
             # Update grid size in execution view

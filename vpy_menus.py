@@ -46,17 +46,23 @@ class PresetDialog(QDialog):
         return self.name_edit.text()
 
 class PreferencesDialog(QDialog):
+    """VysualPy Preferences Dialog.
+    
+    IMPORTANT: After dialog closes, all widgets are destroyed. Any data needed
+    must be retrieved via getValues() method which returns cached values.
+    Do not attempt to access widgets directly after dialog closes.
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
         self.config = ConfigManager()
         self.load_saved_preferences()
         self.color_buttons = {}
+        self.saved_values = None  # Initialize to prevent hasattr checks
         self.initUI()
 
-    def save_and_close(self):
-        # Collect all values into a dictionary immediately
-        values = {}
+    def _collect_values(self):
+        """Collect all widget values before dialog closes to prevent widget deletion issues."""
         try:
             values = {
                 'grid_size': {
@@ -73,8 +79,18 @@ class PreferencesDialog(QDialog):
                 }
             }
             self.saved_values = values
-            self.config.update_config(values)
-            self.accept()
+            return values
+        except Exception as e:
+            print(f"Error collecting preference values: {e}")
+            return {}
+    
+    def save_and_close(self):
+        """Save preferences and close dialog safely."""
+        try:
+            values = self._collect_values()
+            if values:
+                self.config.update_config(values)
+                self.accept()
         except Exception as e:
             print(f"Error saving preferences: {e}")
             QMessageBox.critical(self, "Error", f"Failed to save preferences: {str(e)}")
@@ -82,6 +98,49 @@ class PreferencesDialog(QDialog):
     def load_saved_preferences(self):
         config = self.config.load_config()
         self.saved_config = config
+        
+    def populate_fields_from_config(self):
+        """Load saved configuration values into the dialog fields"""
+        if not hasattr(self, 'saved_config'):
+            return
+            
+        try:
+            # Load interpreter path
+            if hasattr(self, 'interpreter_path'):
+                interpreter = self.saved_config.get('environment', {}).get('python', {}).get('interpreter', '')
+                self.interpreter_path.setText(interpreter)
+            
+            # Load compiler and linker paths  
+            if hasattr(self, 'compiler_path'):
+                compiler = self.saved_config.get('environment', {}).get('build', {}).get('compiler', '')
+                self.compiler_path.setText(compiler)
+            
+            if hasattr(self, 'linker_path'):
+                linker = self.saved_config.get('environment', {}).get('build', {}).get('linker', '')
+                self.linker_path.setText(linker)
+                
+            # Load library paths
+            if hasattr(self, 'lib_paths'):
+                python_libs = self.saved_config.get('environment', {}).get('python', {}).get('lib_paths', [])
+                self.lib_paths.set_paths(python_libs)
+            
+            if hasattr(self, 'other_lib_paths'):
+                build_libs = self.saved_config.get('environment', {}).get('build', {}).get('lib_paths', [])
+                self.other_lib_paths.set_paths(build_libs)
+                
+            # Load grid sizes
+            if hasattr(self, 'bp_spinbox'):
+                bp_grid = self.saved_config.get('blueprint', {}).get('grid_size', 50)
+                self.bp_spinbox.setValue(bp_grid)
+                self.bp_slider.setValue(bp_grid)
+            
+            if hasattr(self, 'ex_spinbox'):
+                ex_grid = self.saved_config.get('execution', {}).get('grid_size', 50)
+                self.ex_spinbox.setValue(ex_grid)
+                self.ex_slider.setValue(ex_grid)
+                
+        except Exception as e:
+            print(f"Error loading preferences into fields: {e}")
     
     def accept(self):
         try:
@@ -186,28 +245,6 @@ class PreferencesDialog(QDialog):
         build_tab = self.create_build_tab()
         other_tab.addTab(build_tab, "Build")
 
-        build_group = QGroupBox("Build Settings")
-        build_inner = QGridLayout()
-
-        compiler_label = QLabel("Compiler:")
-        self.compiler_path = QLineEdit()
-        compiler_browse = QPushButton("Browse")
-        compiler_browse.clicked.connect(lambda: self.browse_path(self.compiler_path))
-
-        linker_label = QLabel("Linker:")
-        self.linker_path = QLineEdit()
-        linker_browse = QPushButton("Browse")
-        linker_browse.clicked.connect(lambda: self.browse_path(self.linker_path))
-
-        build_inner.addWidget(compiler_label, 0, 0)
-        build_inner.addWidget(self.compiler_path, 0, 1)
-        build_inner.addWidget(compiler_browse, 0, 2)
-        build_inner.addWidget(linker_label, 1, 0)
-        build_inner.addWidget(self.linker_path, 1, 1)
-        build_inner.addWidget(linker_browse, 1, 2)
-
-        build_group.setLayout(build_inner)
-
         # Libraries tab
         lib_tab = QWidget()
         lib_layout = QVBoxLayout()
@@ -246,6 +283,9 @@ class PreferencesDialog(QDialog):
         layout.addLayout(button_layout)
         
         self.setLayout(layout)
+        
+        # Load saved preferences into the fields
+        self.populate_fields_from_config()
     
     def create_editor_tab(self):
         # Original editor tab code here
@@ -354,21 +394,6 @@ class PreferencesDialog(QDialog):
         
         return blueprint_tab
 
-    def getValues(self):
-        return {
-            'grid_size': {
-                'blueprint': self.bp_spinbox.value(),
-                'execution': self.ex_spinbox.value()
-            },
-            'colors': {name: button.getColor() for name, button in self.color_buttons.items()},
-            'env': {
-                'interpreter': self.interpreter_path.text(),
-                'python_lib_paths': self.lib_paths.get_paths(),
-                'other_lib_paths': self.other_lib_paths.get_paths(),
-                'compiler': self.compiler_path.text(),
-                'linker': self.linker_path.text()
-            }
-        }
     
     def browse_path(self, line_edit):
         path = QFileDialog.getOpenFileName(self, "Select File")[0]
