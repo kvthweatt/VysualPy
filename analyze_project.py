@@ -342,7 +342,7 @@ class FileVisitor(ast.NodeVisitor):
 
 def main():
     """Main entry point for the project analyzer."""
-    parser = argparse.ArgumentParser(description="Analyze VysualPy project structure")
+    parser = argparse.ArgumentParser(description="VysualPy Project Details Generator")
     parser.add_argument("--output", "-o", default="PROJECT_STRUCTURE.md",
                        help="Output markdown file (default: PROJECT_STRUCTURE.md)")
     parser.add_argument("--json", "-j", help="Also save as JSON file")

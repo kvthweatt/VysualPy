@@ -14,6 +14,9 @@ from vpy_node_types import BlueprintNode, ExecutionNode, BuildableNode, CommentN
 from vpy_connection_core import Connection, ConnectionManager
 from vpy_node_base import ConnectionPort, PortType
 from vpy_graph import CommentBox  # Legacy compatibility
+from vpy_enhanced_connections import SimpleConnection, EnhancedConnection
+from vpy_node_creation import NodeCreationDialog
+from vpy_tree_operations import TreeAlignmentEngine, GroupOperations, KeyboardShortcutHandler
 
 class GraphLayoutOptimizer:
     """Simple graph layout optimizer stub for legacy compatibility"""
@@ -122,73 +125,220 @@ class FunctionCallCollector(ast.NodeVisitor):
 
 
 class BlueprintScene(QGraphicsScene):
+    """Enhanced blueprint scene with advanced node management capabilities."""
+    
     def __init__(self):
         super().__init__()
+        # Legacy connection system compatibility
         self.connection_in_progress = None
         self.active_connection_point = None
+        
+        # Enhanced connection system
+        self.connections = []
+        self.node_counter = {'Blueprint': 0, 'Execution': 0, 'Buildable': 0}
+        
+        # Prevent recursion in connection updates
+        self._updating_connections = False
+        
+        # Initialize tree operations
+        self.tree_engine = TreeAlignmentEngine(self)
+        self.group_ops = GroupOperations(self)
+        self.shortcut_handler = KeyboardShortcutHandler(self)
 
     def mouseMoveEvent(self, event):
+        """Enhanced mouse move handling for connections."""
         if self.connection_in_progress:
             self.connection_in_progress.end_pos = event.scenePos()
             self.connection_in_progress.updatePath()
         super().mouseMoveEvent(event)
+        
+        # Update all completed connections when nodes move
+        self.update_all_connections()
 
     def mouseReleaseEvent(self, event):
+        """Enhanced connection completion handling."""
         if self.connection_in_progress:
-            items = self.items(event.scenePos())
             valid_connection = False
+            from vpy_node_base import BaseNode
+            scene_pos = event.scenePos()
             
-            for item in items:
-                if isinstance(item, ConnectionPort):
-                    if item.type.value != self.active_connection_point.type.value:
-                        # Connect the points
-                        self.connection_in_progress.setEndPoint(item)
-                        valid_connection = True
-                        break
+            # Check all nodes for target port proximity
+            for item in self.items():
+                if isinstance(item, BaseNode) and item != self.active_connection_point.node:
+                    found_port, target_port = self.check_port_proximity_for_connection(
+                        item, scene_pos, self.active_connection_point
+                    )
+                    
+                    if found_port and target_port:
+                        # Node type compatibility checking
+                        start_node = self.active_connection_point.node
+                        end_node = target_port.node
+                        
+                        if not (hasattr(start_node, 'node_type') and hasattr(end_node, 'node_type')):
+                            continue
+                            
+                        # Only allow connections between nodes of the same type
+                        nodes_compatible = (start_node.node_type == end_node.node_type)
+                        
+                        if nodes_compatible:
+                            # Check for duplicate blueprint connections
+                            if (hasattr(start_node, 'node_type') and 
+                                start_node.node_type.value == 'blueprint'):
+                                
+                                connection_exists = self.check_blueprint_connection_exists(
+                                    start_node, end_node
+                                )
+                                
+                                if connection_exists:
+                                    print(f"❌ Blueprint connection already exists between '{start_node.name}' and '{end_node.name}'")
+                                    continue
+                            
+                            # Create the connection
+                            self.connection_in_progress.setEndPoint(target_port)
+                            valid_connection = True
+                            node_type_name = start_node.node_type.value.capitalize()
+                            print(f"✅ Created {node_type_name} connection: {start_node.name} → {end_node.name}")
+                            break
+                        else:
+                            start_type = start_node.node_type.value.capitalize()
+                            end_type = end_node.node_type.value.capitalize()
+                            print(f"❌ Cannot connect {start_type} to {end_type} - incompatible types")
             
             if not valid_connection:
+                # Remove invalid connection
                 self.removeItem(self.connection_in_progress)
-                # Clear the connection reference from the start point
-                if self.active_connection_point:
-                    self.active_connection_point.connection = None
-            
+                if self.active_connection_point and hasattr(self.active_connection_point, 'remove_connection'):
+                    self.active_connection_point.remove_connection(self.connection_in_progress)
+                if self.connection_in_progress in self.connections:
+                    self.connections.remove(self.connection_in_progress)
+                print("❌ Connection cancelled - no valid target found")
+                    
             self.connection_in_progress = None
             self.active_connection_point = None
             
         super().mouseReleaseEvent(event)
 
     def mousePressEvent(self, event):
+        """Enhanced mouse press handling with port detection."""
         if event.button() == Qt.LeftButton:
-            # Clear all selections if clicking on empty space (unless holding Ctrl)
-            items = self.items(event.scenePos())
             from PyQt5.QtWidgets import QApplication
+            from vpy_node_base import BaseNode
             modifiers = QApplication.keyboardModifiers()
             
-            if not items and not (modifiers & Qt.ControlModifier):
-                # Clicking on empty space without Ctrl - clear all selections
-                for item in self.selectedItems():
-                    item.setSelected(False)
-                    if hasattr(item, 'set_state'):
-                        from vpy_node_base import NodeState
-                        item.set_state(NodeState.NORMAL)
+            # Check for port hits on all nodes
+            scene_pos = event.scenePos()
+            port_found = False
+            
+            for item in self.items():
+                if isinstance(item, BaseNode):
+                    found_port, clicked_port = self.check_port_proximity(item, scene_pos)
+                    if found_port:
+                        # Start connection from this port
+                        if not self.connection_in_progress:
+                            self.connection_in_progress = SimpleConnection(
+                                clicked_port, event.scenePos(), self
+                            )
+                            self.active_connection_point = clicked_port
+                            port_type = "output" if clicked_port.type.value == 'output' else "input"
+                            print(f"Started connection from {item.name}:{clicked_port.id} ({port_type})")
+                            event.accept()
+                            port_found = True
+                            return
+            
+            # Handle regular scene interactions if no port found
+            if not port_found:
+                items = self.items(event.scenePos())
+                if not items and not (modifiers & Qt.ControlModifier):
+                    # Clear all selections if clicking on empty space without Ctrl
+                    for item in self.selectedItems():
+                        item.setSelected(False)
+                        if hasattr(item, 'set_state'):
+                            from vpy_node_base import NodeState
+                            item.set_state(NodeState.NORMAL)
                         
         elif event.button() == Qt.RightButton:
             # Only show context menu if clicking on empty space
             items = self.items(event.scenePos())
-            if not items:  # If no items under cursor
+            if not items:
                 self.showContextMenu(event)
         
-        super().mousePressEvent(event)
+        # Only call super if we didn't handle connection creation
+        if not (hasattr(self, 'connection_in_progress') and self.connection_in_progress):
+            super().mousePressEvent(event)
+    
+    def keyPressEvent(self, event):
+        """Handle keyboard shortcuts for node operations."""
+        # Try to handle with shortcut handler first
+        if self.shortcut_handler.handle_key_event(event):
+            return
+            
+        # Let parent handle other key events
+        super().keyPressEvent(event)
 
     def showContextMenu(self, event):
+        """Enhanced context menu with node creation options."""
         menu = QMenu()
+        
+        # Node creation submenu
+        create_menu = menu.addMenu("Create Node")
+        
+        blueprint_action = create_menu.addAction("📦 Blueprint Node")
+        blueprint_action.triggered.connect(lambda: self.create_node_at_position("Blueprint", event.scenePos()))
+        
+        execution_action = create_menu.addAction("⚡ Execution Node")
+        execution_action.triggered.connect(lambda: self.create_node_at_position("Execution", event.scenePos()))
+        
+        buildable_action = create_menu.addAction("🔧 Buildable Node")
+        buildable_action.triggered.connect(lambda: self.create_node_at_position("Buildable", event.scenePos()))
+        
+        menu.addSeparator()
+        
+        # Legacy comment box
         addCommentAction = menu.addAction("Add Comment Box")
         
-        # Convert scene position to global position for the menu
-        view = self.views()[0]  # Get the view this scene is in
-        global_pos = view.mapToGlobal(view.mapFromScene(event.scenePos()))
+        # Selection operations if there are selected items
+        selected_items = self.selectedItems()
+        if selected_items:
+            menu.addSeparator()
+            
+            delete_selected_action = menu.addAction(f"Delete Selected ({len(selected_items)})")
+            delete_selected_action.triggered.connect(self.delete_selected_nodes)
+            
+            if len(selected_items) > 1:
+                align_menu = menu.addMenu("Align Selected")
+                
+                align_left_action = align_menu.addAction("Align Left")
+                align_left_action.triggered.connect(lambda: self.group_ops.align_selected_nodes(selected_items, "left"))
+                
+                align_right_action = align_menu.addAction("Align Right")
+                align_right_action.triggered.connect(lambda: self.group_ops.align_selected_nodes(selected_items, "right"))
+                
+                align_top_action = align_menu.addAction("Align Top")
+                align_top_action.triggered.connect(lambda: self.group_ops.align_selected_nodes(selected_items, "top"))
+                
+                align_bottom_action = align_menu.addAction("Align Bottom")
+                align_bottom_action.triggered.connect(lambda: self.group_ops.align_selected_nodes(selected_items, "bottom"))
+                
+                distribute_menu = menu.addMenu("Distribute Selected")
+                
+                distribute_h_action = distribute_menu.addAction("Distribute Horizontally")
+                distribute_h_action.triggered.connect(lambda: self.group_ops.distribute_selected_nodes(selected_items, "horizontal"))
+                
+                distribute_v_action = distribute_menu.addAction("Distribute Vertically")
+                distribute_v_action.triggered.connect(lambda: self.group_ops.distribute_selected_nodes(selected_items, "vertical"))
         
-        # Store scene position for later use
+        # Scene operations
+        menu.addSeparator()
+        clear_action = menu.addAction("Clear All Nodes")
+        clear_action.triggered.connect(self.clear_all_nodes)
+        
+        # Convert scene position to global position for the menu
+        view = self.views()[0] if self.views() else None
+        if view:
+            global_pos = view.mapToGlobal(view.mapFromScene(event.scenePos()))
+        else:
+            global_pos = event.screenPos()
+        
         scene_pos = event.scenePos()
         
         # Show menu and handle action
@@ -199,6 +349,179 @@ class BlueprintScene(QGraphicsScene):
             if ok and name:
                 comment_box = CommentBox(name, scene_pos.x(), scene_pos.y())
                 self.addItem(comment_box)
+    
+    def create_node_at_position(self, node_type, position):
+        """Create a new node at the specified position."""
+        dialog = NodeCreationDialog(node_type)
+        if dialog.exec_() != QDialog.Accepted:
+            return
+            
+        data = dialog.get_node_data()
+        
+        try:
+            if node_type == "Blueprint":
+                node = BlueprintNode(
+                    name=data['name'],
+                    content=data.get('content', '')
+                )
+                if data.get('content', '').strip():
+                    node.process_content_change("", data.get('content', ''))
+            elif node_type == "Execution":
+                node = ExecutionNode(
+                    name=data['name'],
+                    original_name=data.get('original_name', data['name'])
+                )
+            elif node_type == "Buildable":
+                node = BuildableNode(
+                    name=data['name'],
+                    content=data.get('content', '')
+                )
+            else:
+                QMessageBox.warning(None, "Error", f"Unknown node type: {node_type}")
+                return
+                
+            node.setPos(position)
+            self.addItem(node)
+            self.node_counter[node_type] += 1
+            
+            print(f"Created {node_type} node '{data['name']}' at {position}")
+            
+        except Exception as e:
+            QMessageBox.critical(None, "Error Creating Node", 
+                               f"Failed to create {node_type} node:\n{str(e)}")
+    
+    def clear_all_nodes(self):
+        """Clear all nodes from the scene."""
+        reply = QMessageBox.question(
+            None, "Clear All Nodes",
+            "Are you sure you want to remove all nodes from the scene?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            items_to_remove = []
+            for item in self.items():
+                if hasattr(item, 'node_type'):
+                    items_to_remove.append(item)
+                    
+            for item in items_to_remove:
+                self.removeItem(item)
+                
+            self.node_counter = {'Blueprint': 0, 'Execution': 0, 'Buildable': 0}
+            print("Cleared all nodes from scene")
+            
+    def delete_selected_nodes(self):
+        """Delete all selected nodes."""
+        selected_items = self.selectedItems()
+        node_items = [item for item in selected_items if hasattr(item, 'node_type')]
+        
+        if not node_items:
+            return
+            
+        reply = QMessageBox.question(
+            None, "Delete Selected Nodes",
+            f"Are you sure you want to delete {len(node_items)} selected node(s)?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            for item in node_items:
+                if hasattr(item, 'disconnect_all'):
+                    item.disconnect_all()
+                self.removeItem(item)
+            print(f"Deleted {len(node_items)} selected nodes")
+    
+    def check_port_proximity(self, node, scene_pos):
+        """Check if scene position is close to any port on the given node."""
+        port_radius = 30  # Generous hitbox for ports
+        
+        # Check output ports first
+        for port_id, port in node.output_ports.items():
+            port_scene_pos = node.mapToScene(port.position)
+            dx = scene_pos.x() - port_scene_pos.x()
+            dy = scene_pos.y() - port_scene_pos.y()
+            distance = (dx * dx + dy * dy) ** 0.5
+            
+            if distance <= port_radius:
+                return True, port
+        
+        # Check input ports
+        for port_id, port in node.input_ports.items():
+            port_scene_pos = node.mapToScene(port.position)
+            dx = scene_pos.x() - port_scene_pos.x()
+            dy = scene_pos.y() - port_scene_pos.y()
+            distance = (dx * dx + dy * dy) ** 0.5
+            
+            if distance <= port_radius:
+                return True, port
+        
+        return False, None
+        
+    def check_port_proximity_for_connection(self, node, scene_pos, source_port):
+        """Check if scene position is close to a compatible port for connection."""
+        port_radius = 30
+        
+        # Check node type compatibility
+        source_node = source_port.node
+        target_node = node
+        
+        if not (hasattr(source_node, 'node_type') and hasattr(target_node, 'node_type')):
+            return False, None
+            
+        # Disable manual connections for buildable nodes
+        if (hasattr(source_node, 'node_type') and source_node.node_type.value == 'buildable') or \
+           (hasattr(target_node, 'node_type') and target_node.node_type.value == 'buildable'):
+            return False, None
+            
+        if source_node.node_type != target_node.node_type:
+            return False, None
+        
+        # Check port direction compatibility
+        if source_port.type.value == 'output':
+            ports_to_check = node.input_ports
+        else:
+            ports_to_check = node.output_ports
+        
+        for port_id, port in ports_to_check.items():
+            port_scene_pos = node.mapToScene(port.position)
+            dx = scene_pos.x() - port_scene_pos.x()
+            dy = scene_pos.y() - port_scene_pos.y()
+            distance = (dx * dx + dy * dy) ** 0.5
+            
+            if distance <= port_radius:
+                return True, port
+        
+        return False, None
+    
+    def check_blueprint_connection_exists(self, start_node, end_node):
+        """Check if a connection already exists between two blueprint nodes."""
+        if not (hasattr(start_node, 'node_type') and hasattr(end_node, 'node_type')):
+            return False
+            
+        if start_node.node_type.value != 'blueprint' or end_node.node_type.value != 'blueprint':
+            return False
+        
+        if hasattr(self, 'connections'):
+            for connection in self.connections:
+                if (hasattr(connection, 'start_port') and hasattr(connection, 'end_port') and 
+                    connection.end_port is not None):
+                    
+                    connection_start = connection.start_port.node
+                    connection_end = connection.end_port.node
+                    
+                    # Check if this connection already exists (in either direction)
+                    if ((connection_start == start_node and connection_end == end_node) or
+                        (connection_start == end_node and connection_end == start_node)):
+                        return True
+        
+        return False
+        
+    def update_all_connections(self):
+        """Update all connection lines to follow moving nodes."""
+        if hasattr(self, 'connections'):
+            for connection in self.connections:
+                if hasattr(connection, 'updateForNodeMovement'):
+                    connection.updateForNodeMovement()
 
 class BlueprintView(QGraphicsView):
     def __init__(self, scene, parent=None):

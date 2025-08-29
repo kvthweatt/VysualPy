@@ -1417,11 +1417,14 @@ class NodeSystemDebugWindow(QMainWindow):
             "• Right-click in empty space to create nodes\n" +
             "• Click and drag from output ports to input ports to create connections\n" +
             "• Drag connection lines to move both connected nodes together\n" +
+            "• Hover over connections for detailed tooltips\n" +
             "• Drag to select multiple nodes (rubber band selection)\n" +
             "• Ctrl+Click to add/remove nodes from selection\n" +
             "• Drag selected nodes to move them together\n" +
             "• Right-click on selected nodes for group operations\n" +
             "• Right-click connection lines to break them\n" +
+            "• Ctrl+S: Align direct children vertically\n" +
+            "• Ctrl+Shift+S: Align entire tree structure\n" +
             "• Alt+Drag to pan view, Ctrl+Wheel to zoom\n" +
             "• Double-click nodes to edit (where supported)"
         )
