@@ -844,6 +844,20 @@ class EnhancedBlueprintScene(BlueprintScene):
                         nodes_compatible = (start_node.node_type == end_node.node_type)
                         
                         if nodes_compatible:
+                            # For Blueprint nodes only: Check if this connection already exists
+                            if (hasattr(start_node, 'node_type') and 
+                                start_node.node_type.value == 'blueprint'):
+                                
+                                # Check if a connection already exists between these two nodes
+                                connection_exists = self.check_blueprint_connection_exists(
+                                    start_node, end_node
+                                )
+                                
+                                if connection_exists:
+                                    print(f"❌ Blueprint connection already exists between '{start_node.name}' and '{end_node.name}' - duplicate connections not allowed")
+                                    continue  # Skip this connection and continue checking other targets
+                            
+                            # Connection is valid - create it
                             self.connection_in_progress.setEndPoint(target_port)
                             valid_connection = True
                             node_type_name = start_node.node_type.value.capitalize()
@@ -911,6 +925,40 @@ class EnhancedBlueprintScene(BlueprintScene):
                 return True, port
         
         return False, None
+    
+    def check_blueprint_connection_exists(self, start_node, end_node):
+        """Check if a connection already exists between two blueprint nodes.
+        
+        Args:
+            start_node: The source node of the potential connection
+            end_node: The target node of the potential connection
+            
+        Returns:
+            bool: True if a connection already exists between these nodes (in either direction)
+        """
+        # Only check for blueprint nodes
+        if not (hasattr(start_node, 'node_type') and hasattr(end_node, 'node_type')):
+            return False
+            
+        if start_node.node_type.value != 'blueprint' or end_node.node_type.value != 'blueprint':
+            return False
+        
+        # Check all existing connections in the scene
+        if hasattr(self, 'connections'):
+            for connection in self.connections:
+                if (hasattr(connection, 'start_port') and hasattr(connection, 'end_port') and 
+                    connection.end_port is not None):
+                    
+                    connection_start = connection.start_port.node
+                    connection_end = connection.end_port.node
+                    
+                    # Check if this connection already exists (in either direction)
+                    # Blueprint connections are bidirectional in terms of preventing duplicates
+                    if ((connection_start == start_node and connection_end == end_node) or
+                        (connection_start == end_node and connection_end == start_node)):
+                        return True
+        
+        return False
         
     def mouseMoveEvent(self, event):
         """Handle connection dragging."""
