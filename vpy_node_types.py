@@ -71,11 +71,11 @@ class BlueprintNode(BaseNode, RenderMixin, InteractionMixin):
     def get_display_name(self) -> str:
         """Get the display name for this node."""
         if self.is_class:
-            return f"📦 {self.name}"
+            return f"[Class] {self.name}"
         elif self.content.strip().startswith(('def ', 'async def ')):
-            return f"⚙️ {self.name}"
+            return f"[Func] {self.name}"
         else:
-            return f"📄 {self.name}"
+            return f"[Code] {self.name}"
             
     def get_tooltip_text(self) -> str:
         """Get tooltip text for this node."""
@@ -143,7 +143,7 @@ class ExecutionNode(BaseNode, RenderMixin, InteractionMixin):
         
     def get_display_name(self) -> str:
         """Get the display name for this node."""
-        prefix = "🔄" if self.is_conditional else "⚡"
+        prefix = "[Cond]" if self.is_conditional else "[Exec]"
         return f"{prefix} {self.name}"
         
     def get_tooltip_text(self) -> str:
@@ -258,13 +258,13 @@ class BuildableNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin):
     def get_display_name(self) -> str:
         """Get the display name for this node."""
         if self.editing:
-            return f"✏️ {self.name}"
+            return f"[Edit] {self.name}"
         elif self.is_class:
-            return f"🏗️ {self.name}"
+            return f"[Build Class] {self.name}"
         elif self.content.strip().startswith(('def ', 'async def ')):
-            return f"🔧 {self.name}"
+            return f"[Build Func] {self.name}"
         else:
-            return f"📝 {self.name}"
+            return f"[Build] {self.name}"
             
     def get_tooltip_text(self) -> str:
         """Get tooltip text for this node."""

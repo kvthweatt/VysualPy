@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-29 13:41:31",
+  "timestamp": "2025-08-29 14:21:51",
   "files": {
     "analyze_project.py": {
       "file_path": "analyze_project.py",
@@ -319,11 +319,11 @@
     },
     "vpy_blueprints.py": {
       "file_path": "vpy_blueprints.py",
-      "line_count": 1536,
+      "line_count": 1584,
       "classes": [
         {
           "name": "FunctionCallCollector",
-          "line_number": 60,
+          "line_number": 62,
           "base_classes": [
             "NodeVisitor"
           ],
@@ -331,7 +331,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 63,
+              "line_number": 65,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -344,7 +344,7 @@
             },
             {
               "name": "visit_FunctionDef",
-              "line_number": 68,
+              "line_number": 70,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -357,7 +357,7 @@
             },
             {
               "name": "visit_AsyncFunctionDef",
-              "line_number": 73,
+              "line_number": 75,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -370,7 +370,7 @@
             },
             {
               "name": "visit_Call",
-              "line_number": 78,
+              "line_number": 80,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -383,7 +383,7 @@
             },
             {
               "name": "_get_callable_name",
-              "line_number": 87,
+              "line_number": 89,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -396,7 +396,7 @@
             },
             {
               "name": "_should_include_call",
-              "line_number": 96,
+              "line_number": 98,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallCollector",
@@ -412,7 +412,7 @@
         },
         {
           "name": "BlueprintScene",
-          "line_number": 114,
+          "line_number": 116,
           "base_classes": [
             "QGraphicsScene"
           ],
@@ -420,7 +420,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 115,
+              "line_number": 117,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintScene",
@@ -432,7 +432,7 @@
             },
             {
               "name": "mouseMoveEvent",
-              "line_number": 120,
+              "line_number": 122,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintScene",
@@ -445,7 +445,7 @@
             },
             {
               "name": "mouseReleaseEvent",
-              "line_number": 126,
+              "line_number": 128,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintScene",
@@ -458,7 +458,7 @@
             },
             {
               "name": "mousePressEvent",
-              "line_number": 150,
+              "line_number": 152,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintScene",
@@ -471,7 +471,7 @@
             },
             {
               "name": "showContextMenu",
-              "line_number": 158,
+              "line_number": 160,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintScene",
@@ -487,7 +487,7 @@
         },
         {
           "name": "BlueprintView",
-          "line_number": 178,
+          "line_number": 180,
           "base_classes": [
             "QGraphicsView"
           ],
@@ -495,7 +495,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 179,
+              "line_number": 181,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -509,7 +509,7 @@
             },
             {
               "name": "keyPressEvent",
-              "line_number": 195,
+              "line_number": 197,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -522,7 +522,7 @@
             },
             {
               "name": "mousePressEvent",
-              "line_number": 203,
+              "line_number": 205,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -535,7 +535,7 @@
             },
             {
               "name": "mouseMoveEvent",
-              "line_number": 220,
+              "line_number": 222,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -548,7 +548,7 @@
             },
             {
               "name": "mouseReleaseEvent",
-              "line_number": 230,
+              "line_number": 232,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -561,7 +561,7 @@
             },
             {
               "name": "drawBackground",
-              "line_number": 240,
+              "line_number": 242,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -575,7 +575,7 @@
             },
             {
               "name": "wheelEvent",
-              "line_number": 269,
+              "line_number": 271,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintView",
@@ -591,7 +591,7 @@
         },
         {
           "name": "BlueprintGraphWindow",
-          "line_number": 279,
+          "line_number": 281,
           "base_classes": [
             "QMainWindow",
             "CustomWindowMixin"
@@ -600,7 +600,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 280,
+              "line_number": 282,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -614,7 +614,7 @@
             },
             {
               "name": "showPreferences",
-              "line_number": 376,
+              "line_number": 378,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -626,7 +626,7 @@
             },
             {
               "name": "updateGridSize",
-              "line_number": 388,
+              "line_number": 390,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -638,7 +638,7 @@
             },
             {
               "name": "saveBlueprintWorkspace",
-              "line_number": 402,
+              "line_number": 404,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -651,7 +651,7 @@
             },
             {
               "name": "loadBlueprintWorkspace",
-              "line_number": 461,
+              "line_number": 463,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -664,7 +664,7 @@
             },
             {
               "name": "addCommentBoxToScene",
-              "line_number": 549,
+              "line_number": 551,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -677,7 +677,7 @@
             },
             {
               "name": "optimize_layout",
-              "line_number": 557,
+              "line_number": 559,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -689,7 +689,7 @@
             },
             {
               "name": "reset_view",
-              "line_number": 561,
+              "line_number": 563,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -701,7 +701,7 @@
             },
             {
               "name": "create_nodes_from_code",
-              "line_number": 565,
+              "line_number": 567,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -714,7 +714,7 @@
             },
             {
               "name": "add_code_block",
-              "line_number": 595,
+              "line_number": 597,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -730,7 +730,7 @@
             },
             {
               "name": "create_graph_nodes",
-              "line_number": 610,
+              "line_number": 612,
               "is_async": false,
               "is_method": true,
               "parent_class": "BlueprintGraphWindow",
@@ -747,7 +747,7 @@
         },
         {
           "name": "FunctionCallVisitor",
-          "line_number": 640,
+          "line_number": 642,
           "base_classes": [
             "NodeVisitor"
           ],
@@ -755,7 +755,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 641,
+              "line_number": 643,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -767,7 +767,7 @@
             },
             {
               "name": "should_include_call",
-              "line_number": 672,
+              "line_number": 674,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -780,7 +780,7 @@
             },
             {
               "name": "visit_Module",
-              "line_number": 678,
+              "line_number": 680,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -793,7 +793,7 @@
             },
             {
               "name": "visit_If",
-              "line_number": 683,
+              "line_number": 685,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -806,7 +806,7 @@
             },
             {
               "name": "visit_While",
-              "line_number": 693,
+              "line_number": 695,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -819,7 +819,7 @@
             },
             {
               "name": "visit_For",
-              "line_number": 699,
+              "line_number": 701,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -832,7 +832,7 @@
             },
             {
               "name": "visit_Call",
-              "line_number": 705,
+              "line_number": 707,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -845,7 +845,7 @@
             },
             {
               "name": "get_unique_name",
-              "line_number": 752,
+              "line_number": 754,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -859,7 +859,7 @@
             },
             {
               "name": "get_callable_name",
-              "line_number": 761,
+              "line_number": 763,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -872,7 +872,7 @@
             },
             {
               "name": "handle_function",
-              "line_number": 775,
+              "line_number": 777,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -886,7 +886,7 @@
             },
             {
               "name": "visit_FunctionDef",
-              "line_number": 791,
+              "line_number": 793,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -899,7 +899,7 @@
             },
             {
               "name": "visit_AsyncFunctionDef",
-              "line_number": 794,
+              "line_number": 796,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -912,7 +912,7 @@
             },
             {
               "name": "visit_Assign",
-              "line_number": 797,
+              "line_number": 799,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -925,7 +925,7 @@
             },
             {
               "name": "visit_Return",
-              "line_number": 809,
+              "line_number": 811,
               "is_async": false,
               "is_method": true,
               "parent_class": "FunctionCallVisitor",
@@ -941,7 +941,7 @@
         },
         {
           "name": "ExecutionScene",
-          "line_number": 824,
+          "line_number": 826,
           "base_classes": [
             "BlueprintScene"
           ],
@@ -949,7 +949,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 825,
+              "line_number": 827,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionScene",
@@ -964,7 +964,7 @@
         },
         {
           "name": "ExecutionView",
-          "line_number": 829,
+          "line_number": 831,
           "base_classes": [
             "BlueprintView"
           ],
@@ -972,7 +972,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 830,
+              "line_number": 832,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionView",
@@ -989,7 +989,7 @@
         },
         {
           "name": "ExecutionGraphWindow",
-          "line_number": 834,
+          "line_number": 836,
           "base_classes": [
             "QMainWindow",
             "CustomWindowMixin"
@@ -998,7 +998,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 835,
+              "line_number": 837,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1013,7 +1013,7 @@
             },
             {
               "name": "addCommentBoxToScene",
-              "line_number": 924,
+              "line_number": 926,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1026,7 +1026,7 @@
             },
             {
               "name": "create_menus",
-              "line_number": 932,
+              "line_number": 934,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1038,7 +1038,7 @@
             },
             {
               "name": "showPreferences",
-              "line_number": 959,
+              "line_number": 961,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1050,7 +1050,7 @@
             },
             {
               "name": "updateGridSize",
-              "line_number": 971,
+              "line_number": 973,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1062,7 +1062,7 @@
             },
             {
               "name": "optimize_layout",
-              "line_number": 986,
+              "line_number": 988,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1074,7 +1074,7 @@
             },
             {
               "name": "reset_view",
-              "line_number": 992,
+              "line_number": 994,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1086,7 +1086,7 @@
             },
             {
               "name": "create_execution_graph",
-              "line_number": 998,
+              "line_number": 1000,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1099,7 +1099,7 @@
             },
             {
               "name": "save_graph",
-              "line_number": 1008,
+              "line_number": 1010,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1111,7 +1111,7 @@
             },
             {
               "name": "load_graph",
-              "line_number": 1049,
+              "line_number": 1051,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1123,7 +1123,7 @@
             },
             {
               "name": "reset_view",
-              "line_number": 1098,
+              "line_number": 1100,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1135,7 +1135,7 @@
             },
             {
               "name": "optimize_layout",
-              "line_number": 1103,
+              "line_number": 1105,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1147,7 +1147,7 @@
             },
             {
               "name": "create_execution_nodes",
-              "line_number": 1108,
+              "line_number": 1110,
               "is_async": false,
               "is_method": true,
               "parent_class": "ExecutionGraphWindow",
@@ -1163,7 +1163,7 @@
         },
         {
           "name": "BuildGraphScene",
-          "line_number": 1207,
+          "line_number": 1209,
           "base_classes": [
             "BlueprintScene"
           ],
@@ -1171,7 +1171,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 1208,
+              "line_number": 1210,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1184,7 +1184,7 @@
             },
             {
               "name": "should_initialize",
-              "line_number": 1220,
+              "line_number": 1222,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1196,7 +1196,7 @@
             },
             {
               "name": "initialize_default_structure",
-              "line_number": 1232,
+              "line_number": 1234,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1208,7 +1208,7 @@
             },
             {
               "name": "keyPressEvent",
-              "line_number": 1262,
+              "line_number": 1276,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1221,7 +1221,7 @@
             },
             {
               "name": "mousePressEvent",
-              "line_number": 1282,
+              "line_number": 1302,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1234,7 +1234,7 @@
             },
             {
               "name": "update_existing_functions",
-              "line_number": 1288,
+              "line_number": 1308,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1246,7 +1246,7 @@
             },
             {
               "name": "create_function_node",
-              "line_number": 1295,
+              "line_number": 1315,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1261,7 +1261,7 @@
             },
             {
               "name": "check_and_create_called_functions",
-              "line_number": 1303,
+              "line_number": 1329,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphScene",
@@ -1277,7 +1277,7 @@
         },
         {
           "name": "BuildGraphView",
-          "line_number": 1351,
+          "line_number": 1391,
           "base_classes": [
             "BlueprintView"
           ],
@@ -1285,7 +1285,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 1352,
+              "line_number": 1392,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphView",
@@ -1299,7 +1299,7 @@
             },
             {
               "name": "keyPressEvent",
-              "line_number": 1358,
+              "line_number": 1398,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphView",
@@ -1312,7 +1312,7 @@
             },
             {
               "name": "deleteSelectedNodes",
-              "line_number": 1377,
+              "line_number": 1417,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphView",
@@ -1324,7 +1324,7 @@
             },
             {
               "name": "mousePressEvent",
-              "line_number": 1440,
+              "line_number": 1480,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphView",
@@ -1340,7 +1340,7 @@
         },
         {
           "name": "BuildGraphWindow",
-          "line_number": 1444,
+          "line_number": 1484,
           "base_classes": [
             "QMainWindow"
           ],
@@ -1348,7 +1348,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 1445,
+              "line_number": 1485,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphWindow",
@@ -1361,8 +1361,21 @@
               "decorators": []
             },
             {
+              "name": "addCommentBoxToScene",
+              "line_number": 1526,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "BuildGraphWindow",
+              "docstring": "Add a comment box to the scene.",
+              "parameters": [
+                "self",
+                "scene"
+              ],
+              "decorators": []
+            },
+            {
               "name": "confirm_code_replacement",
-              "line_number": 1487,
+              "line_number": 1535,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphWindow",
@@ -1374,7 +1387,7 @@
             },
             {
               "name": "create_initial_nodes",
-              "line_number": 1499,
+              "line_number": 1547,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphWindow",
@@ -1387,7 +1400,7 @@
             },
             {
               "name": "setup_menus",
-              "line_number": 1518,
+              "line_number": 1566,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildGraphWindow",
@@ -1405,7 +1418,7 @@
       "functions": [
         {
           "name": "detect_function_calls",
-          "line_number": 18,
+          "line_number": 20,
           "is_async": false,
           "is_method": false,
           "parent_class": null,
@@ -1443,9 +1456,9 @@
         "from vpy_graph import CommentBox",
         "from vpy_graph import DraggableRect",
         "from vpy_graph import ExecutionDraggableRect",
-        "from vpy_graph import BuildableNode",
-        "from vpy_connection import Connection",
-        "from vpy_connection import ConnectionPoint"
+        "from vpy_node_types import BuildableNode",
+        "from vpy_connection_core import Connection",
+        "from vpy_node_base import ConnectionPort"
       ],
       "docstring": null
     },
@@ -2412,7 +2425,7 @@
     },
     "vpy_editor.py": {
       "file_path": "vpy_editor.py",
-      "line_count": 1369,
+      "line_count": 1312,
       "classes": [
         {
           "name": "CodeViewerWindow",
@@ -2626,7 +2639,7 @@
             },
             {
               "name": "line_number_area_width",
-              "line_number": 359,
+              "line_number": 302,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2638,7 +2651,7 @@
             },
             {
               "name": "update_line_number_area_width",
-              "line_number": 365,
+              "line_number": 308,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2650,7 +2663,7 @@
             },
             {
               "name": "resizeEvent",
-              "line_number": 369,
+              "line_number": 312,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2663,7 +2676,7 @@
             },
             {
               "name": "go_to_line",
-              "line_number": 390,
+              "line_number": 333,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2675,7 +2688,7 @@
             },
             {
               "name": "handleCursorPosition",
-              "line_number": 421,
+              "line_number": 364,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2687,7 +2700,7 @@
             },
             {
               "name": "wheelEvent",
-              "line_number": 445,
+              "line_number": 388,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2700,7 +2713,7 @@
             },
             {
               "name": "load_file",
-              "line_number": 458,
+              "line_number": 401,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2713,7 +2726,7 @@
             },
             {
               "name": "load_saved_colors",
-              "line_number": 497,
+              "line_number": 440,
               "is_async": false,
               "is_method": true,
               "parent_class": "CodeEditor",
@@ -2728,7 +2741,7 @@
         },
         {
           "name": "EditorTabs",
-          "line_number": 522,
+          "line_number": 465,
           "base_classes": [
             "QTabWidget"
           ],
@@ -2736,7 +2749,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 528,
+              "line_number": 471,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2749,7 +2762,7 @@
             },
             {
               "name": "add_new_tab",
-              "line_number": 583,
+              "line_number": 526,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2764,7 +2777,7 @@
             },
             {
               "name": "_create_code_editor",
-              "line_number": 624,
+              "line_number": 567,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2776,7 +2789,7 @@
             },
             {
               "name": "_mark_dirty",
-              "line_number": 634,
+              "line_number": 577,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2789,7 +2802,7 @@
             },
             {
               "name": "_mark_clean",
-              "line_number": 647,
+              "line_number": 590,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2802,7 +2815,7 @@
             },
             {
               "name": "close_tab",
-              "line_number": 659,
+              "line_number": 602,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2815,7 +2828,7 @@
             },
             {
               "name": "_on_current_changed",
-              "line_number": 695,
+              "line_number": 638,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2828,7 +2841,7 @@
             },
             {
               "name": "current_editor",
-              "line_number": 703,
+              "line_number": 646,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2840,7 +2853,7 @@
             },
             {
               "name": "find_tab_by_filepath",
-              "line_number": 708,
+              "line_number": 651,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2853,7 +2866,7 @@
             },
             {
               "name": "get_all_editors",
-              "line_number": 720,
+              "line_number": 663,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2865,7 +2878,7 @@
             },
             {
               "name": "set_tab_filepath",
-              "line_number": 733,
+              "line_number": 676,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditorTabs",
@@ -2882,7 +2895,7 @@
         },
         {
           "name": "PythonIDE",
-          "line_number": 749,
+          "line_number": 692,
           "base_classes": [
             "QMainWindow"
           ],
@@ -2890,7 +2903,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 750,
+              "line_number": 693,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2902,7 +2915,7 @@
             },
             {
               "name": "initUI",
-              "line_number": 759,
+              "line_number": 702,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2914,7 +2927,7 @@
             },
             {
               "name": "createMenuBar",
-              "line_number": 814,
+              "line_number": 757,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2926,7 +2939,7 @@
             },
             {
               "name": "createMenus",
-              "line_number": 819,
+              "line_number": 762,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2938,7 +2951,7 @@
             },
             {
               "name": "toggleMaximized",
-              "line_number": 877,
+              "line_number": 820,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2950,7 +2963,7 @@
             },
             {
               "name": "titleBarMousePressEvent",
-              "line_number": 883,
+              "line_number": 826,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2963,7 +2976,7 @@
             },
             {
               "name": "titleBarMouseMoveEvent",
-              "line_number": 888,
+              "line_number": 831,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2976,7 +2989,7 @@
             },
             {
               "name": "newFile",
-              "line_number": 894,
+              "line_number": 837,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -2988,7 +3001,7 @@
             },
             {
               "name": "openFile",
-              "line_number": 903,
+              "line_number": 846,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3000,7 +3013,7 @@
             },
             {
               "name": "show_error_message",
-              "line_number": 922,
+              "line_number": 865,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3013,7 +3026,7 @@
             },
             {
               "name": "saveFile",
-              "line_number": 925,
+              "line_number": 868,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3025,7 +3038,7 @@
             },
             {
               "name": "saveFileAs",
-              "line_number": 938,
+              "line_number": 881,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3037,7 +3050,7 @@
             },
             {
               "name": "saveBlueprintWorkspace",
-              "line_number": 951,
+              "line_number": 894,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3050,7 +3063,7 @@
             },
             {
               "name": "loadBlueprintWorkspace",
-              "line_number": 1010,
+              "line_number": 953,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3063,7 +3076,7 @@
             },
             {
               "name": "runProgram",
-              "line_number": 1098,
+              "line_number": 1041,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3075,7 +3088,7 @@
             },
             {
               "name": "showExGraph",
-              "line_number": 1124,
+              "line_number": 1067,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3087,7 +3100,7 @@
             },
             {
               "name": "showBdGraph",
-              "line_number": 1136,
+              "line_number": 1079,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3099,7 +3112,7 @@
             },
             {
               "name": "showGraph",
-              "line_number": 1152,
+              "line_number": 1095,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3111,7 +3124,7 @@
             },
             {
               "name": "showPreferences",
-              "line_number": 1165,
+              "line_number": 1108,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3123,7 +3136,7 @@
             },
             {
               "name": "apply_preferences_changes",
-              "line_number": 1172,
+              "line_number": 1115,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3136,7 +3149,7 @@
             },
             {
               "name": "apply_color_changes_to_editors",
-              "line_number": 1190,
+              "line_number": 1133,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3149,7 +3162,7 @@
             },
             {
               "name": "showIDEHelp",
-              "line_number": 1206,
+              "line_number": 1149,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3161,7 +3174,7 @@
             },
             {
               "name": "showAbout",
-              "line_number": 1209,
+              "line_number": 1152,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3173,7 +3186,7 @@
             },
             {
               "name": "_on_current_editor_changed",
-              "line_number": 1215,
+              "line_number": 1158,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3186,7 +3199,7 @@
             },
             {
               "name": "current_editor",
-              "line_number": 1229,
+              "line_number": 1172,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3198,7 +3211,7 @@
             },
             {
               "name": "current_filepath",
-              "line_number": 1235,
+              "line_number": 1178,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3210,7 +3223,7 @@
             },
             {
               "name": "set_current_filepath",
-              "line_number": 1242,
+              "line_number": 1185,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3223,7 +3236,7 @@
             },
             {
               "name": "save_current_file",
-              "line_number": 1248,
+              "line_number": 1191,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3236,7 +3249,7 @@
             },
             {
               "name": "save_file_as",
-              "line_number": 1280,
+              "line_number": 1223,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3249,7 +3262,7 @@
             },
             {
               "name": "open_file_in_tab",
-              "line_number": 1318,
+              "line_number": 1261,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -3262,7 +3275,7 @@
             },
             {
               "name": "closeEvent",
-              "line_number": 1344,
+              "line_number": 1287,
               "is_async": false,
               "is_method": true,
               "parent_class": "PythonIDE",
@@ -4975,11 +4988,21 @@
     },
     "vpy_node_base.py": {
       "file_path": "vpy_node_base.py",
-      "line_count": 452,
+      "line_count": 470,
       "classes": [
         {
-          "name": "NodeType",
+          "name": "QGraphicsABCMeta",
           "line_number": 19,
+          "base_classes": [
+            "ABCMeta"
+          ],
+          "docstring": "Custom metaclass to resolve conflict between QGraphicsRectItem and ABC.",
+          "methods": [],
+          "decorators": []
+        },
+        {
+          "name": "NodeType",
+          "line_number": 24,
           "base_classes": [
             "Enum"
           ],
@@ -4989,7 +5012,7 @@
         },
         {
           "name": "PortType",
-          "line_number": 27,
+          "line_number": 32,
           "base_classes": [
             "Enum"
           ],
@@ -4999,13 +5022,13 @@
         },
         {
           "name": "ConnectionPort",
-          "line_number": 34,
+          "line_number": 39,
           "base_classes": [],
           "docstring": "Represents a connection port on a node.",
           "methods": [
             {
               "name": "__init__",
-              "line_number": 37,
+              "line_number": 42,
               "is_async": false,
               "is_method": true,
               "parent_class": "ConnectionPort",
@@ -5023,7 +5046,7 @@
             },
             {
               "name": "can_connect_to",
-              "line_number": 52,
+              "line_number": 57,
               "is_async": false,
               "is_method": true,
               "parent_class": "ConnectionPort",
@@ -5036,7 +5059,7 @@
             },
             {
               "name": "add_connection",
-              "line_number": 67,
+              "line_number": 72,
               "is_async": false,
               "is_method": true,
               "parent_class": "ConnectionPort",
@@ -5049,7 +5072,7 @@
             },
             {
               "name": "remove_connection",
-              "line_number": 71,
+              "line_number": 76,
               "is_async": false,
               "is_method": true,
               "parent_class": "ConnectionPort",
@@ -5065,13 +5088,13 @@
         },
         {
           "name": "BaseConnection",
-          "line_number": 76,
+          "line_number": 81,
           "base_classes": [],
           "docstring": "Base class for connections between nodes.",
           "methods": [
             {
               "name": "__init__",
-              "line_number": 79,
+              "line_number": 84,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseConnection",
@@ -5086,7 +5109,7 @@
             },
             {
               "name": "disconnect",
-              "line_number": 92,
+              "line_number": 97,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseConnection",
@@ -5098,7 +5121,7 @@
             },
             {
               "name": "serialize",
-              "line_number": 97,
+              "line_number": 102,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseConnection",
@@ -5113,7 +5136,7 @@
         },
         {
           "name": "NodeState",
-          "line_number": 109,
+          "line_number": 114,
           "base_classes": [
             "Enum"
           ],
@@ -5123,16 +5146,15 @@
         },
         {
           "name": "BaseNode",
-          "line_number": 119,
+          "line_number": 124,
           "base_classes": [
-            "QGraphicsRectItem",
-            "ABC"
+            "QGraphicsRectItem"
           ],
           "docstring": "Abstract base class for all node types in the VysualPy system.\n    \n    This class defines the common interface and functionality that all nodes\n    must implement, promoting code reuse and consistent behavior.",
           "methods": [
             {
               "name": "__init__",
-              "line_number": 127,
+              "line_number": 132,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5148,7 +5170,7 @@
             },
             {
               "name": "add_input_port",
-              "line_number": 172,
+              "line_number": 177,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5163,7 +5185,7 @@
             },
             {
               "name": "add_output_port",
-              "line_number": 179,
+              "line_number": 184,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5178,7 +5200,7 @@
             },
             {
               "name": "remove_port",
-              "line_number": 186,
+              "line_number": 191,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5191,7 +5213,7 @@
             },
             {
               "name": "_update_port_positions",
-              "line_number": 206,
+              "line_number": 211,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5203,7 +5225,7 @@
             },
             {
               "name": "get_all_connections",
-              "line_number": 222,
+              "line_number": 227,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5215,7 +5237,7 @@
             },
             {
               "name": "disconnect_all",
-              "line_number": 229,
+              "line_number": 234,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5227,7 +5249,7 @@
             },
             {
               "name": "set_state",
-              "line_number": 234,
+              "line_number": 239,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5240,7 +5262,7 @@
             },
             {
               "name": "snapToGrid",
-              "line_number": 249,
+              "line_number": 254,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5253,7 +5275,7 @@
             },
             {
               "name": "setPos",
-              "line_number": 255,
+              "line_number": 260,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5265,7 +5287,7 @@
             },
             {
               "name": "serialize",
-              "line_number": 271,
+              "line_number": 276,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5277,7 +5299,7 @@
             },
             {
               "name": "deserialize",
-              "line_number": 304,
+              "line_number": 309,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5290,7 +5312,7 @@
             },
             {
               "name": "validate",
-              "line_number": 349,
+              "line_number": 354,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5302,7 +5324,7 @@
             },
             {
               "name": "on_connect",
-              "line_number": 363,
+              "line_number": 368,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5315,7 +5337,7 @@
             },
             {
               "name": "on_disconnect",
-              "line_number": 371,
+              "line_number": 376,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5328,7 +5350,7 @@
             },
             {
               "name": "on_update",
-              "line_number": 379,
+              "line_number": 384,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5340,7 +5362,7 @@
             },
             {
               "name": "get_display_name",
-              "line_number": 389,
+              "line_number": 394,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5354,7 +5376,7 @@
             },
             {
               "name": "get_tooltip_text",
-              "line_number": 394,
+              "line_number": 399,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5368,7 +5390,7 @@
             },
             {
               "name": "can_accept_content",
-              "line_number": 399,
+              "line_number": 404,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5383,7 +5405,7 @@
             },
             {
               "name": "process_content_change",
-              "line_number": 404,
+              "line_number": 409,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5399,7 +5421,7 @@
             },
             {
               "name": "boundingRect",
-              "line_number": 410,
+              "line_number": 415,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
@@ -5411,11 +5433,11 @@
             },
             {
               "name": "paint",
-              "line_number": 415,
+              "line_number": 420,
               "is_async": false,
               "is_method": true,
               "parent_class": "BaseNode",
-              "docstring": "Basic paint implementation - to be enhanced by RenderMixin.",
+              "docstring": "Basic paint implementation - can be enhanced by mixins.",
               "parameters": [
                 "self",
                 "painter",
@@ -5429,13 +5451,13 @@
         },
         {
           "name": "NodeRegistry",
-          "line_number": 422,
+          "line_number": 440,
           "base_classes": [],
           "docstring": "Registry for node types and factory methods.",
           "methods": [
             {
               "name": "__init__",
-              "line_number": 425,
+              "line_number": 443,
               "is_async": false,
               "is_method": true,
               "parent_class": "NodeRegistry",
@@ -5447,7 +5469,7 @@
             },
             {
               "name": "register_node_class",
-              "line_number": 429,
+              "line_number": 447,
               "is_async": false,
               "is_method": true,
               "parent_class": "NodeRegistry",
@@ -5461,7 +5483,7 @@
             },
             {
               "name": "register_factory_function",
-              "line_number": 433,
+              "line_number": 451,
               "is_async": false,
               "is_method": true,
               "parent_class": "NodeRegistry",
@@ -5475,7 +5497,7 @@
             },
             {
               "name": "create_node",
-              "line_number": 437,
+              "line_number": 455,
               "is_async": false,
               "is_method": true,
               "parent_class": "NodeRegistry",
@@ -5488,7 +5510,7 @@
             },
             {
               "name": "get_available_types",
-              "line_number": 446,
+              "line_number": 464,
               "is_async": false,
               "is_method": true,
               "parent_class": "NodeRegistry",
@@ -5504,7 +5526,7 @@
       ],
       "functions": [],
       "imports": [
-        "from abc import ABC",
+        "from abc import ABCMeta",
         "from abc import abstractmethod",
         "from typing import Dict",
         "from typing import List",
@@ -5527,7 +5549,7 @@
     },
     "vpy_node_mixins.py": {
       "file_path": "vpy_node_mixins.py",
-      "line_count": 528,
+      "line_count": 532,
       "classes": [
         {
           "name": "RenderMixin",
@@ -5740,7 +5762,7 @@
             },
             {
               "name": "hoverLeaveEvent",
-              "line_number": 287,
+              "line_number": 288,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5753,7 +5775,7 @@
             },
             {
               "name": "hoverMoveEvent",
-              "line_number": 294,
+              "line_number": 296,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5766,7 +5788,7 @@
             },
             {
               "name": "get_port_at_position",
-              "line_number": 304,
+              "line_number": 307,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5779,7 +5801,7 @@
             },
             {
               "name": "handle_port_click",
-              "line_number": 327,
+              "line_number": 330,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5793,7 +5815,7 @@
             },
             {
               "name": "show_context_menu",
-              "line_number": 333,
+              "line_number": 336,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5806,7 +5828,7 @@
             },
             {
               "name": "request_deletion",
-              "line_number": 355,
+              "line_number": 358,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5818,7 +5840,7 @@
             },
             {
               "name": "request_duplication",
-              "line_number": 373,
+              "line_number": 376,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5830,7 +5852,7 @@
             },
             {
               "name": "show_properties",
-              "line_number": 378,
+              "line_number": 381,
               "is_async": false,
               "is_method": true,
               "parent_class": "InteractionMixin",
@@ -5845,13 +5867,13 @@
         },
         {
           "name": "EditableMixin",
-          "line_number": 393,
+          "line_number": 396,
           "base_classes": [],
           "docstring": "Mixin that provides in-place editing functionality for nodes.\n    \n    Allows nodes to be edited directly in the graph view.",
           "methods": [
             {
               "name": "__init__",
-              "line_number": 400,
+              "line_number": 403,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5863,7 +5885,7 @@
             },
             {
               "name": "startEditing",
-              "line_number": 408,
+              "line_number": 411,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5875,7 +5897,7 @@
             },
             {
               "name": "stopEditing",
-              "line_number": 438,
+              "line_number": 441,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5887,7 +5909,7 @@
             },
             {
               "name": "cancelEdit",
-              "line_number": 445,
+              "line_number": 448,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5899,7 +5921,7 @@
             },
             {
               "name": "commitEdit",
-              "line_number": 456,
+              "line_number": 459,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5911,7 +5933,7 @@
             },
             {
               "name": "_cleanup_editing",
-              "line_number": 476,
+              "line_number": 479,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5923,7 +5945,7 @@
             },
             {
               "name": "on_text_changed",
-              "line_number": 490,
+              "line_number": 493,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5935,7 +5957,7 @@
             },
             {
               "name": "keyPressEvent",
-              "line_number": 508,
+              "line_number": 511,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5948,7 +5970,7 @@
             },
             {
               "name": "focusOutEvent",
-              "line_number": 522,
+              "line_number": 525,
               "is_async": false,
               "is_method": true,
               "parent_class": "EditableMixin",
@@ -5997,7 +6019,7 @@
     },
     "vpy_node_types.py": {
       "file_path": "vpy_node_types.py",
-      "line_count": 399,
+      "line_count": 441,
       "classes": [
         {
           "name": "BlueprintNode",
@@ -6221,7 +6243,7 @@
             },
             {
               "name": "analyze_and_update",
-              "line_number": 198,
+              "line_number": 202,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6233,7 +6255,7 @@
             },
             {
               "name": "analyze_content",
-              "line_number": 203,
+              "line_number": 207,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6245,7 +6267,7 @@
             },
             {
               "name": "detect_function_calls",
-              "line_number": 243,
+              "line_number": 247,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6257,7 +6279,7 @@
             },
             {
               "name": "get_display_name",
-              "line_number": 254,
+              "line_number": 258,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6269,7 +6291,7 @@
             },
             {
               "name": "get_tooltip_text",
-              "line_number": 265,
+              "line_number": 269,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6281,7 +6303,7 @@
             },
             {
               "name": "can_accept_content",
-              "line_number": 277,
+              "line_number": 281,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6294,7 +6316,7 @@
             },
             {
               "name": "process_content_change",
-              "line_number": 287,
+              "line_number": 291,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
@@ -6307,12 +6329,12 @@
               "decorators": []
             },
             {
-              "name": "startEditing",
-              "line_number": 299,
+              "name": "stopEditing",
+              "line_number": 303,
               "is_async": false,
               "is_method": true,
               "parent_class": "BuildableNode",
-              "docstring": "Override to set up BuildableNode-specific editing.",
+              "docstring": "Override to ensure proper editing cleanup and callbacks.",
               "parameters": [
                 "self"
               ],
@@ -6322,8 +6344,107 @@
           "decorators": []
         },
         {
+          "name": "LegacyConnectionPoint",
+          "line_number": 314,
+          "base_classes": [],
+          "docstring": "Legacy compatibility wrapper for connection points.",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 317,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnectionPoint",
+              "docstring": null,
+              "parameters": [
+                "self",
+                "parent_node",
+                "is_output"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "setPos",
+              "line_number": 323,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnectionPoint",
+              "docstring": "Set position of connection point.",
+              "parameters": [
+                "self",
+                "x",
+                "y"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "pos",
+              "line_number": 330,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnectionPoint",
+              "docstring": "Get position of connection point.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "scenePos",
+              "line_number": 334,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnectionPoint",
+              "docstring": "Get scene position of connection point.",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "parentItem",
+              "line_number": 338,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnectionPoint",
+              "docstring": "Get parent item (for legacy compatibility).",
+              "parameters": [
+                "self"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "addConnection",
+              "line_number": 342,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnectionPoint",
+              "docstring": "Add a connection to this point.",
+              "parameters": [
+                "self",
+                "connection"
+              ],
+              "decorators": []
+            },
+            {
+              "name": "removeConnection",
+              "line_number": 347,
+              "is_async": false,
+              "is_method": true,
+              "parent_class": "LegacyConnectionPoint",
+              "docstring": "Remove a connection from this point.",
+              "parameters": [
+                "self",
+                "connection"
+              ],
+              "decorators": []
+            }
+          ],
+          "decorators": []
+        },
+        {
           "name": "CommentNode",
-          "line_number": 311,
+          "line_number": 353,
           "base_classes": [
             "BaseNode",
             "RenderMixin",
@@ -6334,7 +6455,7 @@
           "methods": [
             {
               "name": "__init__",
-              "line_number": 318,
+              "line_number": 360,
               "is_async": false,
               "is_method": true,
               "parent_class": "CommentNode",
@@ -6348,7 +6469,7 @@
             },
             {
               "name": "get_display_name",
-              "line_number": 332,
+              "line_number": 374,
               "is_async": false,
               "is_method": true,
               "parent_class": "CommentNode",
@@ -6360,7 +6481,7 @@
             },
             {
               "name": "get_tooltip_text",
-              "line_number": 336,
+              "line_number": 378,
               "is_async": false,
               "is_method": true,
               "parent_class": "CommentNode",
@@ -6372,7 +6493,7 @@
             },
             {
               "name": "can_accept_content",
-              "line_number": 341,
+              "line_number": 383,
               "is_async": false,
               "is_method": true,
               "parent_class": "CommentNode",
@@ -6385,7 +6506,7 @@
             },
             {
               "name": "process_content_change",
-              "line_number": 345,
+              "line_number": 387,
               "is_async": false,
               "is_method": true,
               "parent_class": "CommentNode",
@@ -6404,7 +6525,7 @@
       "functions": [
         {
           "name": "register_node_types",
-          "line_number": 367,
+          "line_number": 409,
           "is_async": false,
           "is_method": false,
           "parent_class": null,
@@ -6414,7 +6535,7 @@
         },
         {
           "name": "create_draggable_rect",
-          "line_number": 375,
+          "line_number": 417,
           "is_async": false,
           "is_method": false,
           "parent_class": null,
@@ -6424,7 +6545,7 @@
         },
         {
           "name": "create_execution_draggable_rect",
-          "line_number": 384,
+          "line_number": 426,
           "is_async": false,
           "is_method": false,
           "parent_class": null,

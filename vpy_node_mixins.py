@@ -31,24 +31,24 @@ class RenderMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Visual style properties
-        self.background_color = QColor(60, 60, 60)
-        self.border_color = QColor(100, 100, 100)
-        self.selected_color = QColor(0, 120, 215)
-        self.highlight_color = QColor(255, 165, 0)
-        self.error_color = QColor(255, 100, 100)
-        self.text_color = QColor(255, 255, 255)
+        # Clean, professional visual style properties
+        self.background_color = QColor(47, 79, 79)   # Slate gray (original style)
+        self.border_color = QColor(100, 100, 100)    # Medium gray
+        self.selected_color = QColor(52, 152, 219)   # Subtle blue
+        self.highlight_color = QColor(120, 120, 120) # Light gray
+        self.error_color = QColor(231, 76, 60)       # Muted red
+        self.text_color = QColor(255, 255, 255)     # White text
         
-        # Node type specific colors
+        # Subtle node type differentiation (minimal color variation)
         self.type_colors = {
-            NodeType.BLUEPRINT: QColor(70, 130, 180),  # Steel blue
-            NodeType.EXECUTION: QColor(154, 205, 50),  # Yellow green
-            NodeType.BUILDABLE: QColor(255, 140, 0),   # Dark orange
-            NodeType.COMMENT: QColor(128, 128, 128)    # Gray
+            NodeType.BLUEPRINT: QColor(47, 79, 79),   # Slate gray (default)
+            NodeType.EXECUTION: QColor(44, 62, 80),  # Darker blue-gray
+            NodeType.BUILDABLE: QColor(47, 79, 79),  # Slate gray (same as blueprint)
+            NodeType.COMMENT: QColor(60, 60, 60)     # Medium gray
         }
         
-        # Font settings
-        self.title_font = QFont("Arial", 10, QFont.Bold)
+        # Monospace font settings for clean, code-like appearance
+        self.title_font = QFont("Courier New", 10, QFont.Bold)
         self.content_font = QFont("Courier New", 8)
         
     def get_node_color(self) -> QColor:
@@ -72,6 +72,8 @@ class RenderMixin:
             
     def paint(self, painter: QPainter, option, widget=None):
         """Enhanced paint method with proper styling."""
+        # Don't call super().paint() to avoid default QGraphicsRectItem drawing
+        
         rect = self.rect()
         
         # Enable antialiasing for smooth rendering
@@ -253,30 +255,56 @@ class InteractionMixin:
             # Show context menu
             self.show_context_menu(event)
             
-        super().mousePressEvent(event)
+        # Only call super if it exists
+        if hasattr(super(), 'mousePressEvent'):
+            super().mousePressEvent(event)
         
     def mouseMoveEvent(self, event):
-        """Handle mouse move events."""
+        """Handle mouse move events with multi-selection support."""
         if self.is_dragging and event.buttons() & Qt.LeftButton:
-            # Handle dragging
+            # Calculate movement delta
             delta = event.pos() - self.drag_start_pos
-            new_pos = self.pos() + delta
             
-            # Apply grid snapping if available
-            if hasattr(self, 'snapToGrid'):
-                new_pos.setX(self.snapToGrid(new_pos.x()))
-                new_pos.setY(self.snapToGrid(new_pos.y()))
+            # Check if this node is part of a multi-selection
+            scene = self.scene()
+            selected_items = scene.selectedItems() if scene else []
+            
+            if len(selected_items) > 1 and self in selected_items:
+                # Move all selected nodes together
+                for item in selected_items:
+                    if hasattr(item, 'setPos'):  # Ensure it's a movable item
+                        current_pos = item.pos()
+                        new_pos = current_pos + delta
+                        
+                        # Apply grid snapping if available
+                        if hasattr(item, 'snapToGrid'):
+                            new_pos.setX(item.snapToGrid(new_pos.x()))
+                            new_pos.setY(item.snapToGrid(new_pos.y()))
+                            
+                        item.setPos(new_pos)
+            else:
+                # Single node movement
+                new_pos = self.pos() + delta
                 
-            self.setPos(new_pos)
+                # Apply grid snapping if available
+                if hasattr(self, 'snapToGrid'):
+                    new_pos.setX(self.snapToGrid(new_pos.x()))
+                    new_pos.setY(self.snapToGrid(new_pos.y()))
+                    
+                self.setPos(new_pos)
             
-        super().mouseMoveEvent(event)
+        # Only call super if it exists
+        if hasattr(super(), 'mouseMoveEvent'):
+            super().mouseMoveEvent(event)
         
     def mouseReleaseEvent(self, event):
         """Handle mouse release events."""
         if event.button() == Qt.LeftButton:
             self.is_dragging = False
             
-        super().mouseReleaseEvent(event)
+        # Only call super if it exists
+        if hasattr(super(), 'mouseReleaseEvent'):
+            super().mouseReleaseEvent(event)
         
     def hoverEnterEvent(self, event):
         """Handle hover enter events."""

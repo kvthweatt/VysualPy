@@ -1,13 +1,13 @@
 # VysualPy Project Structure Report
 
-Generated on: 2025-08-29 13:41:31
+Generated on: 2025-08-29 14:21:51
 Total files analyzed: 16
 
 ## Overview
 
-- Total Classes: 67
+- Total Classes: 69
 - Total Functions: 10
-- Total Lines of Code: 7604
+- Total Lines of Code: 7659
 
 ## File Details
 
@@ -79,7 +79,7 @@ Usage:
 
 ### vpy_blueprints.py
 
-**Lines:** 1536 | **Classes:** 11 | **Functions:** 1
+**Lines:** 1584 | **Classes:** 11 | **Functions:** 1
 
 **Key Imports:**
 
@@ -97,72 +97,73 @@ Usage:
 
 **Classes:**
 
-- `FunctionCallCollector(NodeVisitor)` (line 60)
+- `FunctionCallCollector(NodeVisitor)` (line 62)
   - `__init__()` (method)
   - `visit_FunctionDef()` (method)
   - `visit_AsyncFunctionDef()` (method)
   - `visit_Call()` (method)
   - `_get_callable_name()` (method)
   - ... and 1 more methods
-- `BlueprintScene(QGraphicsScene)` (line 114)
+- `BlueprintScene(QGraphicsScene)` (line 116)
   - `__init__()` (method)
   - `mouseMoveEvent()` (method)
   - `mouseReleaseEvent()` (method)
   - `mousePressEvent()` (method)
   - `showContextMenu()` (method)
-- `BlueprintView(QGraphicsView)` (line 178)
+- `BlueprintView(QGraphicsView)` (line 180)
   - `__init__()` (method)
   - `keyPressEvent()` (method)
   - `mousePressEvent()` (method)
   - `mouseMoveEvent()` (method)
   - `mouseReleaseEvent()` (method)
   - ... and 2 more methods
-- `BlueprintGraphWindow(QMainWindow, CustomWindowMixin)` (line 279)
+- `BlueprintGraphWindow(QMainWindow, CustomWindowMixin)` (line 281)
   - `__init__()` (method)
   - `showPreferences()` (method)
   - `updateGridSize()` (method)
   - `saveBlueprintWorkspace()` (method)
   - `loadBlueprintWorkspace()` (method)
   - ... and 6 more methods
-- `FunctionCallVisitor(NodeVisitor)` (line 640)
+- `FunctionCallVisitor(NodeVisitor)` (line 642)
   - `__init__()` (method)
   - `should_include_call()` (method)
   - `visit_Module()` (method)
   - `visit_If()` (method)
   - `visit_While()` (method)
   - ... and 9 more methods
-- `ExecutionScene(BlueprintScene)` (line 824)
+- `ExecutionScene(BlueprintScene)` (line 826)
   - `__init__()` (method)
-- `ExecutionView(BlueprintView)` (line 829)
+- `ExecutionView(BlueprintView)` (line 831)
   - `__init__()` (method)
-- `ExecutionGraphWindow(QMainWindow, CustomWindowMixin)` (line 834)
+- `ExecutionGraphWindow(QMainWindow, CustomWindowMixin)` (line 836)
   - `__init__()` (method)
   - `addCommentBoxToScene()` (method)
   - `create_menus()` (method)
   - `showPreferences()` (method)
   - `updateGridSize()` (method)
   - ... and 8 more methods
-- `BuildGraphScene(BlueprintScene)` (line 1207)
+- `BuildGraphScene(BlueprintScene)` (line 1209)
   - `__init__()` (method)
   - `should_initialize()` (method)
   - `initialize_default_structure()` (method)
   - `keyPressEvent()` (method)
   - `mousePressEvent()` (method)
   - ... and 3 more methods
-- `BuildGraphView(BlueprintView)` (line 1351)
+- `BuildGraphView(BlueprintView)` (line 1391)
   - `__init__()` (method)
   - `keyPressEvent()` (method)
   - `deleteSelectedNodes()` (method)
   - `mousePressEvent()` (method)
-- `BuildGraphWindow(QMainWindow)` (line 1444)
+- `BuildGraphWindow(QMainWindow)` (line 1484)
   - `__init__()` (method)
+  - `addCommentBoxToScene()` (method)
   - `confirm_code_replacement()` (method)
   - `create_initial_nodes()` (method)
   - `setup_menus()` (method)
 
 **Functions:**
 
-- `detect_function_calls(source_code)` (function, line 18)
+- `detect_function_calls(source_code)` (function, line 20)
 
 ---
 
@@ -305,7 +306,7 @@ while maintaining backward compatibility with the existing system.
 
 ### vpy_editor.py
 
-**Lines:** 1369 | **Classes:** 6 | **Functions:** 0
+**Lines:** 1312 | **Classes:** 6 | **Functions:** 0
 
 **Key Imports:**
 
@@ -342,14 +343,14 @@ while maintaining backward compatibility with the existing system.
   - `lineNumberAreaPaintEvent()` (method)
   - `line_number_area_width()` (method)
   - ... and 7 more methods
-- `EditorTabs(QTabWidget)` (line 522)
+- `EditorTabs(QTabWidget)` (line 465)
   - `__init__()` (method)
   - `add_new_tab()` (method)
   - `_create_code_editor()` (method)
   - `_mark_dirty()` (method)
   - `_mark_clean()` (method)
   - ... and 6 more methods
-- `PythonIDE(QMainWindow)` (line 749)
+- `PythonIDE(QMainWindow)` (line 692)
   - `__init__()` (method)
   - `initUI()` (method)
   - `createMenuBar()` (method)
@@ -560,7 +561,7 @@ that relies on the old node and connection classes.
 
 ### vpy_node_base.py
 
-**Lines:** 452 | **Classes:** 7 | **Functions:** 0
+**Lines:** 470 | **Classes:** 8 | **Functions:** 0
 
 **Description:**
 > Base node system for VysualPy graph architecture.
@@ -570,7 +571,7 @@ code duplication and provides clear interfaces for different node types.
 
 **Key Imports:**
 
-- `from abc import ABC`
+- `from abc import ABCMeta`
 - `from abc import abstractmethod`
 - `from typing import Dict`
 - `from typing import List`
@@ -584,26 +585,27 @@ code duplication and provides clear interfaces for different node types.
 
 **Classes:**
 
-- `NodeType(Enum)` (line 19)
-- `PortType(Enum)` (line 27)
-- `ConnectionPort` (line 34)
+- `QGraphicsABCMeta(ABCMeta)` (line 19)
+- `NodeType(Enum)` (line 24)
+- `PortType(Enum)` (line 32)
+- `ConnectionPort` (line 39)
   - `__init__()` (method)
   - `can_connect_to()` (method)
   - `add_connection()` (method)
   - `remove_connection()` (method)
-- `BaseConnection` (line 76)
+- `BaseConnection` (line 81)
   - `__init__()` (method)
   - `disconnect()` (method)
   - `serialize()` (method)
-- `NodeState(Enum)` (line 109)
-- `BaseNode(QGraphicsRectItem, ABC)` (line 119)
+- `NodeState(Enum)` (line 114)
+- `BaseNode(QGraphicsRectItem)` (line 124)
   - `__init__()` (method)
   - `add_input_port()` (method)
   - `add_output_port()` (method)
   - `remove_port()` (method)
   - `_update_port_positions()` (method)
   - ... and 17 more methods
-- `NodeRegistry` (line 422)
+- `NodeRegistry` (line 440)
   - `__init__()` (method)
   - `register_node_class()` (method)
   - `register_factory_function()` (method)
@@ -614,7 +616,7 @@ code duplication and provides clear interfaces for different node types.
 
 ### vpy_node_mixins.py
 
-**Lines:** 528 | **Classes:** 3 | **Functions:** 0
+**Lines:** 532 | **Classes:** 3 | **Functions:** 0
 
 **Description:**
 > Mixin classes for VysualPy node system.
@@ -652,7 +654,7 @@ node types, promoting code reuse and separation of concerns.
   - `mouseReleaseEvent()` (method)
   - `hoverEnterEvent()` (method)
   - ... and 8 more methods
-- `EditableMixin` (line 393)
+- `EditableMixin` (line 396)
   - `__init__()` (method)
   - `startEditing()` (method)
   - `stopEditing()` (method)
@@ -664,7 +666,7 @@ node types, promoting code reuse and separation of concerns.
 
 ### vpy_node_types.py
 
-**Lines:** 399 | **Classes:** 4 | **Functions:** 3
+**Lines:** 441 | **Classes:** 5 | **Functions:** 3
 
 **Description:**
 > Concrete implementations of different node types for VysualPy.
@@ -709,7 +711,14 @@ specialized node types for different use cases.
   - `detect_function_calls()` (method)
   - `get_display_name()` (method)
   - ... and 4 more methods
-- `CommentNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin)` (line 311)
+- `LegacyConnectionPoint` (line 314)
+  - `__init__()` (method)
+  - `setPos()` (method)
+  - `pos()` (method)
+  - `scenePos()` (method)
+  - `parentItem()` (method)
+  - ... and 2 more methods
+- `CommentNode(BaseNode, RenderMixin, InteractionMixin, EditableMixin)` (line 353)
   - `__init__()` (method)
   - `get_display_name()` (method)
   - `get_tooltip_text()` (method)
@@ -718,9 +727,9 @@ specialized node types for different use cases.
 
 **Functions:**
 
-- `register_node_types()` (function, line 367)
-- `create_draggable_rect()` (function, line 375)
-- `create_execution_draggable_rect()` (function, line 384)
+- `register_node_types()` (function, line 409)
+- `create_draggable_rect()` (function, line 417)
+- `create_execution_draggable_rect()` (function, line 426)
 
 ---
 

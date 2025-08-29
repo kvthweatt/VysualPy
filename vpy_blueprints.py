@@ -10,12 +10,20 @@ from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
 
 from vpy_menus import PreferencesDialog
 from vpy_winmix import CustomWindowMixin
-from vpy_graph import (
-    CommentBox, DraggableRect, ExecutionDraggableRect
-    )
-from vpy_node_types import BuildableNode
-from vpy_connection_core import Connection
-from vpy_node_base import ConnectionPort
+from vpy_node_types import BlueprintNode, ExecutionNode, BuildableNode, CommentNode
+from vpy_connection_core import Connection, ConnectionManager
+from vpy_node_base import ConnectionPort, PortType
+from vpy_graph import CommentBox  # Legacy compatibility
+
+class GraphLayoutOptimizer:
+    """Simple graph layout optimizer stub for legacy compatibility"""
+    def __init__(self, scene):
+        self.scene = scene
+    
+    def optimize(self):
+        """Placeholder for layout optimization"""
+        print("GraphLayoutOptimizer.optimize() called - no optimization implemented yet")
+        return
 
 def detect_function_calls(source_code):
     """
@@ -394,11 +402,13 @@ class BlueprintGraphWindow(QMainWindow, CustomWindowMixin):
             
             # Update grid size for all items
             for item in self.scene.items():
-                if isinstance(item, DraggableRect):
-                    item.grid_size = self.grid_size
+                if isinstance(item, BlueprintNode):
+                    # Grid snapping is now handled by the InteractionMixin
+                    if hasattr(item, 'snap_to_grid'):
+                        item.snap_to_grid(self.grid_size)
                     item.setPos(
-                        item.snapToGrid(item.pos().x()),
-                        item.snapToGrid(item.pos().y())
+                        item.x() // self.grid_size * self.grid_size,
+                        item.y() // self.grid_size * self.grid_size
                     )
 
     def saveBlueprintWorkspace(self, scene):
@@ -417,16 +427,16 @@ class BlueprintGraphWindow(QMainWindow, CustomWindowMixin):
                     'comments': []
                 }
 
-                # Save all boxes (DraggableRect items)
+                # Save all boxes (BlueprintNode items)
                 for item in scene.items():
-                    if isinstance(item, DraggableRect):
+                    if isinstance(item, BlueprintNode):
                         box_data = {
                             'name': item.name,
-                            'content': item.full_content,
+                            'content': item.content,
                             'x': item.scenePos().x(),
                             'y': item.scenePos().y(),
-                            'width': item.rect().width(),
-                            'height': item.rect().height(),
+                            'width': item.boundingRect().width(),
+                            'height': item.boundingRect().height(),
                             'is_class': item.is_class,
                             'id': str(id(item))
                         }
@@ -490,15 +500,12 @@ class BlueprintGraphWindow(QMainWindow, CustomWindowMixin):
                 # Create all boxes first
                 for box_data in workspace_data['boxes']:
                     try:
-                        rect = DraggableRect(
-                            box_data['name'],
-                            box_data['content'],
-                            float(box_data['x']),
-                            float(box_data['y']),
-                            float(box_data['width']),
-                            scene,
-                            box_data['is_class']
+                        rect = BlueprintNode(
+                            name=box_data['name'],
+                            content=box_data['content']
                         )
+                        rect.setPos(float(box_data['x']), float(box_data['y']))
+                        rect.is_class = box_data.get('is_class', False)
                         scene.addItem(rect)
                         id_to_box[box_data['id']] = rect
                     except KeyError as e:
@@ -596,17 +603,21 @@ class BlueprintGraphWindow(QMainWindow, CustomWindowMixin):
 
     def add_code_block(self, name, block_lines, block_type, y_offset):
         content = "\n".join(block_lines)
-        rect = None
+        node = None
         
         if block_type is None:
-            rect = DraggableRect("Global", content, 0, y_offset, 400, 250, self.scene, is_class=False)
+            node = BlueprintNode("Global", content)
+            node.is_class = False
         elif block_type == "class":
-            rect = DraggableRect(name, content, 0, y_offset, 400, 250, self.scene, is_class=True)
+            node = BlueprintNode(name, content)
+            node.is_class = True
         elif block_type == "function":
-            rect = DraggableRect(name, content, 0, y_offset, 400, 250, self.scene, is_class=False)
+            node = BlueprintNode(name, content)
+            node.is_class = False
         
-        if rect:
-            self.scene.addItem(rect)
+        if node:
+            node.setPos(0, y_offset)
+            self.scene.addItem(node)
         return y_offset + 270
 
     def create_graph_nodes(self, code, scene):
@@ -978,11 +989,13 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
                 
                 # Update grid size for all items
                 for item in self.scene.items():
-                    if isinstance(item, (DraggableRect, ExecutionDraggableRect)):
-                        item.grid_size = self.grid_size
+                    if isinstance(item, ExecutionNode):
+                        # Grid snapping is now handled by the InteractionMixin
+                        if hasattr(item, 'snap_to_grid'):
+                            item.snap_to_grid(self.grid_size)
                         item.setPos(
-                            item.snapToGrid(item.pos().x()),
-                            item.snapToGrid(item.pos().y())
+                            item.x() // self.grid_size * self.grid_size,
+                            item.y() // self.grid_size * self.grid_size
                         )
 
     def optimize_layout(self):
@@ -1017,16 +1030,14 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
                 }
                 
                 for item in self.scene.items():
-                    if isinstance(item, ExecutionDraggableRect):
+                    if isinstance(item, ExecutionNode):
                         node_data = {
                             'name': item.name,
-                            'content': item.full_content,
+                            'content': item.content,
                             'x': item.pos().x(),
                             'y': item.pos().y(),
-                            'is_class': item.is_class,
-                            'has_return': any(isinstance(conn, Connection) and 
-                                            conn.pen().color().name() == '#ff00ff' 
-                                            for conn in item.output_point.connections)
+                            'is_class': getattr(item, 'is_class', False),
+                            'original_name': getattr(item, 'original_name', item.name)
                         }
                         graph_data['nodes'].append(node_data)
                     elif isinstance(item, Connection):
@@ -1061,16 +1072,13 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
                    
                     # Create nodes
                     for node_data in graph_data['nodes']:
-                        node = ExecutionDraggableRect(
+                        node = ExecutionNode(
                             name=node_data['name'],
-                            content=node_data['content'],
-                            x=node_data['x'],
-                            y=node_data['y'],
-                            width=300,
-                            height=200,
-                            scene=self.scene,
-                            is_class=node_data['is_class']
+                            content=node_data.get('content', ''),
+                            original_name=node_data.get('original_name', node_data['name'])
                         )
+                        node.setPos(node_data['x'], node_data['y'])
+                        node.is_class = node_data.get('is_class', False)
                         self.scene.addItem(node)
                         nodes[node_data['name']] = node
                     
@@ -1149,21 +1157,16 @@ class ExecutionGraphWindow(QMainWindow, CustomWindowMixin):
             # Get original name and properties for unique calls
             if func_name in visitor.unique_calls:
                 original_name = visitor.unique_calls[func_name]['original_name']
-                node = ExecutionDraggableRect(
-                    original_name,
-                    f"def {original_name}",
-                    x, y, 300, 200,
-                    self.scene,
-                    False
+                node = ExecutionNode(
+                    name=original_name,
+                    original_name=func_name
                 )
+                node.setPos(x, y)
             else:
-                node = ExecutionDraggableRect(
-                    func_name,
-                    f"def {func_name}",
-                    x, y, 300, 200,
-                    self.scene,
-                    False
+                node = ExecutionNode(
+                    name=func_name
                 )
+                node.setPos(x, y)
             
             nodes[func_name] = node
             self.scene.addItem(node)

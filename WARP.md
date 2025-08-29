@@ -258,6 +258,20 @@ The Build Graph is the most sophisticated feature:
 - **Files Fixed**: `vpy_editor.py` (SyntaxHighlighter.setup_formats, CodeEditor.load_saved_colors, PythonIDE.apply_color_changes_to_editors), `vpy_menus.py` (PreferencesDialog.populate_fields_from_config)
 - **Result**: Color preferences now save, load, and apply correctly across all editor tabs immediately
 
+### CommentBox Scene Reference Error ✅ FIXED (Aug 29, 2025)
+- **Problem**: AttributeError "'builtin_function_or_method' object has no attribute 'views'" in CommentBox.paint method
+- **Root Cause**: Code was calling `self.scene.views()` treating scene as a property when it should be called as a method `self.scene()`
+- **Solution**: Fixed method calls to use `self.scene()` and `self.scene().views()` to properly access the QGraphicsScene object
+- **Files Fixed**: `vpy_graph.py` (CommentBox.paint method, lines 72-73)
+- **Result**: Comment boxes now render properly without AttributeError crashes
+
+### BuildGraph Missing addCommentBoxToScene Method ✅ FIXED (Aug 29, 2025)
+- **Problem**: BuildGraphWindow menu action "Add Comment Box" caused AttributeError because the method didn't exist
+- **Root Cause**: BuildGraphWindow was calling `addCommentBoxToScene` method but unlike BlueprintGraphWindow and ExecutionGraphWindow, it didn't implement this method
+- **Solution**: Added `addCommentBoxToScene` method to BuildGraphWindow class consistent with other graph windows
+- **Files Fixed**: `vpy_blueprints.py` (BuildGraphWindow class)
+- **Result**: Add Comment Box menu action now works correctly in Build Graph workspace
+
 ## Ongoing Refactoring (August 2025)
 
 ### Code Architecture Improvements

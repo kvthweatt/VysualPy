@@ -418,11 +418,12 @@ class BaseNode(QGraphicsRectItem, metaclass=QGraphicsABCMeta):
                                   self.border_width, self.border_width)
         
     def paint(self, painter: QPainter, option, widget=None):
-        """Basic paint implementation - can be enhanced by mixins."""
+        """Basic paint implementation - will be enhanced by RenderMixin."""
         # Check if a mixin has overridden the paint method
-        if hasattr(super(), 'paint') and hasattr(self, 'get_node_color'):
-            # Call the mixin's enhanced paint method
-            super().paint(painter, option, widget)
+        mixin_classes = [cls for cls in type(self).__mro__ if 'RenderMixin' in cls.__name__]
+        if mixin_classes:
+            # Call the mixin's enhanced paint method directly
+            mixin_classes[0].paint(self, painter, option, widget)
         else:
             # Fallback to basic rendering
             from PyQt5.QtGui import QPen, QBrush, QColor
