@@ -11,12 +11,14 @@ Features:
 """
 
 import sys
+import threading
+import uuid
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, 
     QMenu, QAction, QInputDialog, QMessageBox, QTextEdit, 
     QDialog, QFormLayout, QLineEdit, QPushButton, QHBoxLayout
 )
-from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtCore import Qt, QPointF, QTimer, QObject, pyqtSignal
 from PyQt5.QtGui import QBrush, QColor, QFont
 
 # Import the new node classes and blueprint system
@@ -24,6 +26,14 @@ from vpy_node_types import BlueprintNode, ExecutionNode, BuildableNode
 from vpy_blueprints import BlueprintScene, BlueprintView
 from PyQt5.QtWidgets import QGraphicsLineItem, QGraphicsPathItem
 from PyQt5.QtGui import QPen, QPainterPath
+
+# Import RPC server components
+try:
+    from vpy_rpc_server import VysualPyRPCServer, VysualPyAPIServer
+    RPC_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: RPC server not available: {e}")
+    RPC_AVAILABLE = False
 
 class NodeCreationDialog(QDialog):
     """Dialog for creating new nodes with custom properties."""
@@ -689,7 +699,7 @@ class EnhancedBlueprintScene(BlueprintScene):
             # If this is a BuildableNode and we have a connected global editor, add it
             if (node_type == "Buildable" and hasattr(self, 'global_editor') and 
                 self.global_editor is not None):
-                self.global_editor.add_node(node)
+                self.global_editor.add_tracked_node(node)
                 print(f"Added new BuildableNode '{data['name']}' to global editor")
             
             print(f"Created {node_type} node '{data['name']}' at {position}")
@@ -1394,9 +1404,179 @@ class EnhancedBlueprintScene(BlueprintScene):
                                    item.node_type.value == 'buildable']
         
         for node in existing_buildable_nodes:
-            self.global_editor.add_node(node)
+            self.global_editor.add_tracked_node(node)
             
         print(f"Connected scene to global editor - tracking {len(existing_buildable_nodes)} existing BuildableNodes")
+
+class RPCSignalHandler(QObject):
+    """Thread-safe signal handler for RPC operations."""
+    
+    # Signals for thread-safe communication between RPC server and Qt GUI
+    node_create_requested = pyqtSignal(str, dict)  # node_id, node_info
+    node_update_requested = pyqtSignal(str, dict)  # node_id, updates
+    node_remove_requested = pyqtSignal(str)        # node_id
+    
+    def __init__(self, debug_scene):
+        super().__init__()
+        self.debug_scene = debug_scene
+        self.node_id_mapping = {}  # Maps API node IDs to actual Qt nodes
+        
+        # Connect signals to slot handlers
+        self.node_create_requested.connect(self.handle_node_create)
+        self.node_update_requested.connect(self.handle_node_update)
+        self.node_remove_requested.connect(self.handle_node_remove)
+        
+    def handle_node_create(self, node_id: str, node_info: dict):
+        """Handle node creation in the main thread."""
+        try:
+            # Determine node type (default to Buildable for RPC nodes)
+            node_type = "Buildable"
+            
+            # Create the visual node
+            if node_type == "Buildable":
+                visual_node = BuildableNode(
+                    name=node_info['name'],
+                    content=node_info['content']
+                )
+                
+                # Set position
+                visual_node.setPos(node_info['x'], node_info['y'])
+                
+                # Add to scene
+                self.debug_scene.addItem(visual_node)
+                
+                # Track the mapping
+                self.node_id_mapping[node_id] = visual_node
+                
+                print(f"✅ Created visual node '{node_info['name']}' from RPC API")
+                
+                # If there's a global editor connected, add the node
+                if hasattr(self.debug_scene, 'global_editor') and self.debug_scene.global_editor:
+                    self.debug_scene.global_editor.add_tracked_node(visual_node)
+                    
+        except Exception as e:
+            print(f"Error creating visual node: {e}")
+            import traceback
+            traceback.print_exc()
+            
+    def handle_node_update(self, node_id: str, updates: dict):
+        """Handle node updates in the main thread."""
+        if node_id in self.node_id_mapping:
+            try:
+                visual_node = self.node_id_mapping[node_id]
+                
+                # Update properties
+                if 'name' in updates:
+                    visual_node.name = updates['name']
+                if 'content' in updates and hasattr(visual_node, 'content'):
+                    visual_node.content = updates['content']
+                    if hasattr(visual_node, 'process_content_change'):
+                        visual_node.process_content_change("", updates['content'])
+                if 'x' in updates or 'y' in updates:
+                    current_pos = visual_node.pos()
+                    new_x = updates.get('x', current_pos.x())
+                    new_y = updates.get('y', current_pos.y())
+                    visual_node.setPos(new_x, new_y)
+                    
+                # Update the scene
+                visual_node.update()
+                print(f"✅ Updated visual node from RPC API")
+                
+            except Exception as e:
+                print(f"Error updating visual node: {e}")
+                
+    def handle_node_remove(self, node_id: str):
+        """Handle node removal in the main thread."""
+        if node_id in self.node_id_mapping:
+            try:
+                visual_node = self.node_id_mapping[node_id]
+                self.debug_scene.removeItem(visual_node)
+                del self.node_id_mapping[node_id]
+                print(f"✅ Removed visual node from RPC API")
+            except Exception as e:
+                print(f"Error removing visual node: {e}")
+
+class DebugAPIServer(VysualPyAPIServer if RPC_AVAILABLE else object):
+    """Custom API Server that integrates with the debug scene using thread-safe signals."""
+    
+    def __init__(self, debug_scene=None):
+        if RPC_AVAILABLE:
+            super().__init__()
+        self.debug_scene = debug_scene
+        self.signal_handler = None
+        
+        # Create the signal handler if we have a scene
+        if debug_scene:
+            self.signal_handler = RPCSignalHandler(debug_scene)
+            # Share the node mapping between this API server and the signal handler
+            self.node_id_mapping = self.signal_handler.node_id_mapping
+        
+    def set_debug_scene(self, scene):
+        """Set the debug scene for visual node operations."""
+        self.debug_scene = scene
+        if scene and not self.signal_handler:
+            self.signal_handler = RPCSignalHandler(scene)
+            # Share the node mapping
+            self.node_id_mapping = self.signal_handler.node_id_mapping
+        elif not hasattr(self, 'node_id_mapping'):
+            self.node_id_mapping = {}
+        
+    def add_node(self, graph_id: str, node_data: dict) -> dict:
+        """Override add_node to create visual nodes in the debug scene via signals."""
+        if not RPC_AVAILABLE:
+            raise RuntimeError("RPC server not available")
+            
+        # Call the original method to maintain data structure
+        result = super().add_node(graph_id, node_data)
+        
+        if result.get('success') and self.signal_handler:
+            # Emit signal to create visual node on main thread
+            try:
+                node_id = result['node_id']
+                node_info = result['node']
+                
+                # Emit the signal to create node on main thread
+                self.signal_handler.node_create_requested.emit(node_id, node_info)
+                
+            except Exception as e:
+                print(f"Error emitting node creation signal: {e}")
+                import traceback
+                traceback.print_exc()
+                
+        return result
+        
+    def update_node(self, graph_id: str, node_id: str, updates: dict) -> dict:
+        """Override update_node to update visual nodes via signals."""
+        if not RPC_AVAILABLE:
+            raise RuntimeError("RPC server not available")
+            
+        # Call the original method
+        result = super().update_node(graph_id, node_id, updates)
+        
+        if result.get('success') and self.signal_handler:
+            # Emit signal to update visual node on main thread
+            try:
+                self.signal_handler.node_update_requested.emit(node_id, updates)
+                
+            except Exception as e:
+                print(f"Error emitting node update signal: {e}")
+                
+        return result
+        
+    def remove_node(self, graph_id: str, node_id: str) -> dict:
+        """Override remove_node to remove visual nodes via signals."""
+        if not RPC_AVAILABLE:
+            raise RuntimeError("RPC server not available")
+            
+        # Emit signal to remove visual node on main thread first
+        if self.signal_handler:
+            try:
+                self.signal_handler.node_remove_requested.emit(node_id)
+            except Exception as e:
+                print(f"Error emitting node removal signal: {e}")
+                
+        # Call the original method
+        return super().remove_node(graph_id, node_id)
 
 class NodeSystemDebugWindow(QMainWindow):
     """Comprehensive debug window for the node system."""
@@ -1448,6 +1628,11 @@ class NodeSystemDebugWindow(QMainWindow):
         # Status tracking
         self.node_count = 0
         self.update_window_title()
+        
+        # Initialize RPC server integration
+        self.rpc_server = None
+        self.api_server = None
+        self.start_rpc_server()
         
         # Open external text editor window for demo
         self.open_demo_text_editor()
@@ -1574,6 +1759,51 @@ class NodeSystemDebugWindow(QMainWindow):
             print(f"Error opening global text editor: {e}")
             import traceback
             traceback.print_exc()
+            
+    def start_rpc_server(self):
+        """Start the RPC server integration."""
+        if not RPC_AVAILABLE:
+            print("⚠️  RPC server components not available - skipping server startup")
+            return
+            
+        try:
+            # Create custom API server that integrates with the scene
+            self.api_server = DebugAPIServer(debug_scene=self.scene)
+            
+            # Create the RPC server wrapper
+            self.rpc_server = VysualPyRPCServer(host='localhost', port=8080)
+            
+            # Replace the API server with our custom one
+            self.rpc_server.api_server = self.api_server
+            
+            # Start the server
+            success = self.rpc_server.start()
+            
+            if success:
+                print("\n🌐 RPC SERVER INTEGRATION ACTIVE")
+                print("=" * 50)
+                print("RPC API Server running on http://localhost:8080")
+                print("  • API calls will create visual nodes in the graph")
+                print("  • Run test_rpc_api.py to exercise the endpoints")
+                print("  • Nodes created via API will appear automatically")
+                print("  • All API operations sync with the visual scene")
+                print("=" * 50)
+            else:
+                print("Failed to start RPC server")
+                
+        except Exception as e:
+            print(f"Error starting RPC server: {e}")
+            import traceback
+            traceback.print_exc()
+            
+    def closeEvent(self, event):
+        """Handle window closing - clean up RPC server."""
+        if self.rpc_server and self.rpc_server.is_running():
+            print("\nShutting down RPC server...")
+            self.rpc_server.stop()
+            
+        # Accept the close event
+        event.accept()
 
 def main():
     app = QApplication(sys.argv)
